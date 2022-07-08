@@ -41,3 +41,101 @@ type BoletoPayment struct {
 }
 
 var resource = map[string]any{"class": BoletoPayment{}, "name": "BoletoPayment"}
+
+func Create() {
+	//	Create BoletoPayments
+	//	Send a list of BoletoPayment objects for creation in the Stark Bank API
+	//
+	//	Parameters (required):
+	//	- payments [list of BoletoPayment objects]: list of BoletoPayment objects to be created in the API
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object, default None]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- list of BoletoPayment objects with updated attributes
+
+}
+
+func Get() {
+	//	Retrieve a specific BoletoPayment
+	//	Receive a single BoletoPayment object previously created by the Stark Bank API by its id
+	//
+	//	Parameters (required):
+	//	- id [string]: object unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object, default None]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- BoletoPayment object with updated attributes
+
+}
+
+func Pdf() {
+	//	Retrieve a specific BoletoPayment pdf file
+	//	Receive a single BoletoPayment pdf file generated in the Stark Bank API by its id.
+	//	Only valid for boleto payments with "success" status.
+	//
+	//	Parameters (required):
+	//	- id [string]: object unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object, default None]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- BoletoPayment pdf file
+}
+
+func Query() {
+	//	Retrieve BoletoPayments
+	//	Receive a generator of BoletoPayment objects previously created in the Stark Bank API
+	//
+	//	Parameters (optional):
+	//	- limit [integer, default None]: maximum number of objects to be retrieved. Unlimited if None. ex: 35
+	//	- after [datetime.date or string, default None] date filter for objects created only after specified date. ex: datetime.date(2020, 3, 10)
+	//	- before [datetime.date or string, default None] date filter for objects created only before specified date. ex: datetime.date(2020, 3, 10)
+	//	- tags [list of strings, default None]: tags to filter retrieved objects. ex: ["tony", "stark"]
+	//	- ids [list of strings, default None]: list of ids to filter retrieved objects. ex: ["5656565656565656", "4545454545454545"]
+	//	- status [string, default None]: filter for status of retrieved objects. ex: "success"
+	//	- user [Organization/Project object, default None]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- generator of BoletoPayment objects with updated attributes
+
+}
+
+func Page() {
+	//	Retrieve paged BoletoPayments
+	//	Receive a list of up to 100 BoletoPayment objects previously created in the Stark Bank API and the cursor to the next page.
+	//	Use this function instead of query if you want to manually page your requests.
+	//
+	//	Parameters (optional):
+	//	- cursor [string, default None]: cursor returned on the previous page function call
+	//	- limit [integer, default 100]: maximum number of objects to be retrieved. It must be an integer between 1 and 100. ex: 50
+	//	- after [datetime.date or string, default None] date filter for objects created only after specified date. ex: datetime.date(2020, 3, 10)
+	//	- before [datetime.date or string, default None] date filter for objects created only before specified date. ex: datetime.date(2020, 3, 10)
+	//	- tags [list of strings, default None]: tags to filter retrieved objects. ex: ["tony", "stark"]
+	//	- ids [list of strings, default None]: list of ids to filter retrieved objects. ex: ["5656565656565656", "4545454545454545"]
+	//	- status [string, default None]: filter for status of retrieved objects. ex: "success"
+	//	- user [Organization/Project object, default None]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- list of BoletoPayment objects with updated attributes
+	//	- cursor to retrieve the next page of BoletoPayment objects
+
+}
+
+func Delete() {
+	//	Delete a BoletoPayment entity
+	//	Delete a BoletoPayment entity previously created in the Stark Bank API
+	//
+	//	Parameters (required):
+	//	- id [string]: BoletoPayment unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object, default None]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- deleted BoletoPayment object
+}
