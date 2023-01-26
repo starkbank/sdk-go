@@ -1,0 +1,147 @@
+package dynamicbrcode
+
+import (
+	"encoding/json"
+	"github.com/starkbank/sdk-go/starkbank/utils"
+	Error "github.com/starkinfra/core-go/starkcore/error"
+	"github.com/starkinfra/core-go/starkcore/user/user"
+	"time"
+)
+
+//	DynamicBrcode struct
+//
+//	When you initialize an DynamicBrcode, the entity will not be automatically
+//	sent to the Stark Bank API. The 'create' function sends the structs
+//	to the Stark Bank API and returns the slice of created structs.
+//
+//	DynamicBrcodes are conciliated BR Codes that can be used to receive Pix transactions in a convenient way.
+//	When a DynamicBrcode is paid, a Deposit is created with the tags parameter containing the character “dynamic-brcode/” followed by the DynamicBrcode’s uuid "dynamic-brcode/{uuid}" for conciliation.
+//	Additionally, all tags passed on the DynamicBrcode will be transferred to the respective Deposit resource.
+//
+//	Parameters (required):
+//	- amount [int]: DynamicBrcode value in cents. Minimum = 0 (any value will be accepted). ex: 1234 (= R$ 12.34
+//
+//	Parameters (optional):
+//	- Expiration [int, default 3600 (1 hour)]: time interval in seconds between due date and expiration date. ex: 123456789
+//	- Tags [slice of strings, default []]: list of strings for tagging, these will be passed to the respective Deposit resource when paid
+//
+//	Attributes (return-only):
+//	- Id [string]: id returned on creation, this is the BR code. ex: "00020126360014br.gov.bcb.pix0114+552840092118152040000530398654040.095802BR5915Jamie Lannister6009Sao Paulo620705038566304FC6C"
+//	- Uuid [string]: unique uuid returned when the DynamicBrcode is created. ex: "4e2eab725ddd495f9c98ffd97440702d"
+// 	- PictureUrl: public Dynamic Brcode picture url. ex: "https://development.api.starkbank.com/v2/dynamic-brcode/d3ebb1bd92024df1ab6e5a353ee799a4.png",
+//	- Created [time.Time]: creation datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+//	- Updated [time.Time]: latest update datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+
+type DynamicBrcode struct {
+	Id         string     `json:",omitempty"`
+	Amount     int        `json:",omitempty"`
+	Expiration int        `json:",omitempty"`
+	Tags       []string   `json:",omitempty"`
+	Uuid       string     `json:",omitempty"`
+	PictureUrl string     `json:",omitempty"`
+	Created    *time.Time `json:",omitempty"`
+	Updated    *time.Time `json:",omitempty"`
+}
+
+var object DynamicBrcode
+var objects []DynamicBrcode
+var resource = map[string]string{"name": "DynamicBrcode"}
+
+func Create(brcodes []DynamicBrcode, user user.User) ([]DynamicBrcode, Error.StarkErrors) {
+	//	Create DynamicBrcodes
+	//
+	//	Send a slice of DynamicBrcode structs for creation in the Stark Bank API
+	//
+	//	Parameters (required):
+	//	- brcodes [slice of DynamicBrcode structs]: slice of DynamicBrcode structs to be created in the API
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- slice of DynamicBrcode structs with updated attributes
+	create, err := utils.Multi(resource, brcodes, nil, user)
+	unmarshalError := json.Unmarshal(create, &brcodes)
+	if unmarshalError != nil {
+		return brcodes, err
+	}
+	return brcodes, err
+}
+
+func Get(uuid string, user user.User) (DynamicBrcode, Error.StarkErrors) {
+	//	Retrieve a specific DynamicBrcode by its uuid
+	//
+	//	Receive a single DynamicBrcode struct previously created in the Stark Bank API by its uuid
+	//
+	//	Parameters (required):
+	//	- uuid [string]: Struct unique uuid. ex: "901e71f2447c43c886f58366a5432c4b"
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Return:
+	//	- DynamicBrcode struct that corresponds to the given uuid.
+	get, err := utils.Get(resource, uuid, nil, user)
+	unmarshalError := json.Unmarshal(get, &object)
+	if unmarshalError != nil {
+		return object, err
+	}
+	return object, err
+}
+
+func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
+	//	Retrieve DynamicBrcode structs
+	//
+	//	Receive a generator of DynamicBrcode structs previously created in the Stark Bank API
+	//
+	//	Parameters (required):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//	- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: ["tony", "stark"]
+	//	- uuids [slice of strings, default nil]: list of uuids to filter retrieved objects. ex: ["901e71f2447c43c886f58366a5432c4b", "4e2eab725ddd495f9c98ffd97440702d"]
+	//
+	//	Return:
+	//	- Generator of DynamicBrcode structs with updated attributes
+	brcodes := make(chan DynamicBrcode)
+	query := utils.Query(resource, params, user)
+	go func() {
+		for content := range query {
+			contentByte, _ := json.Marshal(content)
+			err := json.Unmarshal(contentByte, &object)
+			if err != nil {
+				panic(err)
+			}
+			brcodes <- object
+		}
+		close(brcodes)
+	}()
+	return brcodes
+}
+
+func Page(params map[string]interface{}, user user.User) ([]DynamicBrcode, string, Error.StarkErrors) {
+	//	Retrieve paged DynamicBrcode structs
+	//
+	//	Receive a list of up to 100 DynamicBrcode structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Use this function instead of query if you want to manually page your requests.
+	//
+	//	Parameters (required):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- cursor [string, default nil]: Cursor returned on the previous page function call
+	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//	- uuids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//
+	//	Return:
+	//	- List of DynamicBrcode structs with updated attributes
+	//	- Cursor to retrieve the next page of DynamicBrcode structs
+	page, cursor, err := utils.Page(resource, params, user)
+	unmarshalError := json.Unmarshal(page, &objects)
+	if unmarshalError != nil {
+		return objects, cursor, err
+	}
+	return objects, cursor, err
+}
