@@ -54,7 +54,7 @@ is as easy as sending a text message to your client!
 
 This library supports the following Golang versions:
 
-* Golang 1.17
+* Golang 1.17 or later
 
 ## Stark Bank API documentation
 
@@ -93,15 +93,15 @@ You can use one of following methods:
 package main
 
 import (
-	"github.com/starkinfra/core-go/starkcore/key"
+  "github.com/starkinfra/core-go/starkcore/key"
 )
 
 func main() {
 
-	privateKey, publicKey := key.Create("")
+  privateKey, publicKey := key.Create("")
 
-	// or, to also save .pem files in a specific path
-	privateKey, publicKey := key.Create("files/keys/")
+  // or, to also save .pem files in a specific path
+  privateKey, publicKey := key.Create("files/keys/")
 }
 
 ```
@@ -140,9 +140,8 @@ You can interact directly with our API using two types of users: Projects and Or
 package main
 
 import (
-	Project "github.com/starkinfra/core-go/starkcore/user/project"
-	"github.com/starkinfra/core-go/starkcore/user/user"
-	"github.com/starkinfra/core-go/starkcore/utils/checks"
+  "github.com/starkinfra/core-go/starkcore/user/project"
+  "github.com/starkinfra/core-go/starkcore/utils/checks"
 )
 
 // Get your private key from an environment variable or an encrypted database.
@@ -150,10 +149,10 @@ import (
 
 var privateKeyContent = "-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEILChZrjrrtFnyCLhcxm/hp+9ljWSmG7Wv9HRugf+FnhkoAcGBSuBBAAK\noUQDQgAEpIAM/tMqXEfLeR93rRHiFcpDB9I18MrnCJyTVk0MdD1J9wgEbRfvAZEL\nYcEGhTFYp2X3B7K7c4gDDCr0Pu1L3A==\n-----END EC PRIVATE KEY-----\n"
 
-var project = Project.Project{
-	Id:          user.User{Id: "5656565656565656"},
-	PrivateKey:  user.User{Pem: checks.CheckPrivateKey(privateKeyContent)},
-	Environment: user.User{Environment: checks.CheckEnvironment("sandbox")},
+var project = project.Project{
+  Id:          "5656565656565656",
+  PrivateKey:  checks.CheckPrivateKey(privateKeyContent),
+  Environment: checks.CheckEnvironment("sandbox"),
 }
 
 ```
@@ -177,11 +176,10 @@ public key)
 package main
 
 import (
-	"fmt"
-	Balance "github.com/starkbank/sdk-go/starkbank/balance"
-	Organization "github.com/starkinfra/core-go/starkcore/user/organization"
-	"github.com/starkinfra/core-go/starkcore/user/user"
-	"github.com/starkinfra/core-go/starkcore/utils/checks"
+  "fmt"
+  Balance "github.com/starkbank/sdk-go/starkbank/balance"
+  "github.com/starkinfra/core-go/starkcore/user/organization"
+  "github.com/starkinfra/core-go/starkcore/utils/checks"
 )
 
 // Get your private key from an environment variable or an encrypted database.
@@ -189,18 +187,19 @@ import (
 
 var privateKeyContent = "-----BEGIN EC PRIVATE KEY-----\nMHQCAQEEILChZrjrrtFnyCLhcxm/hp+9ljWSmG7Wv9HRugf+FnhkoAcGBSuBBAAK\noUQDQgAEpIAM/tMqXEfLeR93rRHiFcpDB9I18MrnCJyTVk0MdD1J9wgEbRfvAZEL\nYcEGhTFYp2X3B7K7c4gDDCr0Pu1L3A==\n-----END EC PRIVATE KEY-----\n"
 
-var organization = Organization.Organization{
-	Id:          user.Users{Id: "5656565656565656"},
-	PrivateKey:  user.Users{Pem: checks.CheckPrivateKey(privateKeyContent)},
-	Environment: user.Users{Environment: checks.CheckEnvironment("sandbox")},
+var organization = organization.Organization{
+  Id:          "5656565656565656",
+  PrivateKey:  checks.CheckPrivateKey(privateKeyContent),
+  Environment: checks.CheckEnvironment("sandbox"),
 }
 
 // To dynamically use your organization credentials in a specific workspaceId,
-// you can use the Organization.replace() function:
+// you can use the organization.Replace() function:
 
 func main() {
-	balance := Balance.Get(organization.Replace("4848484848484848"))
-	fmt.Println(balance)
+	
+  balance := Balance.Get(organization.Replace("4848484848484848"))
+  fmt.Println(balance)
 }
 
 ```
@@ -226,14 +225,15 @@ There are two ways to inform the user to the SDK:
 package main
 
 import (
-	"fmt"
-	Balance "github.com/starkbank/sdk-go/starkbank/balance"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  Balance "github.com/starkbank/sdk-go/starkbank/balance"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
-	balance := Balance.Get(utils.ExampleProject) // or organization
-	fmt.Println(balance)
+
+  balance := Balance.Get(utils.ExampleProject) // or organization
+  fmt.Println(balance)
 }
 
 ```
@@ -244,18 +244,18 @@ func main() {
 package main
 
 import (
-	"fmt"
-	"github.com/starkbank/sdk-go/starkbank"
-	Balance "github.com/starkbank/sdk-go/starkbank/balance"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Balance "github.com/starkbank/sdk-go/starkbank/balance"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	starkbank.User = Utils.ExampleProject
+  starkbank.User = utils.ExampleProject
 
-	balance := Balance.Get(nil) // or organization
-	fmt.Println(balance)
+  balance := Balance.Get(nil) // or organization
+  fmt.Println(balance)
 }
 
 ```
@@ -294,21 +294,23 @@ Almost all SDK resources provide a `query` and a `page` function.
 package main
 
 import (
-	"fmt"
-	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 200
+  starkbank.User = utils.ExampleProject
 
-	transactions := Transaction.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 200
 
-	for transaction := range transactions {
-		fmt.Println(transaction)
-	}
+  transactions := Transaction.Query(params, nil)
+  for transaction := range transactions {
+    fmt.Println(transaction)
+  }
 }
 
 ```
@@ -322,30 +324,35 @@ func main() {
 package main
 
 import (
-	"fmt"
-	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 50
+  starkbank.User = utils.ExampleProject
 
-	for true {
-		transactions, cursor, err := Transaction.Page(params, nil)
-		if err.Errors != nil {
-			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-			}
-		}
-		for _, transaction := range transactions {
-			fmt.Println(transaction)
-		}
-		if cursor == "" {
-			break
-		}
-	}
+  var params = map[string]interface{}{}
+  params["limit"] = 50
+
+  for true {
+    transactions, cursor, err := Transaction.Page(params, nil)
+    if err.Errors != nil {
+      for _, e := range err.Errors {
+        panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+      }
+    }
+	
+    for _, transaction := range transactions {
+      fmt.Println(transaction)
+    }
+	
+    if cursor == "" {
+      break
+    }
+  }
 }
 
 ```
@@ -377,31 +384,34 @@ To send money between Stark Bank accounts, you can create transactions:
 package main
 
 import (
-	"fmt"
-	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []Transaction.Transaction{
-		{
-			Amount:      10000,
-			ReceiverId:  "5768064935133184",
-			Description: "Paying my debts",
-			ExternalId:  "my_external_id",
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	transactions, err := Transaction.Create(example, utils.Project)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, transaction := range transactions {
-		fmt.Println(transaction)
-	}
+  transactions, err := Transaction.Create(
+    []Transaction.Transaction{
+      {
+        Amount:      10000,
+        ReceiverId:  "5768064935133184",
+        Description: "Paying my debts",
+        ExternalId:  "my_external_id",
+      },
+    }, utils.Project)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, transaction := range transactions {
+    fmt.Println(transaction)
+  }
 }
 
 ```
@@ -418,21 +428,23 @@ you receive boleto payments, pay a bill or make transfers, for example.
 package main
 
 import (
-	"fmt"
-	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 200
+  starkbank.User = utils.ExampleProject
 
-	transactions := Transaction.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 200
 
-	for transaction := range transactions {
-		fmt.Println(transaction)
-	}
+  transactions := Transaction.Query(params, nil)
+  for transaction := range transactions {
+    fmt.Println(transaction)
+  }
 }
 
 ```
@@ -445,20 +457,24 @@ You can get a specific transaction by its id:
 package main
 
 import (
-	"fmt"
-	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	transaction, err := Transaction.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(transaction)
+  starkbank.User = utils.ExampleProject
+
+  transaction, err := Transaction.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(transaction)
 }
 
 ```
@@ -471,16 +487,18 @@ To know how much money you have in your workspace, run:
 package main
 
 import (
-	"fmt"
-	Balance "github.com/starkbank/sdk-go/starkbank/balance"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Balance "github.com/starkbank/sdk-go/starkbank/balance"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	balance := Balance.Get(nil)
+  starkbank.User = utils.ExampleProject
 
-	fmt.Println(balance)
+  balance := Balance.Get(nil)
+  fmt.Println(balance)
 }
 
 ```
@@ -493,43 +511,46 @@ You can also create transfers in the SDK (TED/Pix).
 package main
 
 import (
-	"fmt"
-	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []Transfer.Transfer{
-		{
-			Amount:        100,
-			Name:          "Tony Stark",
-			TaxId:         "012.345.678-90",
-			BankCode:      "033", // TED
-			BranchCode:    "0001",
-			AccountNumber: "10000-0",
-		},
-		{
-			Amount:        200,
-			Name:          "Jon Snow",
-			TaxId:         "012.345.678-90",
-			BankCode:      "20018183", //Pix
-			BranchCode:    "1234",
-			AccountNumber: "123456-7",
-			AccountType:   "salary",
-			ExternalId:    "my-internal-id-12345",
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	transfers, err := Transfer.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, transfer := range transfers {
-		fmt.Println(transfer)
-	}
+  transfers, err := Transfer.Create(
+    []Transfer.Transfer{
+      {
+        Amount:        100,
+        Name:          "Tony Stark",
+        TaxId:         "012.345.678-90",
+        BankCode:      "033", // TED
+        BranchCode:    "0001",
+        AccountNumber: "10000-0",
+      },
+      {
+        Amount:        200,
+        Name:          "Jon Snow",
+        TaxId:         "012.345.678-90",
+        BankCode:      "20018183", //Pix
+        BranchCode:    "1234",
+        AccountNumber: "123456-7",
+        AccountType:   "salary",
+        ExternalId:    "my-internal-id-12345",
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, transfer := range transfers {
+    fmt.Println(transfer)
+  }
 }
 
 ```
@@ -544,22 +565,24 @@ You can query multiple transfers according to filters.
 package main
 
 import (
-	"fmt"
-	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["after"] = "2020-01-01"
-	params["before"] = "2020-04-01"
+  starkbank.User = utils.ExampleProject
 
-	transfers := Transfer.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["after"] = "2020-01-01"
+  params["before"] = "2020-04-01"
 
-	for transfer := range transfers {
-		fmt.Println(transfer.Name)
-	}
+  transfers := Transfer.Query(params, nil)
+  for transfer := range transfers {
+    fmt.Println(transfer.Name)
+  }
 }
 
 ```
@@ -572,20 +595,24 @@ To cancel a single scheduled transfer by its id, run:
 package main
 
 import (
-	"fmt"
-	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	transfer, err := Transfer.Delete("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(transfer)
+  starkbank.User = utils.ExampleProject
+
+  transfer, err := Transfer.Delete("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(transfer)
 }
 
 ```
@@ -598,20 +625,24 @@ To get a single transfer by its id, run:
 package main
 
 import (
-	"fmt"
-	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	transfer, err := Transfer.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(transfer)
+  starkbank.User = utils.ExampleProject
+
+  transfer, err := Transfer.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(transfer)
 }
 
 ```
@@ -625,26 +656,29 @@ This operation is only valid if the transfer status is "processing" or "success"
 package main
 
 import (
-	"fmt"
-	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := Transfer.Pdf("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	filename := fmt.Sprintf("%v%v.pdf", "transfer", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := Transfer.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "transfer", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -661,21 +695,23 @@ You can query transfer logs to better understand transfer life cycles.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/transfer/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/transfer/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 50
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 50
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -688,20 +724,24 @@ You can also get a specific log by its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/transfer/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/transfer/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -714,20 +754,24 @@ You can get the Pix key's parameters by its id.
 package main
 
 import (
-	"fmt"
-	DictKey "github.com/starkbank/sdk-go/starkbank/dictkey"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  DictKey "github.com/starkbank/sdk-go/starkbank/dictkey"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	key, err := DictKey.Get("tony@starkbank.com", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(key)
+  starkbank.User = utils.ExampleProject
+
+  key, err := DictKey.Get("tony@starkbank.com", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(key)
 }
 
 ```
@@ -740,21 +784,23 @@ To take a look at the Pix keys linked to your workspace, just run the following:
 package main
 
 import (
-	"fmt"
-	DictKey "github.com/starkbank/sdk-go/starkbank/dictkey"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  DictKey "github.com/starkbank/sdk-go/starkbank/dictkey"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["status"] = "registered"
+  starkbank.User = utils.ExampleProject
 
-	keys := DictKey.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["status"] = "registered"
 
-	for key := range keys {
-		fmt.Println(key)
-	}
+  keys := DictKey.Query(params, nil)
+  for key := range keys {
+    fmt.Println(key)
+  }
 }
 
 ```
@@ -767,21 +813,23 @@ You can query institutions registered by the Brazilian Central Bank for Pix and 
 package main
 
 import (
-	"fmt"
-	Institution "github.com/starkbank/sdk-go/starkbank/institution"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Institution "github.com/starkbank/sdk-go/starkbank/institution"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["search"] = "stark"
+  starkbank.User = utils.ExampleProject
 
-	institutions := Institution.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["search"] = "stark"
 
-	for institution := range institutions {
-		fmt.Println(institution)
-	}
+  institutions := Institution.Query(params, nil)
+  for institution := range institutions {
+    fmt.Println(institution)
+  }
 }
 
 ```
@@ -804,48 +852,50 @@ Also, other banks will most likely only allow payment scheduling on invoices def
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"time"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "time"
 )
 
 func main() {
 
-	due := time.Now().Add(time.Hour * 1)
+  starkbank.User = utils.ExampleProject
 
-	due2 := time.Date(2022, 03, 20, 0, 0, 0, 0, time.UTC)
+  due := time.Now().Add(time.Hour * 1)
+  due2 := time.Date(2022, 03, 20, 0, 0, 0, 0, time.UTC)
 
-	example := []Invoice.Invoice{
-		{
-			Amount:   23571, // R$ 235,71
-			Name:     "Buzz Aldrin",
-			TaxId:    "012.345.678-90",
-			Due:      &due,
-			Fine:     5,   // 5%
-			Interest: 2.5, // 2.5% per month
-			Tags:     []string{"imediate"},
-		},
-		{
-			Amount:   923571, // R$ 235,71
-			Name:     "Buzz Aldrin",
-			TaxId:    "012.345.678-90",
-			Due:      &due2,
-			Fine:     5,   // 5%
-			Interest: 2.5, // 2.5% per month
-			Tags:     []string{"scheduled"},
-		},
-	}
-
-	invoices, err := Invoice.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, invoice := range invoices {
-		fmt.Println(invoice)
-	}
+  invoices, err := Invoice.Create(
+    []Invoice.Invoice{
+      {
+        Amount:   23571, // R$ 235,71
+        Name:     "Buzz Aldrin",
+        TaxId:    "012.345.678-90",
+        Due:      &due,
+        Fine:     5,   // 5%
+        Interest: 2.5, // 2.5% per month
+        Tags:     []string{"imediate"},
+      },
+      {
+        Amount:   923571, // R$ 235,71
+        Name:     "Buzz Aldrin",
+        TaxId:    "012.345.678-90",
+        Due:      &due2,
+        Fine:     5,   // 5%
+        Interest: 2.5, // 2.5% per month
+        Tags:     []string{"scheduled"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, invoice := range invoices {
+    fmt.Println(invoice)
+  }
 }
 
 ```
@@ -861,20 +911,24 @@ Its status indicates whether it's been paid.
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	invoice, err := Invoice.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(invoice)
+  starkbank.User = utils.ExampleProject
+
+  invoice, err := Invoice.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(invoice)
 }
 
 ```
@@ -887,27 +941,29 @@ After its creation, an invoice PDF may be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := Invoice.Pdf("5155165527080960", nil)
+  starkbank.User = utils.ExampleProject
 
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  pdf, err := Invoice.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
 
-	filename := fmt.Sprintf("%v%v.pdf", "invoice", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  filename := fmt.Sprintf("%v%v.pdf", "invoice", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -924,29 +980,32 @@ After its creation, an Invoice QR Code may be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["size"] = 10
+  starkbank.User = utils.ExampleProject
 
-	qrcode, err := Invoice.Qrcode("5155165527080960", params, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  var params = map[string]interface{}{}
+  params["size"] = 10
 
-	filename := fmt.Sprintf("%v%v.png", "invoice", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, qrcode, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  qrcode, err := Invoice.Qrcode("5155165527080960", params, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.png", "invoice", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, qrcode, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -963,23 +1022,27 @@ Note that this is not possible if it has been paid already.
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var patchData = map[string]interface{}{}
-	patchData["status"] = "canceled"
+  starkbank.User = utils.ExampleProject
 
-	invoice, err := Invoice.Update("5155165527080960", patchData, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(invoice)
+  var patchData = map[string]interface{}{}
+  patchData["status"] = "canceled"
+
+  invoice, err := Invoice.Update("5155165527080960", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(invoice)
 }
 
 ```
@@ -995,26 +1058,30 @@ the invoice, pass amount = 0.
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"time"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "time"
 )
 
 func main() {
 
-	var patchData = map[string]interface{}{}
-	patchData["amount"] = 100
-	patchData["expiration"] = 0
-	patchData["due"] = time.Now().Add(time.Hour * 1)
+  starkbank.User = utils.ExampleProject
 
-	invoice, err := Invoice.Update("5155165527080960", patchData, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(invoice)
+  var patchData = map[string]interface{}{}
+  patchData["amount"] = 100
+  patchData["expiration"] = 0
+  patchData["due"] = time.Now().Add(time.Hour * 1)
+
+  invoice, err := Invoice.Update("5155165527080960", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(invoice)
 }
 
 ```
@@ -1027,22 +1094,24 @@ You can get a list of created invoices given some filters.
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["after"] = "2020-01-01"
-	params["before"] = "2020-03-01"
+  starkbank.User = utils.ExampleProject
 
-	invoices := Invoice.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["after"] = "2020-01-01"
+  params["before"] = "2020-03-01"
 
-	for invoice := range invoices {
-		fmt.Println(invoice)
-	}
+  invoices := Invoice.Query(params, nil)
+  for invoice := range invoices {
+    fmt.Println(invoice)
+  }
 }
 
 ```
@@ -1055,21 +1124,23 @@ Logs are pretty important to understand the life cycle of an invoice.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/invoice/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/invoice/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 150
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 150
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -1082,20 +1153,24 @@ You can get a single log by its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/invoice/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/invoice/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -1109,26 +1184,29 @@ To retrieve a specific reversal receipt, you can request the corresponding log P
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/invoice/log"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/invoice/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := Log.Pdf("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
+  
+  pdf, err := Log.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
 
-	filename := fmt.Sprintf("%v%v.pdf", "invoice-log", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  filename := fmt.Sprintf("%v%v.pdf", "invoice-log", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -1145,20 +1223,24 @@ Once an invoice has been paid, you can get the payment information using the Inv
 package main
 
 import (
-	"fmt"
-	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := Invoice.GetPayment("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := Invoice.GetPayment("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -1189,33 +1271,36 @@ check if it has been paid.
 package main
 
 import (
-	"fmt"
-	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
-	Utils "infra-go/tests/utils"
-	"math/rand"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "math/rand"
 )
 
 func main() {
 
-	brcodes, err := dynamicbrcode.Create(
-		[]dynamicbrcode.DynamicBrcode{
-			{
-				Amount:     23571,
-				Expiration: rand.Intn(3600),
-			}, {
-				Amount:     23571, // R$ 235,71
-				Expiration: rand.Intn(3600),
-			},
-		}, nil)
+  starkbank.User = utils.ExampleProject
 
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for brcode := range brcodes {
-		fmt.Println(brcode)
-	}
+  brcodes, err := dynamicbrcode.Create(
+    []dynamicbrcode.DynamicBrcode{
+      {
+        Amount:     23571,
+        Expiration: rand.Intn(3600),
+      }, {
+        Amount:     23571, // R$ 235,71
+        Expiration: rand.Intn(3600),
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for brcode := range brcodes {
+    fmt.Println(brcode)
+  }
 }
 
 ```
@@ -1230,21 +1315,24 @@ After its creation, information on a DynamicBrcode may be retrieved by its uuid.
 package main
 
 import (
-	"fmt"
-	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
-	Utils "infra-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	brcode, err := dynamicbrcode.Get("bb9cd43ea6f4403391bf7ef6aa876600", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	fmt.Println(brcode)
+  brcode, err := dynamicbrcode.Get("bb9cd43ea6f4403391bf7ef6aa876600", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(brcode)
 }
 
 ```
@@ -1257,21 +1345,23 @@ You can get a list of created DynamicBrcodes given some filters.
 package main
 
 import (
-	"fmt"
-	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
-	Utils "infra-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 4
+  starkbank.User = utils.ExampleProject
 
-	brcodes := dynamicbrcode.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 4
 
-	for brcode := range brcodes {
-		fmt.Println(brcode)
-	}
+  brcodes := dynamicbrcode.Query(params, nil)
+  for brcode := range brcodes {
+    fmt.Println(brcode)
+  }
 }
 
 ```
@@ -1284,22 +1374,24 @@ You can get a list of created deposits given some filters.
 package main
 
 import (
-	"fmt"
-	Deposit "github.com/starkbank/sdk-go/starkbank/deposit"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Deposit "github.com/starkbank/sdk-go/starkbank/deposit"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["after"] = "2020-01-01"
-	params["before"] = "2020-03-01"
+  starkbank.User = utils.ExampleProject
 
-	deposits := Deposit.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["after"] = "2020-01-01"
+  params["before"] = "2020-03-01"
 
-	for deposit := range deposits {
-		fmt.Println(deposit)
-	}
+  deposits := Deposit.Query(params, nil)
+  for deposit := range deposits {
+    fmt.Println(deposit)
+  }
 }
 
 ```
@@ -1312,20 +1404,24 @@ After its creation, information on a deposit may be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	Deposit "github.com/starkbank/sdk-go/starkbank/deposit"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Deposit "github.com/starkbank/sdk-go/starkbank/deposit"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	deposit, err := Deposit.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(deposit)
+  starkbank.User = utils.ExampleProject
+
+  deposit, err := Deposit.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(deposit)
 }
 
 ```
@@ -1338,21 +1434,23 @@ Logs are pretty important to understand the life cycle of a deposit.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/deposit/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/deposit/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 150
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 150
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -1365,20 +1463,24 @@ You can get a single log by its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/deposit/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/deposit/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -1392,42 +1494,45 @@ you have in other banks.
 package main
 
 import (
-	"fmt"
-	Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"time"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "time"
 )
 
 func main() {
 
-	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
+  starkbank.User = utils.ExampleProject
 
-	example := []Boleto.Boleto{
-		{
-			Amount:      23571, //R$235,71
-			Name:        "Buzz Aldrin",
-			TaxId:       "012.345.678-90",
-			StreetLine1: "Av. Paulista, 200",
-			StreetLine2: "10 Andar",
-			District:    "Bela Vista",
-			City:        "São Paulo",
-			StateCode:   "SP",
-			ZipCode:     "01420-020",
-			Due:         &due,
-			Fine:        5,   //5%
-			Interest:    2.5, //2.5% per month
-		},
-	}
+  due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 
-	boletos, err := Boleto.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, boleto := range boletos {
-		fmt.Println(boleto)
-	}
+  boletos, err := Boleto.Create(
+    []Boleto.Boleto{
+      {
+        Amount:      23571, //R$235,71
+        Name:        "Buzz Aldrin",
+        TaxId:       "012.345.678-90",
+        StreetLine1: "Av. Paulista, 200",
+        StreetLine2: "10 Andar",
+        District:    "Bela Vista",
+        City:        "São Paulo",
+        StateCode:   "SP",
+        ZipCode:     "01420-020",
+        Due:         &due,
+        Fine:        5,   //5%
+        Interest:    2.5, //2.5% per month
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, boleto := range boletos {
+    fmt.Println(boleto)
+  }
 }
 
 ```
@@ -1443,20 +1548,24 @@ Its status indicates whether it's been paid.
 package main
 
 import (
-	"fmt"
-	Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	boleto, err := Boleto.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(boleto)
+  starkbank.User = utils.ExampleProject
+
+  boleto, err := Boleto.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(boleto)
 }
 
 ```
@@ -1469,29 +1578,32 @@ After its creation, a boleto PDF may be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["layout"] = "booklet"
+  starkbank.User = utils.ExampleProject
 
-	pdf, err := Boleto.Pdf("5155165527080960", params, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  var params = map[string]interface{}{}
+  params["layout"] = "booklet"
 
-	filename := fmt.Sprintf("%v%v.pdf", "boleto", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := Boleto.Pdf("5155165527080960", params, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "boleto", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -1509,20 +1621,24 @@ Note that this is not possible if it has been processed already.
 package main
 
 import (
-	"fmt"
-	Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	boleto, err := Boleto.Delete("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(boleto)
+  starkbank.User = utils.ExampleProject
+
+  boleto, err := Boleto.Delete("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(boleto)
 }
 
 ```
@@ -1535,22 +1651,24 @@ You can get a list of created boletos given some filters.
 package main
 
 import (
-	"fmt"
-	Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["after"] = "2020-01-01"
-	params["before"] = "2020-03-01"
+  starkbank.User = utils.ExampleProject
 
-	boletos := Boleto.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["after"] = "2020-01-01"
+  params["before"] = "2020-03-01"
 
-	for boleto := range boletos {
-		fmt.Println(boleto)
-	}
+  boletos := Boleto.Query(params, nil)
+  for boleto := range boletos {
+    fmt.Println(boleto)
+  }
 }
 
 ```
@@ -1563,21 +1681,23 @@ Logs are pretty important to understand the life cycle of a boleto.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/boleto/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/boleto/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 150
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 150
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -1590,20 +1710,24 @@ You can get a single log by its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/boleto/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/boleto/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(log)
 }
 
 ```
@@ -1620,31 +1744,34 @@ subscription, although polling is also possible.
 package main
 
 import (
-	"fmt"
-	Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []Holmes.BoletoHolmes{
-		{
-			BoletoId: "5656565656565656",
-		},
-		{
-			BoletoId: "4848484848484848",
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	holmes, err := Holmes.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, holmes := range holmes {
-		fmt.Println(holmes)
-	}
+  holmes, err := Holmes.Create(
+    []Holmes.BoletoHolmes{
+      {
+        BoletoId: "5656565656565656",
+      },
+      {
+        BoletoId: "4848484848484848",
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, holmes := range holmes {
+    fmt.Println(holmes)
+  }
 }
 
 ```
@@ -1659,20 +1786,24 @@ To get a single Holmes by its id, run:
 package main
 
 import (
-	"fmt"
-	Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	holmes, err := Holmes.Get("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(holmes)
+  starkbank.User = utils.ExampleProject
+
+  holmes, err := Holmes.Get("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(holmes)
 }
 
 ```
@@ -1685,21 +1816,23 @@ You can search for boleto Holmes using filters.
 package main
 
 import (
-	"fmt"
-	Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["holmesIds"] = []string{"customer_1", "customer_2"}
+  starkbank.User = utils.ExampleProject
 
-	holmes := Holmes.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["holmesIds"] = []string{"customer_1", "customer_2"}
 
-	for holmes := range holmes {
-		fmt.Println(holmes)
-	}
+  holmes := Holmes.Query(params, nil)
+  for holmes := range holmes {
+    fmt.Println(holmes)
+  }
 }
 
 ```
@@ -1712,21 +1845,23 @@ Searches are also possible with boleto holmes logs:
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/boletoholmes/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/boletoholmes/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["holmesIds"] = []string{"5155165527080960", "76551659167801921"}
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["holmesIds"] = []string{"5155165527080960", "76551659167801921"}
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -1739,20 +1874,24 @@ You can also get a boleto holmes log by specifying its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/boletoholmes/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/boletoholmes/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -1765,31 +1904,34 @@ Paying a BR Code is also simple. After extracting the BRCode encoded in the Pix 
 package main
 
 import (
-	"fmt"
-	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []BrcodePayment.BrcodePayment{
-		{
-			Brcode:      "00020101021226930014br.gov.bcb.pix2571brcode-h.sandbox.starkinfra.com/v2/09a7970542fe4399ab2af079982bb1005204000053039865802BR5925Stark Bank S.A. - Institu6009Sao Paulo62070503***63044AC2",
-			TaxId:       "38.446.231/0001-04",
-			Description: "this will be fast",
-			Tags:        []string{"pix", "qrcode"},
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	payments, err := BrcodePayment.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, payment := range payments {
-		fmt.Println(payment)
-	}
+  payments, err := BrcodePayment.Create(
+    []BrcodePayment.BrcodePayment{
+      {
+        Brcode:      "00020101021226930014br.gov.bcb.pix2571brcode-h.sandbox.starkinfra.com/v2/09a7970542fe4399ab2af079982bb1005204000053039865802BR5925Stark Bank S.A. - Institu6009Sao Paulo62070503***63044AC2",
+        TaxId:       "38.446.231/0001-04",
+        Description: "this will be fast",
+        Tags:        []string{"pix", "qrcode"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -1804,20 +1946,24 @@ To get a single BR Code payment by its id, run:
 package main
 
 import (
-	"fmt"
-	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := BrcodePayment.Get("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := BrcodePayment.Get("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -1830,26 +1976,29 @@ After its creation, a BR Code payment PDF may be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := BrcodePayment.Pdf("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	filename := fmt.Sprintf("%v%v.pdf", "brcode-payment", "19278361897236187236")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := BrcodePayment.Pdf("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "brcode-payment", "19278361897236187236")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -1867,23 +2016,27 @@ Note that this is not possible if it has been processed already.
 package main
 
 import (
-	"fmt"
-	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var patchData = map[string]interface{}{}
-	patchData["status"] = "canceled"
+  starkbank.User = utils.ExampleProject
 
-	payment, err := BrcodePayment.Update("19278361897236187236", patchData, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  var patchData = map[string]interface{}{}
+  patchData["status"] = "canceled"
+
+  payment, err := BrcodePayment.Update("19278361897236187236", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -1896,21 +2049,23 @@ You can search for brcode payments using filters.
 package main
 
 import (
-	"fmt"
-	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["tags"] = []string{"company_1", "company_2"}
+  starkbank.User = utils.ExampleProject
 
-	payments := BrcodePayment.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["tags"] = []string{"company_1", "company_2"}
 
-	for payment := range payments {
-		fmt.Println(payment)
-	}
+  payments := BrcodePayment.Query(params, nil)
+  for payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -1923,21 +2078,23 @@ Searches are also possible with BR Code payment logs:
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["paymentIds"] = []string{"5155165527080960", "76551659167801921"}
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["paymentIds"] = []string{"5155165527080960", "76551659167801921"}
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -1950,21 +2107,24 @@ You can also get a BR Code payment log by specifying its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	fmt.Println(payment)
+  payment, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -1977,35 +2137,38 @@ Paying a boleto is also simple.
 package main
 
 import (
-	"fmt"
-	BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []BoletoPayment.BoletoPayment{
-		{
-			TaxId:       "20.018.183/0001-80",
-			Description: "take my money",
-			Line:        "34191.09008 76038.597308 71444.640008 4 92150000028000",
-		},
-		{
-			TaxId:       "20.018.183/0001-80",
-			Description: "take my money one more time",
-			BarCode:     "34197819200000000011090063609567307144464000",
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	payments, err := BoletoPayment.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, payment := range payments {
-		fmt.Println(payment)
-	}
+  payments, err := BoletoPayment.Create(
+    []BoletoPayment.BoletoPayment{
+      {
+        TaxId:       "20.018.183/0001-80",
+        Description: "take my money",
+        Line:        "34191.09008 76038.597308 71444.640008 4 92150000028000",
+      },
+      {
+        TaxId:       "20.018.183/0001-80",
+        Description: "take my money one more time",
+        BarCode:     "34197819200000000011090063609567307144464000",
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2020,20 +2183,24 @@ To get a single boleto payment by its id, run:
 package main
 
 import (
-	"fmt"
-	BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := BoletoPayment.Get("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := BoletoPayment.Get("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2046,26 +2213,29 @@ After its creation, a boleto payment PDF may be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := BoletoPayment.Pdf("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	filename := fmt.Sprintf("%v%v.pdf", "boleto-payment", "19278361897236187236")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := BoletoPayment.Pdf("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "boleto-payment", "19278361897236187236")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -2083,20 +2253,24 @@ Note that this is not possible if it has been processed already.
 package main
 
 import (
-	"fmt"
-	BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := BoletoPayment.Delete("19278361897236187236", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := BoletoPayment.Delete("19278361897236187236", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2109,21 +2283,23 @@ You can search for boleto payments using filters.
 package main
 
 import (
-	"fmt"
-	BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["tags"] = []string{"company_1", "company_2"}
+  starkbank.User = utils.ExampleProject
 
-	payments := BoletoPayment.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["tags"] = []string{"company_1", "company_2"}
 
-	for payment := range payments {
-		fmt.Println(payment)
-	}
+  payments := BoletoPayment.Query(params, nil)
+  for payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2136,21 +2312,23 @@ Searches are also possible with boleto payment logs:
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/boletopayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/boletopayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["paymentIds"] = []string{"5155165527080960", "76551659167801921"}
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["paymentIds"] = []string{"5155165527080960", "76551659167801921"}
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -2163,20 +2341,24 @@ You can also get a boleto payment log by specifying its id.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/boletopayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/boletopayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -2189,35 +2371,38 @@ It's also simple to pay utility bills (such as electricity and water bills) in t
 package main
 
 import (
-	"fmt"
-	UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []UtilityPayment.UtilityPayment{
-		{
-			Line:        "3419109107 41224987309 71444640008 9 91800999999999",
-			Description: "take my money",
-			Tags:        []string{"take", "my", "money"},
-		},
-		{
-			BarCode:     "34194918109999999991091041242887307144464000",
-			Description: "take my money one more time",
-			Tags:        []string{"again"},
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	payments, err := UtilityPayment.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, payment := range payments {
-		fmt.Println(payment)
-	}
+  payments, err := UtilityPayment.Create(
+    []UtilityPayment.UtilityPayment{
+      {
+        Line:        "3419109107 41224987309 71444640008 9 91800999999999",
+        Description: "take my money",
+        Tags:        []string{"take", "my", "money"},
+      },
+      {
+        BarCode:     "34194918109999999991091041242887307144464000",
+        Description: "take my money one more time",
+        Tags:        []string{"again"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2232,21 +2417,23 @@ To search for utility payments using filters, run:
 package main
 
 import (
-	"fmt"
-	UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["tags"] = []string{"eletricity", "gas"}
+  starkbank.User = utils.ExampleProject
 
-	payments := UtilityPayment.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["tags"] = []string{"eletricity", "gas"}
 
-	for payment := range payments {
-		fmt.Println(payment)
-	}
+  payments := UtilityPayment.Query(params, nil)
+  for payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2259,20 +2446,24 @@ You can get a specific bill by its id:
 package main
 
 import (
-	"fmt"
-	UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := UtilityPayment.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := UtilityPayment.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2285,26 +2476,29 @@ After its creation, a utility payment PDF may also be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := UtilityPayment.Pdf("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	filename := fmt.Sprintf("%v%v.pdf", "utility-payment", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := UtilityPayment.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "utility-payment", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -2322,20 +2516,24 @@ Note that this is not possible if it has been processed already.
 package main
 
 import (
-	"fmt"
-	UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  UtilityPayment "github.com/starkbank/sdk-go/starkbank/utilitypayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := UtilityPayment.Delete("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := UtilityPayment.Delete("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2349,21 +2547,23 @@ bills life cycles.
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["paymentIds"] = []string{"102893710982379182", "92837912873981273"}
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["paymentIds"] = []string{"102893710982379182", "92837912873981273"}
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -2376,20 +2576,24 @@ If you want to get a specific payment log by its id, just run:
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("1902837198237992", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("1902837198237992", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -2402,35 +2606,38 @@ It is also simple to pay taxes (such as ISS and DAS) using this SDK.
 package main
 
 import (
-	"fmt"
-	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []TaxPayment.TaxPayment{
-		{
-			BarCode:     "83660000001084301380074119002551100010601813",
-			Description: "fix the road",
-			Tags:        []string{"take", "my", "money"},
-		},
-		{
-			Line:        "85800000003 0 28960328203 1 56072020190 5 22109674804 0",
-			Description: "build the hospital, hopefully",
-			Tags:        []string{"expensive"},
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	payments, err := TaxPayment.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, payment := range payments {
-		fmt.Println(payment)
-	}
+  payments, err := TaxPayment.Create(
+    []TaxPayment.TaxPayment{
+      {
+        BarCode:     "83660000001084301380074119002551100010601813",
+        Description: "fix the road",
+        Tags:        []string{"take", "my", "money"},
+      },
+      {
+        Line:        "85800000003 0 28960328203 1 56072020190 5 22109674804 0",
+        Description: "build the hospital, hopefully",
+        Tags:        []string{"expensive"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2445,21 +2652,23 @@ To search for tax payments using filters, run:
 package main
 
 import (
-	"fmt"
-	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["tags"] = []string{"das", "july"}
+  starkbank.User = utils.ExampleProject
 
-	payments := TaxPayment.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["tags"] = []string{"das", "july"}
 
-	for payment := range payments {
-		fmt.Println(payment)
-	}
+  payments := TaxPayment.Query(params, nil)
+  for payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2472,20 +2681,24 @@ You can get a specific tax payment by its id:
 package main
 
 import (
-	"fmt"
-	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := TaxPayment.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := TaxPayment.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2498,26 +2711,29 @@ After its creation, a tax payment PDF may also be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := TaxPayment.Pdf("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	filename := fmt.Sprintf("%v%v.pdf", "tax-payment", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := TaxPayment.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "tax-payment", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -2535,20 +2751,24 @@ Note that this is not possible if it has been processed already.
 package main
 
 import (
-	"fmt"
-	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := TaxPayment.Delete("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := TaxPayment.Delete("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2561,21 +2781,23 @@ You can search for payment logs by specifying filters. Use this to understand ea
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 10
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 10
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -2588,20 +2810,24 @@ If you want to get a specific payment log by its id, just run:
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("1902837198237992", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("1902837198237992", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -2619,43 +2845,46 @@ If you want to manually pay DARFs without barcodes, you may create DarfPayments:
 package main
 
 import (
-	"fmt"
-	DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"time"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "time"
 )
 
 func main() {
 
-	competence := time.Date(2022, 10, 28, 0, 0, 0, 0, time.UTC)
-	due := time.Now().Add(time.Hour * 24 * 30)
-	scheduled := time.Now().Add(time.Hour * 24 * 30)
+  starkbank.User = utils.ExampleProject
 
-	example := []DarfPayment.DarfPayment{
-		{
-			Description:     "take my money",
-			RevenueCode:     "1240",
-			TaxId:           "012.345.678-90",
-			ReferenceNumber: "2340978970",
-			Competence:      &competence,
-			NominalAmount:   1234,
-			FineAmount:      12,
-			InterestAmount:  34,
-			Due:             &due,
-			Scheduled:       &scheduled,
-			Tags:            []string{"DARF", "making money"},
-		},
-	}
+  competence := time.Date(2022, 10, 28, 0, 0, 0, 0, time.UTC)
+  due := time.Now().Add(time.Hour * 24 * 30)
+  scheduled := time.Now().Add(time.Hour * 24 * 30)
 
-	payments, err := DarfPayment.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, payment := range payments {
-		fmt.Println(payment)
-	}
+  payments, err := DarfPayment.Create(
+    []DarfPayment.DarfPayment{
+      {
+        Description:     "take my money",
+        RevenueCode:     "1240",
+        TaxId:           "012.345.678-90",
+        ReferenceNumber: "2340978970",
+        Competence:      &competence,
+        NominalAmount:   1234,
+        FineAmount:      12,
+        InterestAmount:  34,
+        Due:             &due,
+        Scheduled:       &scheduled,
+        Tags:            []string{"DARF", "making money"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2670,21 +2899,23 @@ To search for DARF payments using filters, run:
 package main
 
 import (
-	"fmt"
-	DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["tags"] = []string{"darf", "july"}
+  starkbank.User = utils.ExampleProject
 
-	payments := DarfPayment.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["tags"] = []string{"darf", "july"}
 
-	for payment := range payments {
-		fmt.Println(payment)
-	}
+  payments := DarfPayment.Query(params, nil)
+  for payment := range payments {
+    fmt.Println(payment)
+  }
 }
 
 ```
@@ -2697,20 +2928,24 @@ You can get a specific DARF payment by its id:
 package main
 
 import (
-	"fmt"
-	DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	payment, err := DarfPayment.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(payment)
+  starkbank.User = utils.ExampleProject
+
+  payment, err := DarfPayment.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(payment)
 }
 
 ```
@@ -2723,26 +2958,29 @@ After its creation, a DARF payment PDF may also be retrieved by its id.
 package main
 
 import (
-	"fmt"
-	DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
-	"github.com/starkbank/sdk-go/tests/utils"
-	"io/ioutil"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
 )
 
 func main() {
 
-	pdf, err := DarfPayment.Pdf("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
+  starkbank.User = utils.ExampleProject
 
-	filename := fmt.Sprintf("%v%v.pdf", "darf-paymet", "5155165527080960")
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
-	if errFile != nil {
-		fmt.Print(errFile)
-	}
+  pdf, err := DarfPayment.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "darf-paymet", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
 }
 
 ```
@@ -2761,11 +2999,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
 	DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
 	"github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
+
+	starkbank.User = utils.ExampleProject
 
 	payment, err := DarfPayment.Delete("5155165527080960", nil)
 	if err.Errors != nil {
@@ -2773,6 +3014,7 @@ func main() {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+	
 	fmt.Println(payment)
 }
 
@@ -2786,21 +3028,23 @@ You can search for payment logs by specifying filters. Use this to understand ea
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 10
+  starkbank.User = utils.ExampleProject
 
-	logs := Log.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 10
 
-	for log := range logs {
-		fmt.Println(log)
-	}
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
 }
 
 ```
@@ -2813,20 +3057,24 @@ If you want to get a specific payment log by its id, just run:
 package main
 
 import (
-	"fmt"
-	Log "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	log, err := Log.Get("5155165527080960", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(log)
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(log)
 }
 
 ```
@@ -2843,28 +3091,31 @@ This resource is able to preview the following types of payment:
 package main
 
 import (
-	"fmt"
-	PaymentPreview "github.com/starkbank/sdk-go/starkbank/paymentpreview"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  PaymentPreview "github.com/starkbank/sdk-go/starkbank/paymentpreview"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []PaymentPreview.PaymentPreview{
-		{
-			Id: "00020101021226930014br.gov.bcb.pix2571brcode-h.sandbox.starkinfra.com/v2/09a7970542fe4399ab2af079982bb1005204000053039865802BR5925Stark Bank S.A. - Institu6009Sao Paulo62070503***63044AC2",
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	previews, err := PaymentPreview.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, preview := range previews {
-		fmt.Println(preview)
-	}
+  previews, err := PaymentPreview.Create(
+    []PaymentPreview.PaymentPreview{
+      {
+        Id: "00020101021226930014br.gov.bcb.pix2571brcode-h.sandbox.starkinfra.com/v2/09a7970542fe4399ab2af079982bb1005204000053039865802BR5925Stark Bank S.A. - Institu6009Sao Paulo62070503***63044AC2",
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, preview := range previews {
+    fmt.Println(preview)
+  }
 }
 
 ```
@@ -2886,28 +3137,34 @@ to the desired cost center page.
 package main
 
 import (
-	"fmt"
-	PaymentRequest "github.com/starkbank/sdk-go/starkbank/paymentrequest"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  PaymentRequest "github.com/starkbank/sdk-go/starkbank/paymentrequest"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := []PaymentRequest.PaymentRequest{
-		{
-			Amount: 999999,
-		},
-	}
+  starkbank.User = utils.ExampleProject
 
-	requests, err := PaymentRequest.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, request := range requests {
-		fmt.Println(request)
-	}
+  requests, err := PaymentRequest.Create(
+    []PaymentRequest.PaymentRequest{
+      {
+        Amount: 12345,
+      },
+      {
+        Amount: 67890,
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, request := range requests {
+    fmt.Println(request)
+  }
 }
 
 ```
@@ -2922,21 +3179,23 @@ To search for payment requests, run:
 package main
 
 import (
-	"fmt"
-	PaymentRequest "github.com/starkbank/sdk-go/starkbank/paymentrequest"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  PaymentRequest "github.com/starkbank/sdk-go/starkbank/paymentrequest"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["status"] = "approved"
+  starkbank.User = utils.ExampleProject
 
-	requests := PaymentRequest.Query("123456778890", params, nil)
+  var params = map[string]interface{}{}
+  params["status"] = "approved"
 
-	for request := range requests {
-		fmt.Println(request)
-	}
+  requests := PaymentRequest.Query("123456778890", params, nil)
+  for request := range requests {
+    fmt.Println(request)
+  }
 }
 
 ```
@@ -2949,25 +3208,28 @@ To create a webhook subscription and be notified whenever an event occurs, run:
 package main
 
 import (
-	"fmt"
-	Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	example := Webhook.Webhook{
-		Url:           "https://webhook.site/dd784f26-1d6a-4ca6-81cb-fda0267761ec",
-		Subscriptions: []string{"transfer", "boleto", "boleto-payment", "boleto-holmes", "brcode-payment", "utility-payment", "deposit", "invoice"},
-	}
+  starkbank.User = utils.ExampleProject
 
-	webhook, err := Webhook.Create(example, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(webhook)
+  webhook, err := Webhook.Create(
+    Webhook.Webhook{
+      Url:           "https://webhook.site/dd784f26-1d6a-4ca6-81cb-fda0267761ec",
+      Subscriptions: []string{"transfer", "boleto", "boleto-payment", "boleto-holmes", "brcode-payment", "utility-payment", "deposit", "invoice"},
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(webhook)
 }
 
 ```
@@ -2980,18 +3242,20 @@ To search for registered webhooks, run:
 package main
 
 import (
-	"fmt"
-	Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	webhooks := Webhook.Query(nil, nil)
+  starkbank.User = utils.ExampleProject
 
-	for webhook := range webhooks {
-		fmt.Println(webhook)
-	}
+  webhooks := Webhook.Query(nil, nil)
+  for webhook := range webhooks {
+    fmt.Println(webhook)
+  }
 }
 
 ```
@@ -3004,20 +3268,24 @@ You can get a specific webhook by its id.
 package main
 
 import (
-	"fmt"
-	Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	webhook, err := Webhook.Get("10827361982368179", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(webhook)
+  starkbank.User = utils.ExampleProject
+
+  webhook, err := Webhook.Get("10827361982368179", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(webhook)
 }
 
 ```
@@ -3030,20 +3298,24 @@ You can also delete a specific webhook by its id.
 package main
 
 import (
-	"fmt"
-	Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	webhook, err := Webhook.Delete("10827361982368179", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(webhook)
+  starkbank.User = utils.ExampleProject
+
+  webhook, err := Webhook.Delete("10827361982368179", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(webhook)
 }
 
 ```
@@ -3103,22 +3375,24 @@ To search for webhooks events, run:
 package main
 
 import (
-	"fmt"
-	Event "github.com/starkbank/sdk-go/starkbank/event"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Event "github.com/starkbank/sdk-go/starkbank/event"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["isDelivered"] = "false"
-	params["after"] = "2020-03-20"
+  starkbank.User = utils.ExampleProject
 
-	events := Event.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["isDelivered"] = "false"
+  params["after"] = "2020-03-20"
 
-	for event := range events {
-		fmt.Println(event)
-	}
+  events := Event.Query(params, nil)
+  for event := range events {
+    fmt.Println(event)
+  }
 }
 
 ```
@@ -3131,20 +3405,24 @@ You can get a specific webhook event by its id.
 package main
 
 import (
-	"fmt"
-	Event "github.com/starkbank/sdk-go/starkbank/event"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Event "github.com/starkbank/sdk-go/starkbank/event"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	event, err := Event.Get("10827361982368179", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(event)
+  starkbank.User = utils.ExampleProject
+
+  event, err := Event.Get("10827361982368179", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(event)
 }
 
 ```
@@ -3157,20 +3435,24 @@ You can also delete a specific webhook event by its id.
 package main
 
 import (
-	"fmt"
-	Event "github.com/starkbank/sdk-go/starkbank/event"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Event "github.com/starkbank/sdk-go/starkbank/event"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	event, err := Event.Delete("10827361982368179", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(event)
+  starkbank.User = utils.ExampleProject
+
+  event, err := Event.Delete("10827361982368179", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(event)
 }
 
 ```
@@ -3185,23 +3467,27 @@ With this function, you can manually set events retrieved from the API as
 package main
 
 import (
-	"fmt"
-	Event "github.com/starkbank/sdk-go/starkbank/event"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Event "github.com/starkbank/sdk-go/starkbank/event"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var patchData = map[string]interface{}{}
-	patchData["isDelivered"] = true
+  starkbank.User = utils.ExampleProject
 
-	event, err := Event.Update("10827361982368179", patchData, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(event)
+  var patchData = map[string]interface{}{}
+  patchData["isDelivered"] = true
+
+  event, err := Event.Update("10827361982368179", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+	
+  fmt.Println(event)
 }
 
 ```
@@ -3214,21 +3500,23 @@ You can also get information on failed webhook event delivery attempts.
 package main
 
 import (
-	"fmt"
-	Attempt "github.com/starkbank/sdk-go/starkbank/event/attempt"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Attempt "github.com/starkbank/sdk-go/starkbank/event/attempt"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["after"] = "2020-03-20"
+  starkbank.User = utils.ExampleProject
 
-	attempts := Attempt.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["after"] = "2020-03-20"
 
-	for attempt := range attempts {
-		fmt.Println(attempt)
-	}
+  attempts := Attempt.Query(params, nil)
+  for attempt := range attempts {
+    fmt.Println(attempt)
+  }
 }
 
 ```
@@ -3241,20 +3529,24 @@ To retrieve information on a single attempt, use the following function:
 package main
 
 import (
-	"fmt"
-	Attempt "github.com/starkbank/sdk-go/starkbank/event/attempt"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Attempt "github.com/starkbank/sdk-go/starkbank/event/attempt"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	attempt, err := Attempt.Get("1616161616161616", nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(attempt)
+  starkbank.User = utils.ExampleProject
+
+  attempt, err := Attempt.Get("1616161616161616", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(attempt)
 }
 
 ```
@@ -3271,26 +3563,30 @@ The only link between your Workspaces is the Organization that controls them.
 package main
 
 import (
-	"fmt"
-	Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	workspace, err := Workspace.Create(
-		Workspace.Workspace{
-			Username:      "iron-bank-workspace-1",
-			Name:          "Iron Bank Workspace 1",
-			AllowedTaxIds: []string{""},
-		}, nil)
+  starkbank.User = utils.ExampleProject
 
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(workspace)
+  workspace, err := Workspace.Create(
+    Workspace.Workspace{
+      Username:      "iron-bank-workspace-1",
+      Name:          "Iron Bank Workspace 1",
+      AllowedTaxIds: []string{""},
+    }, nil)
+
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(workspace)
 }
 
 ```
@@ -3304,21 +3600,23 @@ you can also find other Workspaces by searching for their usernames or IDs direc
 package main
 
 import (
-	"fmt"
-	Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var params = map[string]interface{}{}
-	params["limit"] = 30
+  starkbank.User = utils.ExampleProject
 
-	workspaces := Workspace.Query(params, nil)
+  var params = map[string]interface{}{}
+  params["limit"] = 30
 
-	for workspace := range workspaces {
-		fmt.Println(workspace)
-	}
+  workspaces := Workspace.Query(params, nil)
+  for workspace := range workspaces {
+    fmt.Println(workspace)
+  }
 }
 
 ```
@@ -3332,11 +3630,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
 	Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
 	"github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
+
+	starkbank.User = utils.ExampleProject
 
 	workspace, err := Workspace.Get("10827361982368179", nil)
 	if err.Errors != nil {
@@ -3344,6 +3645,7 @@ func main() {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+	
 	fmt.Println(workspace)
 }
 
@@ -3357,25 +3659,29 @@ You can update a specific Workspace by its id.
 package main
 
 import (
-	"fmt"
-	Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
 
-	var patchData = map[string]interface{}{}
-	patchData["username"] = "new-username"
-	patchData["name"] = "New Name"
-	patchData["allowedTaxIds"] = []string{"012.345.678-90"}
+  starkbank.User = utils.ExampleProject
 
-	workspace, err := Workspace.Update("10827361982368179", patchData, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	fmt.Println(workspace)
+  var patchData = map[string]interface{}{}
+  patchData["username"] = "new-username"
+  patchData["name"] = "New Name"
+  patchData["allowedTaxIds"] = []string{"012.345.678-90"}
+
+  workspace, err := Workspace.Update("10827361982368179", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(workspace)
 }
 
 ```
@@ -3397,29 +3703,34 @@ For example:
 package main
 
 import (
-	"fmt"
-	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
-	"github.com/starkbank/sdk-go/tests/utils"
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
+  "github.com/starkbank/sdk-go/tests/utils"
 )
 
 func main() {
-	transactions, err := Transaction.Create(
-		[]Transaction.Transaction{
-			{
-				Amount:      10000,
-				ReceiverId:  "5768064935133184",
-				Description: "Paying my debts",
-				ExternalId:  "my_unique_external_id",
-			},
-		}, utils.ExampleProject)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	for _, transaction := range transactions {
-		fmt.Println(transaction)
-	}
+
+  starkbank.User = utils.ExampleProject
+
+  transactions, err := Transaction.Create(
+    []Transaction.Transaction{
+      {
+        Amount:      10000,
+        ReceiverId:  "5768064935133184",
+        Description: "Paying my debts",
+        ExternalId:  "my_unique_external_id",
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  for _, transaction := range transactions {
+    fmt.Println(transaction)
+  }
 }
 
 ```
