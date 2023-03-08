@@ -57,7 +57,7 @@ type Invoice struct {
 	Interest       float64                  `json:",omitempty"`
 	Discounts      []map[string]interface{} `json:",omitempty"`
 	Tags           []string                 `json:",omitempty"`
-	Descriptions   []map[string]string      `json:",omitempty"`
+	Descriptions   []map[string]interface{} `json:",omitempty"`
 	Pdf            string                   `json:",omitempty"`
 	Link           string                   `json:",omitempty"`
 	NominalAmount  int                      `json:",omitempty"`
@@ -83,10 +83,12 @@ func Create(invoices []Invoice, user user.User) ([]Invoice, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- invoices [slice of Invoice structs]: slice of Invoice structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of Invoice structs with updated attributes
+	//	- Slice of Invoice structs with updated attributes
 	create, err := utils.Multi(resource, invoices, nil, user)
 	unmarshalError := json.Unmarshal(create, &invoices)
 	if unmarshalError != nil {
@@ -102,7 +104,9 @@ func Get(id string, user user.User) (Invoice, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Invoice struct that corresponds to the given id.
@@ -117,21 +121,20 @@ func Get(id string, user user.User) (Invoice, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Invoice {
 	//	Retrieve Invoice structs
 	//
-	//	Receive a generator of Invoice structs previously created in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of Invoice structs previously created in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of Invoice structs with updated attributes
+	//	- Channel of Invoice structs with updated attributes
 	invoices := make(chan Invoice)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -151,23 +154,22 @@ func Query(params map[string]interface{}, user user.User) chan Invoice {
 func Page(params map[string]interface{}, user user.User) ([]Invoice, string, Error.StarkErrors) {
 	//	Retrieve paged Invoice structs
 	//
-	//	Receive a list of up to 100 Invoice structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 Invoice structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: []string{"paid", "registered"}
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: []string{"paid", "registered"}
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of Invoice structs with updated attributes
+	//	- Slice of Invoice structs with updated attributes
 	//	- Cursor to retrieve the next page of Invoice structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
@@ -183,13 +185,15 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Invoic
 	//	Update an Invoice by passing id, if it hasn't been paid yet.
 	//
 	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
 	//	- patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
 	//		Parameters (optional):
 	//		- status [string]: You may cancel the invoice by passing 'canceled' in the status
 	//		- amount [string]: Nominal amount charged by the invoice. ex: 100 (R$1.00)
 	//		- due [string, default now + 2 days]: Invoice due date in UTC ISO format. ex: "2020-10-28"
 	//		- expiration [int, default nil]: time interval in seconds between the due date and the expiration date. ex: 123456789
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Target Invoice with updated attributes
@@ -208,13 +212,13 @@ func Qrcode(id string, params map[string]interface{}, user user.User) ([]byte, E
 	//
 	//	Parameters (required):
 	//	- id [string]: Invoice unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
 	//
 	//	Parameters (optional):
 	//	- size [int, default 7]: number of pixels in each "box" of the QR code. Minimum = 1, maximum = 50. ex: 12
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Invoice png blob
+	//	- Invoice .png blob
 	return utils.GetContent(resource, id, params, user, "qrcode")
 }
 
@@ -225,7 +229,9 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Invoice .pdf file
@@ -239,7 +245,9 @@ func GetPayment(id string, user user.User) (Payment, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Invoice.Payment sub-resource

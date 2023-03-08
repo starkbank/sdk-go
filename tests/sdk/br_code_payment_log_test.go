@@ -16,7 +16,8 @@ func TestBrcodePaymentLogGet(t *testing.T) {
 
 	var brcodeList []BrcodePaymentLog.Log
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	brcodes := BrcodePaymentLog.Query(params, nil)
 	for brcode := range brcodes {
@@ -29,6 +30,7 @@ func TestBrcodePaymentLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
+	fmt.Printf("%+v", log)
 	fmt.Println(log.Id)
 }
 

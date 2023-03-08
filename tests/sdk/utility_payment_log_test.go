@@ -16,7 +16,8 @@ func TestUtilityLogGet(t *testing.T) {
 
 	var logList []UtilityLog.Log
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	logs := UtilityLog.Query(params, nil)
 	for log := range logs {
@@ -29,6 +30,8 @@ func TestUtilityLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
+
+	fmt.Printf("%+v", utilities)
 	fmt.Println(utilities.Id)
 }
 

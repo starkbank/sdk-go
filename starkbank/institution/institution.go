@@ -32,19 +32,18 @@ var resource = map[string]string{"name": "Institution"}
 func Query(params map[string]interface{}, user user.User) chan Institution {
 	//	Retrieve Bacen Institutions
 	//
-	//	Receive a list of Institution structs that are recognized by the Brazilian Central bank for Pix and TED transactions
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a slice of Institution structs that are recognized by the Brazilian Central bank for Pix and TED transactions
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- search [string, default nil]: Part of the institution name to be searched. ex: "stark"
-	//	- spiCodes [slice of strings, default nil]: List of SPI (Pix) codes to be searched. ex: []string{"20018183"}
-	//	- strCodes [slice of strings, default nil]: List of STR (TED) codes to be searched. ex: []string{"260"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- search [string, default nil]: Part of the institution name to be searched. ex: "stark"
+	//		- spiCodes [slice of strings, default nil]: List of SPI (Pix) codes to be searched. ex: []string{"20018183"}
+	//		- strCodes [slice of strings, default nil]: List of STR (TED) codes to be searched. ex: []string{"260"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- list of Institution structs with updated attributes
+	//	- Slice of Institution structs with updated attributes
 	institutions := make(chan Institution)
 	query := utils.Query(resource, params, user)
 	go func() {

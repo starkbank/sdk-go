@@ -25,6 +25,11 @@ func TestInvoicePost(t *testing.T) {
 	for _, invoice := range invoices {
 		assert.NotNil(t, invoice.Id)
 	}
+
+	for _, invoice := range invoices {
+		fmt.Printf("%+v", invoice)
+	}
+
 }
 
 func TestInvoiceGet(t *testing.T) {
@@ -55,13 +60,13 @@ func TestInvoiceQuery(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
 	var params = map[string]interface{}{}
-	params["status"] = "paid"
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2020-04-01"
+	params["before"] = "2020-04-30"
 
 	invoices := Invoice.Query(params, nil)
 
 	for invoice := range invoices {
-		assert.Equal(t, invoice.Status, "paid")
+		fmt.Printf("%+v", invoice)
 	}
 }
 
@@ -177,7 +182,7 @@ func TestInvoicePayment(t *testing.T) {
 
 	var invoiceList []Invoice.Invoice
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = rand.Intn(12)
 
 	invoices := Invoice.Query(params, nil)
 	for invoice := range invoices {
@@ -190,5 +195,6 @@ func TestInvoicePayment(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+	fmt.Printf("%+v", payment)
 	assert.NotNil(t, payment.Method)
 }

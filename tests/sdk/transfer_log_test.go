@@ -29,7 +29,7 @@ func TestTransferLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Println(transfers.Id)
+	fmt.Printf("%+v", transfers)
 }
 
 func TestTransferLogQuery(t *testing.T) {

@@ -39,10 +39,12 @@ func Create(previews []PaymentPreview, user user.User) ([]PaymentPreview, Error.
 	//
 	//	Parameters (required):
 	//	- previews [slice of PaymentPreview structs]: slice of PaymentPreview structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of PaymentPreview structs with updated attributes
+	//	- Slice of PaymentPreview structs with updated attributes
 	create, err := utils.Multi(subresource, previews, nil, user)
 	unmarshalError := json.Unmarshal(create, &previews)
 	if unmarshalError != nil {

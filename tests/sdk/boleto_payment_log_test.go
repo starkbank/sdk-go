@@ -16,7 +16,8 @@ func TestBoletoPaymentLogGet(t *testing.T) {
 
 	var logList []BoletoPaymentLog.Log
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	logs := BoletoPaymentLog.Query(params, nil)
 	for log := range logs {
@@ -29,6 +30,7 @@ func TestBoletoPaymentLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
+	fmt.Printf("payment: %+v", payment)
 	fmt.Println(payment.Id)
 }
 

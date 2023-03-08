@@ -16,7 +16,8 @@ func TestTaxPaymentLogGet(t *testing.T) {
 
 	var logList []TaxPaymentLog.Log
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	logs := TaxPaymentLog.Query(params, nil)
 	for log := range logs {
@@ -29,6 +30,8 @@ func TestTaxPaymentLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+
+	fmt.Printf("%+v", payment)
 	assert.NotNil(t, payment.Id)
 }
 

@@ -61,10 +61,12 @@ func Create(transactions []Transaction, user user.User) ([]Transaction, Error.St
 	//
 	//	Parameters (required):
 	//	- transactions [slice of Transaction structs]: list of Transaction objects to be created in the API
-	//	- user [Organization/Project object, default nil]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object, default nil]: Organization or Project object. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of Transaction objects with updated attributes
+	//	- Slice of Transaction objects with updated attributes
 	create, err := utils.Multi(resource, transactions, nil, user)
 	unmarshalError := json.Unmarshal(create, &transactions)
 	if unmarshalError != nil {
@@ -80,7 +82,9 @@ func Get(id string, user user.User) (Transaction, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: object unique id. ex: "5656565656565656"
-	//	- user [Organization/Project object]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object]: Organization or Project object. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Transaction object with updated attributes
@@ -95,21 +99,20 @@ func Get(id string, user user.User) (Transaction, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Transaction {
 	//	Retrieve Transaction structs
 	//
-	//	Receive a generator of Transaction structs previously created by this user in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of Transaction structs previously created by this user in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil] date filter for objects created only after specified date.
-	//	- before [string, default nil] date filter for objects created only before specified date.
-	//	- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: list of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- status [string, default nil]: filter for status of retrieved objects. ex: "success"
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: date filter for objects created only after specified date.
+	//		- before [string, default nil]: date filter for objects created only before specified date.
+	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: list of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: filter for status of retrieved objects. ex: "success"
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	 - generator of Transaction objects with updated attributes
+	//	 - Channel of Transaction objects with updated attributes
 	transactions := make(chan Transaction)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -129,23 +132,22 @@ func Query(params map[string]interface{}, user user.User) chan Transaction {
 func Page(params map[string]interface{}, user user.User) ([]Transaction, string, Error.StarkErrors) {
 	//	Retrieve paged Transaction structs
 	//
-	//	Receive a list of up to 100 Transaction objects previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 Transaction objects previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	// 	Parameters (optional):
-	//	- cursor [string, default nil]: cursor returned on the previous page function call
-	//	- limit [int, default 100]: maximum number of objects to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil] date filter for objects created only after specified date.
-	//	- before [string, default nil] date filter for objects created only before specified date.
-	//	- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: list of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- status [string, default nil]: filter for status of retrieved objects. ex: "success"
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: cursor returned on the previous page function call
+	//		- limit [int, default 100]: maximum number of objects to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: date filter for objects created only after specified date.
+	//		- before [string, default nil]: date filter for objects created only before specified date.
+	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: list of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: filter for status of retrieved objects. ex: "success"
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of Transaction objects with updated attributes
+	//	- Slice of Transaction objects with updated attributes
 	//	- Cursor to retrieve the next page of Transaction objects
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)

@@ -16,7 +16,9 @@ func TestDictKeyGet(t *testing.T) {
 
 	var keyList []DictKey.DictKey
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["status"] = "registered"
+	params["limit"] = 1
+	params["type"] = "evp"
 
 	keys := DictKey.Query(params, nil)
 	for key := range keys {
@@ -29,6 +31,7 @@ func TestDictKeyGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+	fmt.Printf("%+v", key)
 	assert.NotNil(t, key.Id)
 }
 

@@ -28,7 +28,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: id returned on creation, this is the BR code. ex: "00020126360014br.gov.bcb.pix0114+552840092118152040000530398654040.095802BR5915Jamie Lannister6009Sao Paulo620705038566304FC6C"
 //	- Uuid [string]: unique uuid returned when the DynamicBrcode is created. ex: "4e2eab725ddd495f9c98ffd97440702d"
-// 	- PictureUrl: public Dynamic Brcode picture url. ex: "https://development.api.starkbank.com/v2/dynamic-brcode/d3ebb1bd92024df1ab6e5a353ee799a4.png",
+// 	- PictureUrl [string]: public Dynamic Brcode picture url. ex: "https://development.api.starkbank.com/v2/dynamic-brcode/d3ebb1bd92024df1ab6e5a353ee799a4.png",
 //	- Created [time.Time]: creation datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: latest update datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
@@ -54,10 +54,12 @@ func Create(brcodes []DynamicBrcode, user user.User) ([]DynamicBrcode, Error.Sta
 	//
 	//	Parameters (required):
 	//	- brcodes [slice of DynamicBrcode structs]: slice of DynamicBrcode structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of DynamicBrcode structs with updated attributes
+	//	- Slice of DynamicBrcode structs with updated attributes
 	create, err := utils.Multi(resource, brcodes, nil, user)
 	unmarshalError := json.Unmarshal(create, &brcodes)
 	if unmarshalError != nil {
@@ -73,7 +75,9 @@ func Get(uuid string, user user.User) (DynamicBrcode, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- uuid [string]: Struct unique uuid. ex: "901e71f2447c43c886f58366a5432c4b"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- DynamicBrcode struct that corresponds to the given uuid.
@@ -88,20 +92,19 @@ func Get(uuid string, user user.User) (DynamicBrcode, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
 	//	Retrieve DynamicBrcode structs
 	//
-	//	Receive a generator of DynamicBrcode structs previously created in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of DynamicBrcode structs previously created in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: ["tony", "stark"]
-	//	- uuids [slice of strings, default nil]: list of uuids to filter retrieved objects. ex: ["901e71f2447c43c886f58366a5432c4b", "4e2eab725ddd495f9c98ffd97440702d"]
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: ["tony", "stark"]
+	//		- uuids [slice of strings, default nil]: list of uuids to filter retrieved objects. ex: ["901e71f2447c43c886f58366a5432c4b", "4e2eab725ddd495f9c98ffd97440702d"]
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of DynamicBrcode structs with updated attributes
+	//	- Channel of DynamicBrcode structs with updated attributes
 	brcodes := make(chan DynamicBrcode)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -121,22 +124,21 @@ func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
 func Page(params map[string]interface{}, user user.User) ([]DynamicBrcode, string, Error.StarkErrors) {
 	//	Retrieve paged DynamicBrcode structs
 	//
-	//	Receive a list of up to 100 DynamicBrcode structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 DynamicBrcode structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- uuids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- uuids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of DynamicBrcode structs with updated attributes
+	//	- Slice of DynamicBrcode structs with updated attributes
 	//	- Cursor to retrieve the next page of DynamicBrcode structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)

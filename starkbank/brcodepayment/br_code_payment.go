@@ -67,10 +67,12 @@ func Create(payments []BrcodePayment, user user.User) ([]BrcodePayment, Error.St
 	//
 	//	Parameters (required):
 	//	- payments [slice of BrcodePayment structs]: List of BrcodePayment structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of BrcodePayment structs with updated attributes
+	//	- Slice of BrcodePayment structs with updated attributes
 	create, err := utils.Multi(resource, payments, nil, user)
 	unmarshalError := json.Unmarshal(create, &payments)
 	if unmarshalError != nil {
@@ -86,7 +88,9 @@ func Get(id string, user user.User) (BrcodePayment, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- BrcodePayment struct that corresponds to the given id
@@ -105,7 +109,9 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- BrcodePayment .pdf file
@@ -115,21 +121,22 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan BrcodePayment {
 	//	Retrieve BrcodePayment structs
 	//
-	//	Receive a generator of BrcodePayment structs previously created in the Stark Bank API
+	//	Receive a channel of BrcodePayment structs previously created in the Stark Bank API
 	//
 	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "success"
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "success"
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of BrcodePayment structs with updated attributes
+	//	- Channel of BrcodePayment structs with updated attributes
 	payments := make(chan BrcodePayment)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -149,23 +156,22 @@ func Query(params map[string]interface{}, user user.User) chan BrcodePayment {
 func Page(params map[string]interface{}, user user.User) ([]BrcodePayment, string, Error.StarkErrors) {
 	//	Retrieve paged BrcodePayment structs
 	//
-	//	Receive a list of up to 100 BrcodePayment structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 BrcodePayment structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "success"
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "success"
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of BrcodePayment structs with updated attributes
+	//	- Slice of BrcodePayment structs with updated attributes
 	//	- Cursor to retrieve the next page of BrcodePayment structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
@@ -185,7 +191,9 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Brcode
 	//	- patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"status": "canceled"}
 	//		Parameters (required):
 	//		- status [string]: If the BrcodePayment hasn't been paid yet, you may cancel it by passing "canceled" in the status
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Target BrcodePayment with updated attributes

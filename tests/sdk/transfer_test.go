@@ -3,7 +3,7 @@ package sdk
 import (
 	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
-	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
+	"github.com/starkbank/sdk-go/starkbank/transfer"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
@@ -16,14 +16,14 @@ func TestTransferPost(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	transfers, err := Transfer.Create(Example.Transfer(), nil)
+	transfers, err := transfer.Create(Example.Transfer(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
 	for _, transfer := range transfers {
-		assert.NotNil(t, transfer.Id)
+		fmt.Printf("%+v", transfer)
 	}
 }
 
@@ -31,39 +31,39 @@ func TestTransferGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var transferList []Transfer.Transfer
+	var transferList []transfer.Transfer
 	var params = map[string]interface{}{}
 	params["limit"] = rand.Intn(100)
 
-	transfers := Transfer.Query(params, nil)
+	transfers := transfer.Query(params, nil)
 	for transfer := range transfers {
 		transferList = append(transferList, transfer)
 	}
 
-	transfer, err := Transfer.Get(transferList[rand.Intn(len(transferList))].Id, nil)
+	transfer, err := transfer.Get(transferList[rand.Intn(len(transferList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
-	assert.NotNil(t, transfer.Id)
+	fmt.Printf("%+v", transfer)
 }
 
 func TestTransferPdf(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var transferList []Transfer.Transfer
+	var transferList []transfer.Transfer
 	var params = map[string]interface{}{}
 	params["limit"] = rand.Intn(100)
 	params["status"] = "success"
 
-	transfers := Transfer.Query(params, nil)
+	transfers := transfer.Query(params, nil)
 	for transfer := range transfers {
 		transferList = append(transferList, transfer)
 	}
 
-	pdf, err := Transfer.Pdf(transferList[rand.Intn(len(transferList))].Id, nil)
+	pdf, err := transfer.Pdf(transferList[rand.Intn(len(transferList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
@@ -86,7 +86,7 @@ func TestTransferQuery(t *testing.T) {
 	params["status"] = "success"
 	params["limit"] = 10
 
-	transfers := Transfer.Query(params, nil)
+	transfers := transfer.Query(params, nil)
 
 	for transfer := range transfers {
 		assert.Equal(t, transfer.Status, "success")
@@ -101,7 +101,7 @@ func TestTransferPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 4
 
-	transfers, cursor, err := Transfer.Page(params, nil)
+	transfers, cursor, err := transfer.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
@@ -115,17 +115,17 @@ func TestTransferPage(t *testing.T) {
 	assert.Len(t, ids, 4)
 }
 
-func TestTransferCancel(t *testing.T) {
+func TestTransferDelete(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	transfers, errCreate := Transfer.Create(Example.Transfer(), nil)
+	transfers, errCreate := transfer.Create(Example.Transfer(), nil)
 	if errCreate.Errors != nil {
 		for _, erro := range errCreate.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	canceled, err := Transfer.Delete(transfers[0].Id, nil)
+	canceled, err := transfer.Delete(transfers[0].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))

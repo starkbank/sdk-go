@@ -36,7 +36,6 @@ func Holmes(id string) []boletoholmes.BoletoHolmes {
 func BoletoPayment() boletopayment.BoletoPayment {
 
 	payments := boletopayment.BoletoPayment{
-
 		TaxId:       "20.018.183/0001-80",
 		Description: "SDK-Go-Boleto-Payment-Test",
 		Line:        "34191.09008 76038.597308 71444.640008 4 92150000028000",
@@ -70,19 +69,19 @@ func BoletosPayment() []boletopayment.BoletoPayment {
 
 func Boleto() []boleto.Boleto {
 
-	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
+	due := time.Date(2023, 02, 10, 0, 0, 0, 0, time.UTC)
 
 	boletos := []boleto.Boleto{
 		{
-			Amount:      999999999,
-			Name:        "Core-Go-Test-multi-1",
-			TaxId:       "38.446.231/0001-04",
-			StreetLine1: "Kubasch Street, 900",
-			StreetLine2: "jhvh",
-			District:    "Ronny",
-			City:        "Emmet City",
+			Amount:      400000,
+			Name:        "Iron Bank S.A.",
+			TaxId:       "20.018.183/0001-80",
+			StreetLine1: "Av. Faria Lima, 1844",
+			StreetLine2: "CJ 13",
+			District:    "Itaim Bibi",
+			City:        "São Paulo",
 			StateCode:   "SP",
-			ZipCode:     "01420-020",
+			ZipCode:     "01500-000",
 			Due:         &due,
 		},
 		{
@@ -113,7 +112,7 @@ func BrcodePayment() []brcodepayment.BrcodePayment {
 		{
 			Brcode:      invoices[0].Brcode,
 			TaxId:       invoices[0].TaxId,
-			Description: "test-brcode-payment-golang",
+			Description: "this will be fast",
 		},
 	}
 	return payments
@@ -144,7 +143,7 @@ func Invoice() []invoice.Invoice {
 	invoices := []invoice.Invoice{
 		{
 			Amount: 996699999,
-			Name:   "Core-Go-Test-multi-1",
+			Name:   "Tony Stark",
 			TaxId:  "38.446.231/0001-04",
 		},
 	}

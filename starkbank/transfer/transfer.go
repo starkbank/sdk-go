@@ -26,10 +26,10 @@ import (
 //	Parameters (optional):
 //	- AccountType [string, default "checking"]: Receiver bank account type. This parameter only has effect on Pix Transfers. ex: "checking", "savings", "salary" or "payment"
 //	- ExternalId [string, default nil]: url safe string that must be unique among all your transfers. Duplicated external_ids will cause failures. By default, this parameter will block any transfer that repeats amount and receiver information on the same date. ex: "my-internal-id-123456"
-//	- Scheduled [time.Time, default now]: date or datetime when the transfer will be processed. May be pushed to next business day if necessary. ex: time.Date(2020, 3, 10, 10, 30, 0, 0, time.UTC) or ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
+//	- Scheduled [time.Time, default now]: date when the transfer will be processed. May be pushed to next business day if necessary. ex: time.Date(2020, 3, 10, 10, 30, 0, 0, time.UTC) or ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
 //	- Description [string, default nil]: optional description to override default description to be shown in the bank statement. ex: "Payment for service #1234"
 //	- Tags [slice of strings, default nil]: slice of strings for reference when searching for transfers. ex: []string{"John", "Paul"}
-//	- Rule [slice of Transfer.Rules, default nil]: slice of Transfer.Rule structs for modifying transfer behavior. ex: []rule.Rule{{Key: "resendingLimit", Value: 5}},
+//	- Rules [slice of Transfer.Rules, default nil]: slice of Transfer.Rule structs for modifying transfer behavior. ex: []rule.Rule{{Key: "resendingLimit", Value: 5}},
 //
 //	Attributes (return-only):
 //	- Id [string]: unique id returned when the transfer is created. ex: "5656565656565656"
@@ -71,10 +71,12 @@ func Create(transfers []Transfer, user user.User) ([]Transfer, Error.StarkErrors
 	//
 	//	Parameters (required):
 	//	- transfers [slice of Transfer structs]: slice of Transfer structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of Transfer structs with updated attributes
+	//	- Slice of Transfer structs with updated attributes
 	create, err := utils.Multi(resource, transfers, nil, user)
 	unmarshalError := json.Unmarshal(create, &transfers)
 	if unmarshalError != nil {
@@ -90,7 +92,9 @@ func Get(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Transfer struct with updated attributes
@@ -109,7 +113,9 @@ func Delete(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//
 	// 	Parameters (required):
 	//	- id [string]: struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- deleted Transfer struct
@@ -129,7 +135,9 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//
 	// 	Parameters (required):
 	//	- id [string]: struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Transfer .pdf file
@@ -139,24 +147,23 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Transfer {
 	//	Retrieve Transfer structs
 	//
-	//	Receive a generator of Transfer structs previously created by this user in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of Transfer structs previously created by this user in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: date filter for structs created or updated only after specified date.
-	//	- before [string, default nil]: date filter for structs created or updated only before specified date.
-	//	- transactionIds [slice of strings, default nil]: slice of transaction IDs linked to the desired transfers. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
-	//	- taxId [string, default nil]: filter for transfers sent to the specified tax ID. ex: "012.345.678-90"
-	//	- sort [string, default "-created"]: sort order considered in response. Valid options are "created", "-created", "updated" or "-updated".
-	//	- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: date filter for structs created or updated only after specified date.
+	//		- before [string, default nil]: date filter for structs created or updated only before specified date.
+	//		- transactionIds [slice of strings, default nil]: slice of transaction IDs linked to the desired transfers. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
+	//		- taxId [string, default nil]: filter for transfers sent to the specified tax ID. ex: "012.345.678-90"
+	//		- sort [string, default "-created"]: sort order considered in response. Valid options are "created", "-created", "updated" or "-updated".
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	 - generator of Transfer objects with updated attributes
+	//	 - Channel of Transfer objects with updated attributes
 	transfers := make(chan Transfer)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -179,23 +186,22 @@ func Page(params map[string]interface{}, user user.User) ([]Transfer, string, Er
 	//	Receive a slice of up to 100 Transfer structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	// 	Parameters (optional):
-	//	- cursor [string, default nil]: cursor returned on the previous page function call
-	//	- limit [int, default 100]: maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: date filter for structs created or updated only after specified date.
-	//	- before [string, default nil]: date filter for structs created or updated only before specified date.
-	//	- transactionIds [slice of strings, default nil]: slice of transaction IDs linked to the desired transfers. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
-	//	- taxId [string, default nil]: filter for transfers sent to the specified tax ID. ex: "012.345.678-90"
-	//	- sort [string, default "-created"]: sort order considered in response. Valid options are "created", "-created", "updated" or "-updated".
-	//	- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: cursor returned on the previous page function call
+	//		- limit [int, default 100]: maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: date filter for structs created or updated only after specified date.
+	//		- before [string, default nil]: date filter for structs created or updated only before specified date.
+	//		- transactionIds [slice of strings, default nil]: slice of transaction IDs linked to the desired transfers. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
+	//		- taxId [string, default nil]: filter for transfers sent to the specified tax ID. ex: "012.345.678-90"
+	//		- sort [string, default "-created"]: sort order considered in response. Valid options are "created", "-created", "updated" or "-updated".
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of Transfer structs with updated attributes
+	//	- Slice of Transfer structs with updated attributes
 	//	- Cursor to retrieve the next page of Transfer structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)

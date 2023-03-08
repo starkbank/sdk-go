@@ -17,20 +17,21 @@ func TestInvoiceLogGet(t *testing.T) {
 
 	var logList []InvoiceLog.Log
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	logs := InvoiceLog.Query(params, nil)
 	for log := range logs {
 		logList = append(logList, log)
 	}
 
-	log, err := InvoiceLog.Get(logList[rand.Intn(len(logList))].Id, nil)
+	log, err := InvoiceLog.Get(logList[0].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Println(log.Id)
+	fmt.Printf("%+v", log)
 }
 
 func TestInvoiceLogQuery(t *testing.T) {
