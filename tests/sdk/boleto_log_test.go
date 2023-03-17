@@ -16,20 +16,23 @@ func TestBoletoLogGet(t *testing.T) {
 
 	var boletoList []BoletoLog.Log
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2020-04-01"
+	params["before"] = "2020-04-30"
+	params["limit"] = 1
 
 	boletos := BoletoLog.Query(params, nil)
 	for boleto := range boletos {
+		fmt.Printf("%+v", boleto)
 		boletoList = append(boletoList, boleto)
 	}
 
-	logs, err := BoletoLog.Get(boletoList[rand.Intn(len(boletoList))].Id, nil)
+	log, err := BoletoLog.Get(boletoList[rand.Intn(len(boletoList))].Id, nil)
 	if err.Errors != nil {
+		fmt.Printf("%+v", log)
 		for _, erro := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Println(logs.Id)
 }
 
 func TestBoletoLogQuery(t *testing.T) {

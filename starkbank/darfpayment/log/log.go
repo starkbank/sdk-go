@@ -41,7 +41,9 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: object unique id. ex: "5656565656565656"
-	//	- user [Organization/Project object]: Organization or Project object. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project object]: Organization or Project object. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- DarfPayment.Log object with updated attributes
@@ -56,20 +58,19 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Log {
 	//	Retrieve DarfPayment.Log structs
 	//
-	//	Receive a generator of DarfPayment.Log objects previously created in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of DarfPayment.Log objects previously created in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil] date filter for objects created only after specified date.
-	//	- before [string, default nil] date filter for objects created only before specified date.
-	//	- types [slice of strings, default nil]: filter retrieved objects by event types. ex: []string{"processing", "success"}
-	//	- paymentIds [slice of strings, default nil]: list of DarfPayment ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: date filter for objects created only after specified date.
+	//		- before [string, default nil]: date filter for objects created only before specified date.
+	//		- types [slice of strings, default nil]: filter retrieved objects by event types. ex: []string{"processing", "success"}
+	//		- paymentIds [slice of strings, default nil]: list of DarfPayment ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of DarfPayment.Log objects with updated attributes
+	//	- Slice of DarfPayment.Log objects with updated attributes
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -89,22 +90,21 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.StarkErrors) {
 	//	Retrieve paged DarfPayment.Log structs
 	//
-	//	Receive a list of up to 100 DarfPayment.Log objects previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 DarfPayment.Log objects previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: cursor returned on the previous page function call
-	//	- limit [int, default 100]: maximum number of objects to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil] date filter for objects created only after specified date.
-	//	- before [string, default nil] date filter for objects created only before specified date.
-	//	- types [slice of strings, default nil]: filter retrieved objects by types. ex: []string{"success", "failed"}
-	//	- paymentIds [slice of strings, default nil]: list of TaxPayment ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: cursor returned on the previous page function call
+	//		- limit [int, default 100]: maximum number of objects to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: date filter for objects created only after specified date.
+	//		- before [string, default nil]: date filter for objects created only before specified date.
+	//		- types [slice of strings, default nil]: filter retrieved objects by types. ex: []string{"success", "failed"}
+	//		- paymentIds [slice of strings, default nil]: list of TaxPayment ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of DarfPayment.Log objects with updated attributes
+	//	- Slice of DarfPayment.Log objects with updated attributes
 	//	- Cursor to retrieve the next page of DarfPayment.Log objects
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)

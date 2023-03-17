@@ -35,8 +35,8 @@ func Get(user user.User) Balance {
 	//
 	//	Receive the Balance struct linked to your workspace in the Stark Bank API
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Balance struct with updated attributes

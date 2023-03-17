@@ -27,14 +27,14 @@ import (
 //
 //	Parameters (optional):
 //	- Due [time.Time, default today + 2 days]: Boleto due date in ISO format. ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
-//	- Fine [float64, default 0]: Boleto fine for overdue payment in %. ex: 2.5
-//	- Interest [float64, default 0]: Boleto monthly interest for overdue payment in %. ex: 5.2
+//	- Fine [float64, default 2.0]: Boleto fine for overdue payment in %. ex: 2.5
+//	- Interest [float64, default 1.0]: Boleto monthly interest for overdue payment in %. ex: 5.2
 //	- OverdueLimit [int, default 59]: Limit in days for payment after due date. ex: 7 (max: 59)
 //	- Descriptions [slice of maps, default nil]: List of maps with "text":string and (optional) "amount":int pairs
 //	- Discounts [slice of maps, default nil]: List of maps with "percentage":float64 and "date":time.Time or string pairs
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"John", "Paul"}
-//	- ReceiverName [string, default ""]: Receiver (Sacador Avalista) full name. ex: "Anthony Edward Stark"
-//	- ReceiverTaxId [string, default ""]: Receiver (Sacador Avalista) tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
+//	- ReceiverName [string, default nil]: Receiver (Sacador Avalista) full name. ex: "Anthony Edward Stark"
+//	- ReceiverTaxId [string, default nil]: Receiver (Sacador Avalista) tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when Boleto is created. ex: "5656565656565656"
@@ -43,6 +43,7 @@ import (
 //	- BarCode [string]: Generated Boleto bar-code for payment. ex: "34195819600000000621090063571277307144464000"
 //	- Status [string]: Current Boleto status. ex: "registered" or "paid"
 //	- TransactionIds [slice of strings]: Ledger transaction ids linked to this boleto. ex: []string{"19827356981273"}
+//  - WorkspaceId [string]: ID of the Workspace that generated this Boleto. ex: "4545454545454545"
 //	- Created [time.Time]: Creation datetime for the Boleto. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- OurNumber [string]: Reference number registered at the settlement bank. ex:"10131474"
 
@@ -71,6 +72,7 @@ type Boleto struct {
 	BarCode       string                   `json:",omitempty"`
 	Status        string                   `json:",omitempty"`
 	Transactions  []string                 `json:",omitempty"`
+	WorkspaceId   string                   `json:",omitempty"`
 	Created       *time.Time               `json:",omitempty"`
 	OurNumber     string                   `json:",omitempty"`
 }
@@ -86,10 +88,12 @@ func Create(boletos []Boleto, user user.User) ([]Boleto, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- boletos [slice of Boleto structs]: List of Boleto structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- list of Boleto structs with updated attributes
+	//	- Slice of Boleto structs with updated attributes
 	create, err := utils.Multi(resource, boletos, nil, user)
 	unmarshalError := json.Unmarshal(create, &boletos)
 	if unmarshalError != nil {
@@ -105,7 +109,9 @@ func Get(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Boleto struct that corresponds to the given id.
@@ -124,11 +130,11 @@ func Pdf(id string, params map[string]interface{}, user user.User) ([]byte, Erro
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
 	//
 	//	Parameters (optional):
 	//	- layout [string]: Layout specification. Available options are "default" and "booklet"
 	//	- hiddenFields [slice of strings, default nil]: List of string fields to be hidden in Boleto pdf. ex: []string{"customerAddress"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Boleto .pdf file
@@ -138,21 +144,20 @@ func Pdf(id string, params map[string]interface{}, user user.User) ([]byte, Erro
 func Query(params map[string]interface{}, user user.User) chan Boleto {
 	//	Retrieve Boleto structs
 	//
-	//	Receive a generator of Boleto structs previously created in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of Boleto structs previously created in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of Boleto structs with updated attributes
+	//	- Channel of Boleto structs with updated attributes
 	boletos := make(chan Boleto)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -172,23 +177,22 @@ func Query(params map[string]interface{}, user user.User) chan Boleto {
 func Page(params map[string]interface{}, user user.User) ([]Boleto, string, Error.StarkErrors) {
 	//	Retrieve paged Boleto structs
 	//
-	//	Receive a list of up to 100 Boleto structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 Boleto structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of Boleto structs with updated attributes
+	//	- Slice of Boleto structs with updated attributes
 	//	- Cursor to retrieve the next page of Boleto structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
@@ -205,7 +209,9 @@ func Delete(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Boleto unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- deleted Boleto struct

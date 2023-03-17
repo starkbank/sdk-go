@@ -24,7 +24,7 @@ import (
 //
 //	Parameters (required):
 //	- CenterId [string]: target cost center ID. ex: "5656565656565656"
-//	- Payment [Transfer struct, BoletoPayment struct, UtilityPayment struct, BrcodePayment struct and Transaction]: payment entity that should be approved and executed.
+//	- Payment [Transfer struct, BoletoPayment struct, UtilityPayment struct, BrcodePayment struct or Transaction]: payment entity that should be approved and executed.
 //
 //	Parameters (conditionally required):
 //	- Type [string]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
@@ -36,22 +36,24 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: unique id returned when a PaymentRequest is created. ex: "5656565656565656"
 //	- Amount [int]: PaymentRequest amount. ex: 100000 = R$1.000,00
+//	- Description [string]: payment request description. ex: "Tony Stark's Suit"
 //	- Status [string]: current PaymentRequest status. ex: "pending" or "approved"
 //	- Actions [slice of maps]: slice of actions that are affecting this PaymentRequest. ex: [{"type": "member", "id": "56565656565656, "action": "requested"}]
 //	- Updated [time.Time]: latest update datetime for the PaymentRequest. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: creation datetime for the PaymentRequest. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type PaymentRequest struct {
-	CenterId string                   `json:",omitempty"`
-	Payment  interface{}              `json:",omitempty"`
-	Type     string                   `json:",omitempty"`
-	Due      *time.Time               `json:",omitempty"`
-	Tags     []string                 `json:",omitempty"`
-	Amount   int                      `json:",omitempty"`
-	Status   string                   `json:",omitempty"`
-	Actions  []map[string]interface{} `json:",omitempty"`
-	Updated  *time.Time               `json:",omitempty"`
-	Created  *time.Time               `json:",omitempty"`
+	CenterId    string                   `json:",omitempty"`
+	Payment     interface{}              `json:",omitempty"`
+	Type        string                   `json:",omitempty"`
+	Due         *time.Time               `json:",omitempty"`
+	Tags        []string                 `json:",omitempty"`
+	Amount      int                      `json:",omitempty"`
+	Description string                   `json:",omitempty"`
+	Status      string                   `json:",omitempty"`
+	Actions     []map[string]interface{} `json:",omitempty"`
+	Updated     *time.Time               `json:",omitempty"`
+	Created     *time.Time               `json:",omitempty"`
 }
 
 var object PaymentRequest
@@ -65,10 +67,12 @@ func Create(requests []PaymentRequest, user user.User) ([]PaymentRequest, Error.
 	//
 	//	Parameters (required):
 	//	- requests [slice of PaymentRequest structs]: slice of PaymentRequest structs to be created in the API
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of PaymentRequest structs with updated attributes
+	//	- Slice of PaymentRequest structs with updated attributes
 	create, err := utils.Multi(resource, requests, nil, user)
 	unmarshalError := json.Unmarshal(create, &requests)
 	if unmarshalError != nil {
@@ -80,24 +84,25 @@ func Create(requests []PaymentRequest, user user.User) ([]PaymentRequest, Error.
 func Query(centerId string, params map[string]interface{}, user user.User) chan PaymentRequest {
 	//	Retrieve PaymentRequest structs
 	//
-	//	Receive a generator of PaymentRequest structs previously created by this user in the Stark Bank API
+	//	Receive a channel of PaymentRequest structs previously created by this user in the Stark Bank API
 	//
 	//	Parameters (required):
 	//	- centerId [string]: target cost center ID. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: date filter for structs created or updated only after specified date.
-	//	- before [string, default nil]: date filter for structs created or updated only before specified date.
-	//	- sort [string, default "-created"]: sort order considered in response. Valid options are "-created" or "-due".
-	//	- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
-	//	- type [string, default nil]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
-	//	- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: date filter for structs created or updated only after specified date.
+	//		- before [string, default nil]: date filter for structs created or updated only before specified date.
+	//		- sort [string, default "-created"]: sort order considered in response. Valid options are "-created" or "-due".
+	//		- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
+	//		- type [string, default nil]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of PaymentRequest structs with updated attributes
+	//	- Channel of PaymentRequest structs with updated attributes
 	var param = map[string]interface{}{}
 	for k, v := range params {
 		param[k] = v
@@ -127,21 +132,22 @@ func Page(centerId string, params map[string]interface{}, user user.User) ([]Pay
 	//
 	//	Parameters (required):
 	//	- centerId [string]: target cost center ID. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
 	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: cursor returned on the previous page function call
-	//	- limit [int, default 100]: maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: date filter for structs created or updated only after specified date.
-	//	- before [string, default nil]: date filter for structs created or updated only before specified date.
-	//	- sort [string, default "-created"]: sort order considered in response. Valid options are "-created" or "-due".
-	//	- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
-	//	- type [string, default nil]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
-	//	- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: cursor returned on the previous page function call
+	//		- limit [int, default 100]: maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: date filter for structs created or updated only after specified date.
+	//		- before [string, default nil]: date filter for structs created or updated only before specified date.
+	//		- sort [string, default "-created"]: sort order considered in response. Valid options are "-created" or "-due".
+	//		- status [string, default nil]: filter for status of retrieved structs. ex: "success" or "failed"
+	//		- type [string, default nil]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- slice of PaymentRequest structs with updated attributes
+	//	- Slice of PaymentRequest structs with updated attributes
 	//	- Cursor to retrieve the next page of PaymentRequest structs
 	var param = map[string]interface{}{}
 	for k, v := range params {

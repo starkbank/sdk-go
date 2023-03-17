@@ -16,7 +16,8 @@ func TestDepositGet(t *testing.T) {
 
 	var depositList []Deposit.Deposit
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	deposits := Deposit.Query(params, nil)
 	for deposit := range deposits {
@@ -29,7 +30,7 @@ func TestDepositGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Println(deposit.Id)
+	fmt.Printf("%+v", deposit)
 }
 
 func TestDepositQuery(t *testing.T) {

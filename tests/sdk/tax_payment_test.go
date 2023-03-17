@@ -32,7 +32,8 @@ func TestTaxPaymentGet(t *testing.T) {
 
 	var paymentList []TaxPayment.TaxPayment
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	payments := TaxPayment.Query(params, nil)
 	for payment := range payments {
@@ -45,6 +46,8 @@ func TestTaxPaymentGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+
+	fmt.Printf("%+v", payment)
 	assert.NotNil(t, payment.Id)
 }
 

@@ -15,7 +15,8 @@ func TestDepositLogGet(t *testing.T) {
 
 	var logIds, depositsIds []string
 	var params = map[string]interface{}{}
-	params["limit"] = 5
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	logs := DepositLog.Query(params, nil)
 
@@ -24,14 +25,14 @@ func TestDepositLogGet(t *testing.T) {
 		logIds = append(logIds, log.Id)
 	}
 	for _, ids := range logIds {
-		deposits, err := DepositLog.Get(ids, nil)
+		deposit, err := DepositLog.Get(ids, nil)
 		if err.Errors != nil {
 			for _, erro := range err.Errors {
 				panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 			}
 		}
-		depositsIds = append(depositsIds, deposits.Id)
-		fmt.Println(deposits.Id)
+		fmt.Printf("%+v", deposit)
+		depositsIds = append(depositsIds, deposit.Id)
 	}
 	assert.Equal(t, logIds, depositsIds)
 }

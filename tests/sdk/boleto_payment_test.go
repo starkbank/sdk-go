@@ -23,6 +23,7 @@ func TestBoletoPaymentPost(t *testing.T) {
 		}
 	}
 	for _, payment := range payments {
+		fmt.Printf("%+v", payment)
 		assert.NotNil(t, payment.Id)
 	}
 }
@@ -33,7 +34,8 @@ func TestBoletoPaymentGet(t *testing.T) {
 
 	var paymentList []BoletoPayment.BoletoPayment
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2021-04-01"
+	params["before"] = "2021-04-30"
 
 	payments := BoletoPayment.Query(params, nil)
 	for payment := range payments {
@@ -46,6 +48,7 @@ func TestBoletoPaymentGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+	fmt.Printf("%+v", payment)
 	assert.NotNil(t, payment.Id)
 }
 
@@ -133,5 +136,7 @@ func TestBoletoPaymentPostDelete(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+
+	fmt.Printf("%+v", deleted)
 	assert.NotNil(t, deleted.Id)
 }

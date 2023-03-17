@@ -58,7 +58,9 @@ func Get(id string, user user.User) (Deposit, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Deposit struct that corresponds to the given id
@@ -73,22 +75,21 @@ func Get(id string, user user.User) (Deposit, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Deposit {
 	//	Retrieve Deposit structs
 	//
-	//	Receive a generator of Deposit structs from the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of Deposit structs from the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
-	//	- sort [string, default "-created"]: Sort order considered in response. Valid options are "created" or "-created".
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
+	//		- sort [string, default "-created"]: Sort order considered in response. Valid options are "created" or "-created".
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of Deposit structs with updated attributes
+	//	- Channel of Deposit structs with updated attributes
 	deposits := make(chan Deposit)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -108,24 +109,23 @@ func Query(params map[string]interface{}, user user.User) chan Deposit {
 func Page(params map[string]interface{}, user user.User) ([]Deposit, string, Error.StarkErrors) {
 	//	Retrieve paged Deposit structs
 	//
-	//	Receive a list of up to 100 Deposit structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 Deposit structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
-	//	- sort [string, default "-created"]: Sort order considered in response. Valid options are "created" or "-created".
-	//	- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
-	//	- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- status [string, default nil]: Filter for status of retrieved structs. ex: "paid" or "registered"
+	//		- sort [string, default "-created"]: Sort order considered in response. Valid options are "created" or "-created".
+	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: List of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of Deposit structs with updated attributes
+	//	- Slice of Deposit structs with updated attributes
 	//	- Cursor to retrieve the next page of Deposit structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)

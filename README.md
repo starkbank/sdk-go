@@ -15,6 +15,7 @@ is as easy as sending a text message to your client!
 - [Introduction](#introduction)
     - [Supported Golang versions](#supported-golang-versions)
     - [API documentation](#stark-bank-api-documentation)
+    - [Versioning](#versioning)
 - [Setup](#setup)
     - [Install our SDK](#1-install-our-sdk)
     - [Create your Private and Public Keys](#2-create-your-private-and-public-keys)
@@ -60,6 +61,17 @@ This library supports the following Golang versions:
 
 Feel free to take a look at our [API docs](https://www.starkbank.com/docs/api).
 
+## Versioning
+
+This project adheres to the following versioning pattern:
+
+Given a version number MAJOR.MINOR.PATCH, increment:
+
+- MAJOR version when the **API** version is incremented. This may include backwards incompatible changes;
+- MINOR version when **breaking changes** are introduced OR **new functionalities** are added in a backwards compatible
+  manner;
+- PATCH version when backwards compatible bug **fixes** are implemented.
+
 # Setup
 
 ## 1. Install our SDK
@@ -74,7 +86,7 @@ github.com/starkbank/sdk-go v0.0.1
 1.2 You can also explicitly go get the package into a project:
 
 ```sh
-go get -u github.com/starkbank/sdk-go/v0.0.1
+go get -u github.com/starkbank/sdk-go
 ```
 
 ## 2. Create your Private and Public Keys
@@ -3695,8 +3707,10 @@ The SDK may return errors as the StarkErrors struct, which contains the "code" a
 It's highly recommended that you handle the errors returned from the functions used to get a feedback of the operation,
 as the example below:
 
-InputErrors will be raised whenever the API detects an error in your request (status code 400). If you catch such an
-error, you can get its elements to verify each of the individual errors that item detected in your request by the API.
+__InputErrors__ will be raised whenever the API detects an error in your request (status code 400).
+If you catch such an error, you can get its elements to verify each of the
+individual errors that were detected in your request by the API.
+
 For example:
 
 ```golang

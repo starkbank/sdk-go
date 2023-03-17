@@ -52,7 +52,9 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Event struct that corresponds to the given id
@@ -67,19 +69,18 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Event {
 	//	Retrieve notification Event struct
 	//
-	//	Receive a generator of notification Event structs previously created in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of notification Event structs previously created in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- isDelivered [bool, default nil]: Bool to filter successfully delivered events. ex: True or False
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- isDelivered [bool, default nil]: Bool to filter successfully delivered events. ex: True or False
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Generator of Event structs with updated attributes
+	//	- Channel of Event structs with updated attributes
 	events := make(chan Event)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -99,21 +100,20 @@ func Query(params map[string]interface{}, user user.User) chan Event {
 func Page(params map[string]interface{}, user user.User) ([]Event, string, Error.StarkErrors) {
 	//	Retrieve paged Event structs
 	//
-	//	Receive a list of up to 100 Event structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 Event structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- isDelivered [bool, default nil]: Bool to filter successfully delivered events. ex: True or False
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- isDelivered [bool, default nil]: Bool to filter successfully delivered events. ex: True or False
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- List of Event structs with updated attributes
+	//	- Slice of Event structs with updated attributes
 	//	- Cursor to retrieve the next page of Event structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
@@ -130,7 +130,9 @@ func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Event unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Deleted Event struct
@@ -153,7 +155,9 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Event,
 	//	- patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"isDelivered": true}
 	//		Parameters (required):
 	//		- isDelivered [bool]: If True and event hasn't been delivered already, event will be set as delivered. ex: true
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Target Event with updated attributes
@@ -165,21 +169,23 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Event,
 	return object.ParseLog(), err
 }
 
-func Parse(content string, signature string, key string, user user.User) interface{} {
+func Parse(content string, signature string, user user.User) interface{} {
 	//	Create single notification Event from a content string
 	//
 	//	Create a single Event struct received from event listening at subscribed user endpoint.
-	//	If the provided digital signature does not check out with the StarkBank public key, a
-	//	starkbank.error.InvalidSignatureError will be raised.
+	//	If the provided digital signature does not check out with the StarkBank public key, an
+	//	error.InvalidSignatureError will be raised.
 	//
 	//	Parameters (required):
 	//	- content [string]: Response content from request received at user endpoint (not parsed)
 	//	- signature [string]: Base-64 digital signature received at response header "Digital-Signature"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Parsed Event struct
-	return utils.ParseAndVerify(content, signature, key, user)
+	return utils.ParseAndVerify(content, signature, "event", user)
 }
 
 func (e Event) ParseLog() Event {

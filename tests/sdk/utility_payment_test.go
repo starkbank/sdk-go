@@ -33,7 +33,8 @@ func TestUtilityGet(t *testing.T) {
 
 	var utilityList []Utility.UtilityPayment
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["after"] = "2022-04-01"
+	params["before"] = "2022-04-30"
 
 	utilitys := Utility.Query(params, nil)
 	for utility := range utilitys {
@@ -46,6 +47,8 @@ func TestUtilityGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
+
+	fmt.Printf("%+v", utility)
 	assert.NotNil(t, utility.Id)
 }
 

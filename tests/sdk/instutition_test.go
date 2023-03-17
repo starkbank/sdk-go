@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	Institution "github.com/starkbank/sdk-go/starkbank/institution"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -13,11 +14,12 @@ func TestInstitutionQuery(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
 	var params = map[string]interface{}{}
-	params["limit"] = 3
+	params["search"] = "stark"
 
 	institutions := Institution.Query(params, nil)
 
 	for institution := range institutions {
+		fmt.Printf("%+v", institution)
 		assert.NotNil(t, institution.SpiCode)
 	}
 }

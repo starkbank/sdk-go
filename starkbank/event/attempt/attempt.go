@@ -41,7 +41,9 @@ func Get(id string, user user.User) (Attempt, Error.StarkErrors) {
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- event.Attempt struct that corresponds to the given id
@@ -56,20 +58,19 @@ func Get(id string, user user.User) (Attempt, Error.StarkErrors) {
 func Query(params map[string]interface{}, user user.User) chan Attempt {
 	//	Retrieve event.Attempt structs
 	//
-	//	Receive a generator of event.Attempt structs previously created in the Stark Bank API
-	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
+	//	Receive a channel of event.Attempt structs previously created in the Stark Bank API
 	//
 	//	Parameters (optional):
-	//	- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- eventIds [slice of strings, default nil]: List of Event ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- webhookIds [slice of strings, default nil]: List of Webhook ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- limit [int, default nil]: Maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- eventIds [slice of strings, default nil]: List of Event ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- webhookIds [slice of strings, default nil]: List of Webhook ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- generator of Event.Attempt structs with updated attributes
+	//	- Channel of Event.Attempt structs with updated attributes
 	attempts := make(chan Attempt)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -89,22 +90,21 @@ func Query(params map[string]interface{}, user user.User) chan Attempt {
 func Page(params map[string]interface{}, user user.User) ([]Attempt, string, Error.StarkErrors) {
 	//	Retrieve paged event.Attempt structs
 	//
-	//	Receive a list of up to 100 event.Attempt structs previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 event.Attempt structs previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
-	//	Parameters (required):
-	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.user was set before function call
-	//
 	//	Parameters (optional):
-	//	- cursor [string, default nil]: Cursor returned on the previous page function call
-	//	- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
-	//	- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
-	//	- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
-	//	- eventIds [slice of strings, default nil]: List of Event ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
-	//	- webhookIds [slice of strings, default nil]: List of Webhook ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
+	//  - params [map[string]interface{}, default nil]: map of parameters for the query
+	//		- cursor [string, default nil]: Cursor returned on the previous page function call
+	//		- limit [int, default 100]: Maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
+	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
+	//		- eventIds [slice of strings, default nil]: List of Event ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- webhookIds [slice of strings, default nil]: List of Webhook ids to filter attempts. ex: []string{"5656565656565656", "4545454545454545"}
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- list of Event.Attempt structs with updated attributes
+	//	- Slice of Event.Attempt structs with updated attributes
 	//	- cursor to retrieve the next page of Event.Attempt structs
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
