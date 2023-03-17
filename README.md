@@ -79,7 +79,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 1.1 In go.mod file, add the path in the required packages
 
 ```golang
-github.com/starkbank/sdk-go v0.0.1
+github.com/starkbank/sdk-go v0.1.0
 
 ```
 
