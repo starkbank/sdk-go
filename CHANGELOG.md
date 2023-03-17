@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- metadata attribute to Transfer resource
 
 ## [0.0.1] - 2023-01-26
 ### Added
