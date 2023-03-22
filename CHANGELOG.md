@@ -14,6 +14,10 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 
+## [0.2.0] - 2023-03-22
+### Changed
+- metadata Transfer attribute from struct to map
+
 ## [0.1.0] - 2023-03-17
 ### Added
 - metadata attribute to Transfer resource
