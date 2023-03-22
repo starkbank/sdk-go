@@ -2,7 +2,6 @@ package transfer
 
 import (
 	"encoding/json"
-	"github.com/starkbank/sdk-go/starkbank/transfer/metadata"
 	"github.com/starkbank/sdk-go/starkbank/transfer/rule"
 	"github.com/starkbank/sdk-go/starkbank/utils"
 	Error "github.com/starkinfra/core-go/starkcore/error"
@@ -37,30 +36,30 @@ import (
 //	- Fee [int]: fee charged when the Transfer is processed. ex: 200 (= R$ 2.00)
 //	- Status [string]: current transfer status. ex: "success" or "failed"
 //	- TransactionIds [slice of strings]: ledger Transaction IDs linked to this Transfer (if there are two, the second is the chargeback). ex: []string{"19827356981273"}
-//	- Metadata [Transfer.Metadata struct]: object used to store additional information about the Transfer struct.
+//	- Metadata [map[string]interface{}]: object used to store additional information about the Transfer struct.
 //	- Created [time.Time]: creation datetime for the transfer. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: latest update datetime for the transfer. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Transfer struct {
-	Id             string            `json:",omitempty"`
-	Amount         int               `json:",omitempty"`
-	Name           string            `json:",omitempty"`
-	TaxId          string            `json:",omitempty"`
-	BankCode       string            `json:",omitempty"`
-	BranchCode     string            `json:",omitempty"`
-	AccountNumber  string            `json:",omitempty"`
-	AccountType    string            `json:",omitempty"`
-	ExternalId     string            `json:",omitempty"`
-	Scheduled      *time.Time        `json:",omitempty"`
-	Description    string            `json:",omitempty"`
-	Tags           []string          `json:",omitempty"`
-	Rules          []rule.Rule       `json:",omitempty"`
-	Fee            int               `json:",omitempty"`
-	Status         string            `json:",omitempty"`
-	TransactionIds []string          `json:",omitempty"`
-	Metadata       metadata.Metadata `json:",omitempty"`
-	Created        *time.Time        `json:",omitempty"`
-	Updated        *time.Time        `json:",omitempty"`
+	Id             string                 `json:",omitempty"`
+	Amount         int                    `json:",omitempty"`
+	Name           string                 `json:",omitempty"`
+	TaxId          string                 `json:",omitempty"`
+	BankCode       string                 `json:",omitempty"`
+	BranchCode     string                 `json:",omitempty"`
+	AccountNumber  string                 `json:",omitempty"`
+	AccountType    string                 `json:",omitempty"`
+	ExternalId     string                 `json:",omitempty"`
+	Scheduled      *time.Time             `json:",omitempty"`
+	Description    string                 `json:",omitempty"`
+	Tags           []string               `json:",omitempty"`
+	Rules          []rule.Rule            `json:",omitempty"`
+	Fee            int                    `json:",omitempty"`
+	Status         string                 `json:",omitempty"`
+	TransactionIds []string               `json:",omitempty"`
+	Metadata       map[string]interface{} `json:",omitempty"`
+	Created        *time.Time             `json:",omitempty"`
+	Updated        *time.Time             `json:",omitempty"`
 }
 
 var Object Transfer
