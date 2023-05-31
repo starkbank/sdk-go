@@ -69,3 +69,10 @@ func Patch(resource map[string]string, id string, payload map[string]interface{}
 	}
 	return rest.PatchId(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, user, resource, id, payload, nil)
 }
+
+func PostRaw(path string, entity interface{}, query map[string]interface{}, user user.User) (map[string]interface{}, Errors.StarkErrors) {
+	if user == nil {
+		return rest.PostRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, entity, starkbank.User, query)
+	}
+	return rest.PostRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, entity, user, query)
+}

@@ -26,8 +26,8 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: unique id returned when the workspace is created. ex: "5656565656565656"
 //	- Status [string]: current Workspace status. Options: "active", "closed", "frozen" or "blocked"
-//  - OrganizationId [string]: unique organization id returned when the organization is created.ex: "5656565656565656"
-//  - PictureUrl [string]: public workspace image (png) URL.ex: "https://storage.googleapis.com/api-ms-workspace-sbx.appspot.com/pictures/workspace/6284441752174592.png?20230208220551"
+//	- OrganizationId [string]: unique organization id returned when the organization is created.ex: "5656565656565656"
+//	- PictureUrl [string]: public workspace image (png) URL.ex: "https://storage.googleapis.com/api-ms-workspace-dev.appspot.com/pictures/workspace/5647143184367616.png?20230528223305"
 //	- Created [time.Time]: creation datetime for the payment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Workspace struct {

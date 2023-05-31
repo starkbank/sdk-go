@@ -30,8 +30,7 @@ func TestBoletoPaymentLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Printf("payment: %+v", payment)
-	fmt.Println(payment.Id)
+	assert.NotNil(t, payment.Id)
 }
 
 func TestBoletoPaymentLogQuery(t *testing.T) {

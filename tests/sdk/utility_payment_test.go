@@ -48,7 +48,6 @@ func TestUtilityGet(t *testing.T) {
 		}
 	}
 
-	fmt.Printf("%+v", utility)
 	assert.NotNil(t, utility.Id)
 }
 

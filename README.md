@@ -43,6 +43,13 @@ is as easy as sending a text message to your client!
     - [PaymentPreviews](#preview-payment-information-before-executing-the-payment): Preview all sorts of payments
     - [PaymentRequest](#create-payment-requests-to-be-approved-by-authorized-people-in-a-cost-center): Request a payment
       approval to a cost center
+    - [CorporateHolders](#create-corporateholders): Manage cardholders
+    - [CorporateCards](#create-corporatecards): Create virtual and/or physical cards
+    - [CorporateInvoices](#create-corporateinvoices): Add money to your corporate balance
+    - [CorporateWithdrawals](#create-corporatewithdrawals): Send money back to your Workspace from your corporate balance
+    - [CorporateBalance](#get-your-corporatebalance): View your corporate balance
+    - [CorporateTransactions](#query-corporatetransactions): View the transactions that have affected your corporate balance
+    - [CorporateEnums](#corporate-enums): Query enums related to the corporate purchases, such as merchant categories, countries and card purchase methods
     - [Webhooks](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
     - [WebhookEvents](#process-webhook-events): Manage webhook events
     - [WebhookEventAttempts](#query-failed-webhook-event-delivery-attempts-information): Query failed webhook event
@@ -3207,6 +3214,873 @@ func main() {
   requests := PaymentRequest.Query("123456778890", params, nil)
   for request := range requests {
     fmt.Println(request)
+  }
+}
+
+```
+
+## Create CorporateHolders
+
+You can create card holders to which your cards will be bound.
+They support spending rules that will apply to all underlying cards.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporateholder"
+  "github.com/starkbank/sdk-go/starkbank/corporaterule"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  holders, err := corporateholder.Create(
+    []corporateholder.CorporateHolder{
+      {
+        Name:  "Iron Bank S.A.",
+        Tags:  []string{"Traveler Employee"},
+        Rules: []corporaterule.CorporateRule{
+			{
+              Name: "General USD",
+              Interval: "day",
+              Amount: 100000,
+              CurrencyCode: "USD",
+            },
+        },
+      },
+      {
+        Name: "Iron Bank S.A.",
+      },
+    }, nil, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  for _, holder := range holders {
+    fmt.Println(holder)
+  }
+}
+
+```
+
+**Note**: Instead of using CorporateHolder objects, you can also pass each element in dictionary format
+
+## Query CorporateHolders
+
+You can query multiple holders according to filters.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporateholder"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  holders := corporateholder.Query(params, nil)
+  for holder := range holders {
+    fmt.Println(holder)
+  }
+}
+
+```
+
+## Cancel a CorporateHolder
+
+To cancel a single Corporate Holder by its id, run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporateholder"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  holder, err := corporateholder.Cancel("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(holder)
+}
+
+```
+
+## Get a CorporateHolder
+
+To get a single Corporate Holder by its id, run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporateholder"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  holder, err := corporateholder.Get("5353197895942144", nil, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(holder)
+}
+
+```
+
+## Query CorporateHolder logs
+
+You can query holder logs to better understand holder life cycles.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/corporateholder/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
+}
+
+```
+
+## Get a CorporateHolder log
+
+You can also get a specific log by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/corporateholder/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(log)
+}
+```
+
+## Create CorporateCard
+
+You can issue cards with specific spending rules.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatecard"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  card, err := corporatecard.Create(
+    corporatecard.CorporateCard{
+      HolderId: "5155165527080960",
+    }, nil, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(card)
+}
+
+```
+
+## Query CorporateCards
+
+You can get a list of created cards given some filters.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatecard"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  cards := corporatecard.Query(params, nil)
+  for card := range cards {
+    fmt.Println(card)
+  }
+}
+
+```
+
+## Get a CorporateCard
+
+After its creation, information on a card may be retrieved by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatecard"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  card, err := corporatecard.Get("5353197895942144", nil, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(card)
+}
+
+```
+
+## Update a CorporateCard
+
+You can update a specific card by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatecard"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var patchData = map[string]interface{}{}
+  patchData["status"] = "blocked"
+
+  card, err := corporatecard.Update("5353197895942144", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(card)
+}
+
+```
+
+## Cancel a CorporateCard
+
+You can also cancel a card by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatecard"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  card, err := corporatecard.Cancel("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(card)
+}
+
+```
+
+## Query CorporateCard logs
+
+Logs are pretty important to understand the life cycle of a card.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/corporatecard/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
+}
+
+```
+
+## Get a CorporateCard log
+
+You can get a single log by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/corporatecard/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(log)
+}
+
+```
+
+## Query CorporatePurchases
+
+You can get a list of created purchases given some filters.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatepurchase"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  purchases := corporatepurchase.Query(params, nil)
+  for purchase := range purchases {
+    fmt.Println(purchase)
+  }
+}
+
+```
+
+## Get a CorporatePurchase
+
+After its creation, information on a purchase may be retrieved by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatepurchase"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  purchase, err := corporatepurchase.Get("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(purchase)
+}
+
+```
+
+## Query CorporatePurchase logs
+
+Logs are pretty important to understand the life cycle of a purchase.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/corporatepurchase/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  logs := Log.Query(params, nil)
+  for log := range logs {
+    fmt.Println(log)
+  }
+}
+
+```
+
+## Get a CorporatePurchase log
+
+You can get a single log by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/corporatepurchase/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(log)
+}
+
+```
+
+## Create CorporateInvoices
+
+You can create Pix invoices to transfer money from accounts you have in any bank to your Corporate balance,
+allowing you to run your corporate operation.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporateinvoice"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  invoice, err := corporateinvoice.Create(
+    corporateinvoice.CorporateInvoice{
+      Amount: 10000,
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(invoice)
+}
+
+```
+
+**Note**: Instead of using CorporateInvoice objects, you can also pass each element in dictionary format
+
+## Query CorporateInvoices
+
+You can get a list of created invoices given some filters.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporateinvoice"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  invoices := corporateinvoice.Query(params, nil)
+  for invoice := range invoices {
+    fmt.Println(invoice)
+  }
+}
+
+```
+
+## Create CorporateWithdrawals
+
+You can create withdrawals to send cash back from your Corporate balance to your Banking balance
+by using the Withdrawal resource.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatewithdrawal"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  withdrawal, err := corporatewithdrawal.Create(
+    corporatewithdrawal.CorporateWithdrawal{
+      Amount: 10000,
+      ExternalId: "my-external-id",
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(withdrawal)
+}
+
+```
+
+**Note**: Instead of using CorporateWithdrawal objects, you can also pass each element in dictionary format
+
+## Get a CorporateWithdrawal
+
+After its creation, information on a withdrawal may be retrieved by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatewithdrawal"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  withdrawal, err := corporatewithdrawal.Get("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(withdrawal)
+}
+
+```
+
+## Query CorporateWithdrawals
+
+You can get a list of created withdrawals given some filters.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatewithdrawal"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  withdrawals := corporatewithdrawal.Query(params, nil)
+  for withdrawal := range withdrawals {
+    fmt.Println(withdrawal)
+  }
+}
+
+```
+
+## Get your CorporateBalance
+
+To know how much money you have available to run authorizations, run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatebalance"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  balance := corporatebalance.Get(nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(balance)
+}
+
+```
+
+## Query CorporateTransactions
+
+To understand your balance changes (corporate statement), you can query
+transactions. Note that our system creates transactions for you when
+you make purchases, withdrawals, receive corporate invoice payments, for example.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatetransaction"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  transactions := corporatetransaction.Query(params, nil)
+  for transaction := range transactions {
+    fmt.Println(transaction)
+  }
+}
+
+```
+
+## Get a CorporateTransaction
+
+You can get a specific transaction by its id:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/corporatetransaction"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  transaction, err := corporatetransaction.Get("5353197895942144", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+
+  fmt.Println(transaction)
+}
+
+```
+
+## Corporate Enums
+
+### Query MerchantCategories
+
+You can query any merchant categories using this resource.
+You may also use MerchantCategories to define specific category filters in CorporateRules.
+Either codes (which represents specific MCCs) or types (code groups) will be accepted as filters.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/merchantcategory"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  categories := merchantcategory.Query(nil, nil)
+  for category := range categories {
+    fmt.Println(category.Code)
+  }
+}
+```
+
+### Query MerchantCountries
+
+You can query any merchant countries using this resource.
+You may also use MerchantCountries to define specific country filters in CorporateRules.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/merchantcountry"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  countries := merchantcountry.Query(nil, nil)
+  for country := range countries {
+    fmt.Println(country.Code)
+  }
+}
+
+```
+
+### Query CardMethods
+
+You can query available card methods using this resource.
+You may also use CardMethods to define specific purchase method filters in CorporateRules.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/cardmethod"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  methods := cardmethod.Query(nil, nil)
+  for method := range methods {
+    fmt.Println(method.Code)
   }
 }
 

@@ -47,7 +47,7 @@ func TestTaxPaymentGet(t *testing.T) {
 		}
 	}
 
-	fmt.Printf("%+v", payment)
+	assert.NotNil(t, payment)
 	assert.NotNil(t, payment.Id)
 }
 

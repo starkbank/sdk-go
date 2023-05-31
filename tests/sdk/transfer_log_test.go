@@ -23,13 +23,13 @@ func TestTransferLogGet(t *testing.T) {
 		logList = append(logList, log)
 	}
 
-	transfers, err := TransferLog.Get(logList[rand.Intn(len(logList))].Id, nil)
+	transfer, err := TransferLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Printf("%+v", transfers)
+	assert.NotNil(t, transfer)
 }
 
 func TestTransferLogQuery(t *testing.T) {

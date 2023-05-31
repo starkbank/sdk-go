@@ -30,7 +30,7 @@ func TestEventGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
-	fmt.Println(event)
+	assert.NotNil(t, event)
 }
 
 func TestEventQuery(t *testing.T) {
@@ -44,7 +44,8 @@ func TestEventQuery(t *testing.T) {
 	events := Event.Query(params, nil)
 
 	for event := range events {
-		fmt.Println(event)
+		assert.NotNil(t, event)
+		assert.NotNil(t, event.Id)
 	}
 }
 
@@ -187,7 +188,7 @@ func TestEventRightParse(t *testing.T) {
 	validSignature := "MEUCIG69+s7bcS9pvvbwN0Rx9xtsVQcIuavfdJvAi2wtyHMdAiEAh/vtDWJjI76IcJvci1BNw10iM2qV57Jb5VUOLcQAZmY="
 
 	parsed := Event.Parse(content, validSignature, nil)
-	fmt.Println(parsed)
+	assert.NotNil(t, parsed)
 }
 
 func TestEventWrongParse(t *testing.T) {
@@ -198,7 +199,7 @@ func TestEventWrongParse(t *testing.T) {
 	invalidSignature := "MEUCIQDOpo1j+V40DNZK2URL2786UQK/8mDXon9ayEd8U0/l7AIgYXtIZJBTs8zCRR3vmted6Ehz/qfw1GRut/eYyvf1yOk="
 
 	parsed := Event.Parse(content, invalidSignature, nil)
-	fmt.Println(parsed)
+	assert.NotNil(t, parsed)
 }
 
 func TestEventMalFormedParse(t *testing.T) {
@@ -209,5 +210,5 @@ func TestEventMalFormedParse(t *testing.T) {
 	malformedSignature := "something is definitely wrong"
 
 	parsed := Event.Parse(content, malformedSignature, nil)
-	fmt.Println(parsed)
+	assert.NotNil(t, parsed)
 }

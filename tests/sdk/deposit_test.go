@@ -30,7 +30,7 @@ func TestDepositGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Printf("%+v", deposit)
+	assert.NotNil(t, deposit)
 }
 
 func TestDepositQuery(t *testing.T) {

@@ -29,7 +29,7 @@ func TestDarfPaymentLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Println(log.Id)
+	assert.NotNil(t, log)
 }
 
 func TestDarfPaymentLogQuery(t *testing.T) {

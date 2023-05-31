@@ -10,5 +10,5 @@ package rule
 
 type Rule struct {
 	Key   string `json:",omitempty"`
-	Value int    `json:",omitempty"`
+	Value int
 }

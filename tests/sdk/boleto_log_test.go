@@ -22,13 +22,13 @@ func TestBoletoLogGet(t *testing.T) {
 
 	boletos := BoletoLog.Query(params, nil)
 	for boleto := range boletos {
-		fmt.Printf("%+v", boleto)
+		assert.NotNil(t, boleto)
 		boletoList = append(boletoList, boleto)
 	}
 
 	log, err := BoletoLog.Get(boletoList[rand.Intn(len(boletoList))].Id, nil)
 	if err.Errors != nil {
-		fmt.Printf("%+v", log)
+		assert.NotNil(t, log)
 		for _, erro := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
