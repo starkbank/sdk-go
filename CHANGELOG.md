@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [0.3.0] - 2023-05-31
 ### Added
 - CorporateBalance resource
 - CorporateCard resource
