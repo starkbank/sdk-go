@@ -45,7 +45,6 @@ func TestBrcodePaymentGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-
 	assert.NotNil(t, brcode.Id)
 }
 
@@ -118,6 +117,7 @@ func TestBrcodePaymentUpdate(t *testing.T) {
 	var brcodeList []BrcodePayment.BrcodePayment
 	var params = map[string]interface{}{}
 	params["limit"] = rand.Intn(100)
+	params["status"] = "created"
 
 	brcodes := BrcodePayment.Query(params, nil)
 	for brcode := range brcodes {
@@ -133,5 +133,5 @@ func TestBrcodePaymentUpdate(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Println(updated)
+	assert.NotNil(t, updated)
 }

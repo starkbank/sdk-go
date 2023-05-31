@@ -65,9 +65,9 @@ func TestHolmesQuery(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 201
 
-	holmesQuery := Holmes.Query(params, nil)
+	sherlock := Holmes.Query(params, nil)
 
-	for holmes := range holmesQuery {
+	for holmes := range sherlock {
 		assert.NotNil(t, holmes.Id)
 		i++
 	}
@@ -82,13 +82,13 @@ func TestHolmesPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 4
 
-	holmes, cursor, err := Holmes.Page(params, nil)
+	sherlock, cursor, err := Holmes.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
-	for _, holmes := range holmes {
+	for _, holmes := range sherlock {
 		ids = append(ids, holmes.Id)
 		assert.NotNil(t, holmes.Id)
 		assert.NotNil(t, cursor)

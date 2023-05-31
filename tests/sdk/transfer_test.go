@@ -23,7 +23,7 @@ func TestTransferPost(t *testing.T) {
 		}
 	}
 	for _, transfer := range transfers {
-		fmt.Printf("%+v", transfer)
+		assert.NotNil(t, transfer)
 	}
 }
 
@@ -46,7 +46,7 @@ func TestTransferGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
-	fmt.Printf("%+v", transfer)
+	assert.NotNil(t, transfer)
 }
 
 func TestTransferPdf(t *testing.T) {

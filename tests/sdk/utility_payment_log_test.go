@@ -24,15 +24,14 @@ func TestUtilityLogGet(t *testing.T) {
 		logList = append(logList, log)
 	}
 
-	utilities, err := UtilityLog.Get(logList[rand.Intn(len(logList))].Id, nil)
+	utility, err := UtilityLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
 
-	fmt.Printf("%+v", utilities)
-	fmt.Println(utilities.Id)
+	assert.NotNil(t, utility)
 }
 
 func TestUtilityLogQuery(t *testing.T) {

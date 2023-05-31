@@ -42,7 +42,6 @@ func TestHolmesLogQuery(t *testing.T) {
 
 	logs := HolmesLog.Query(params, nil)
 	for log := range logs {
-		fmt.Println(log.Id)
 		assert.NotNil(t, log.Id)
 		i++
 	}

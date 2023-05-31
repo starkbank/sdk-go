@@ -30,8 +30,7 @@ func TestBrcodePaymentLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Printf("%+v", log)
-	fmt.Println(log.Id)
+	assert.NotNil(t, log)
 }
 
 func TestBrcodePaymentLogQuery(t *testing.T) {

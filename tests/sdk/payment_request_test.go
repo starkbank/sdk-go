@@ -21,7 +21,7 @@ func TestPaymentRequestPost(t *testing.T) {
 		}
 	}
 	for _, request := range requests {
-		fmt.Printf("%+v", request)
+		assert.NotNil(t, request)
 		assert.NotNil(t, request.Payment)
 	}
 }
@@ -37,7 +37,7 @@ func TestPaymentRequestQuery(t *testing.T) {
 	requests := PaymentRequest.Query("5763106043068416", params, nil)
 
 	for request := range requests {
-		fmt.Printf("%+v", request)
+		assert.NotNil(t, request)
 		assert.Equal(t, request.Status, "pending")
 	}
 }
@@ -53,7 +53,7 @@ func TestPaymentRequestPage(t *testing.T) {
 		}
 	}
 	for _, request := range requests {
-		fmt.Printf("%+v\n", request)
+		assert.NotNil(t, request)
 		assert.NotNil(t, request.CenterId)
 		assert.NotNil(t, cursor)
 	}

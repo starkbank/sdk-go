@@ -31,7 +31,6 @@ func TestDictKeyGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
-	fmt.Printf("%+v", key)
 	assert.NotNil(t, key.Id)
 }
 

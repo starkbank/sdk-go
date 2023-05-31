@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"encoding/json"
+	"github.com/starkbank/sdk-go/starkbank/invoice/rule"
 	"github.com/starkbank/sdk-go/starkbank/utils"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
@@ -29,6 +30,7 @@ import (
 //	- Interest [float64, default 1.0]: Invoice monthly interest for overdue payment in %. ex: 5.2
 //	- Discounts [slice of maps, default nil]: slice of maps with "percentage":float64 and "due":time.Time or string pairs
 //	- Tags [slice of strings, default nil]: slice of strings for tagging. ex: []string{"John", "Paul"}
+//	- Rules [slice of Invoice.Rule structs, default nil]: slice of Invoice.Rule structs for modifying transfer behavior. ex: []rule.Rule{{Key: "allowedTaxIds", Value: []string{"012.345.678-90", "45.059.493/0001-73"}}},
 //	- Descriptions [slice of maps, default nil]: slice of maps with "key":string and (optional) "value":string pairs
 //
 //	Attributes (return-only):
@@ -57,6 +59,7 @@ type Invoice struct {
 	Interest       float64                  `json:",omitempty"`
 	Discounts      []map[string]interface{} `json:",omitempty"`
 	Tags           []string                 `json:",omitempty"`
+	Rules          []rule.Rule              `json:",omitempty"`
 	Descriptions   []map[string]interface{} `json:",omitempty"`
 	Pdf            string                   `json:",omitempty"`
 	Link           string                   `json:",omitempty"`

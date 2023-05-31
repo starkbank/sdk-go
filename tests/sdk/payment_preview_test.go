@@ -21,7 +21,6 @@ func TestBoletoPreviewPost(t *testing.T) {
 		}
 	}
 	for _, preview := range previews {
-		fmt.Printf("%+v", preview)
 		assert.NotNil(t, preview.Id)
 		assert.Equal(t, preview.Type, "boleto-payment")
 	}

@@ -21,7 +21,7 @@ func TestWebhookPost(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
 		}
 	}
-	fmt.Printf("%+v", webhook)
+
 	assert.NotNil(t, webhook.Id)
 }
 

@@ -31,7 +31,7 @@ func TestInvoiceLogGet(t *testing.T) {
 			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
 		}
 	}
-	fmt.Printf("%+v", log)
+	assert.NotNil(t, log)
 }
 
 func TestInvoiceLogQuery(t *testing.T) {
@@ -80,7 +80,7 @@ func TestInvoiceLogPdf(t *testing.T) {
 	var logList []InvoiceLog.Log
 	var params = map[string]interface{}{}
 	params["limit"] = rand.Intn(100)
-	params["types"] = "paid"
+	params["types"] = "reversed"
 
 	logs := InvoiceLog.Query(params, nil)
 	for log := range logs {

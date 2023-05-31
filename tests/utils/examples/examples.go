@@ -6,9 +6,15 @@ import (
 	"github.com/starkbank/sdk-go/starkbank/boletoholmes"
 	"github.com/starkbank/sdk-go/starkbank/boletopayment"
 	"github.com/starkbank/sdk-go/starkbank/brcodepayment"
+	"github.com/starkbank/sdk-go/starkbank/corporatecard"
+	"github.com/starkbank/sdk-go/starkbank/corporateholder"
+	"github.com/starkbank/sdk-go/starkbank/corporateholder/permission"
+	"github.com/starkbank/sdk-go/starkbank/corporateinvoice"
+	"github.com/starkbank/sdk-go/starkbank/corporatewithdrawal"
 	"github.com/starkbank/sdk-go/starkbank/darfpayment"
 	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
 	"github.com/starkbank/sdk-go/starkbank/invoice"
+	Rule "github.com/starkbank/sdk-go/starkbank/invoice/rule"
 	"github.com/starkbank/sdk-go/starkbank/paymentpreview"
 	"github.com/starkbank/sdk-go/starkbank/paymentrequest"
 	"github.com/starkbank/sdk-go/starkbank/taxpayment"
@@ -20,8 +26,54 @@ import (
 	"github.com/starkbank/sdk-go/starkbank/workspace"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	"math/rand"
+	"os"
 	"time"
 )
+
+func CorporateCard() corporatecard.CorporateCard {
+
+	var holderIds []corporateholder.CorporateHolder
+	var params = map[string]interface{}{}
+	params["limit"] = rand.Intn(100)
+
+	holders := corporateholder.Query(params, Utils.ExampleProject)
+	for holder := range holders {
+		holderIds = append(holderIds, holder)
+	}
+	card := corporatecard.CorporateCard{
+		HolderId: holderIds[0].Id,
+	}
+	return card
+}
+
+func CorporateHolder() []corporateholder.CorporateHolder {
+
+	holders := []corporateholder.CorporateHolder{
+		{
+			Name:        "Iron Bank S.A.10",
+			Tags:        []string{"Traveler Employee"},
+			Permissions: []permission.Permission{{OwnerId: os.Getenv("HOLDER_ID"), OwnerType: "project"}},
+		},
+	}
+	return holders
+}
+
+func CorporateInvoice() corporateinvoice.CorporateInvoice {
+
+	invoice := corporateinvoice.CorporateInvoice{
+		Amount: 1000,
+	}
+	return invoice
+}
+
+func CorporateWithdrawal() corporatewithdrawal.CorporateWithdrawal {
+
+	withdrawal := corporatewithdrawal.CorporateWithdrawal{
+		Amount:     1000,
+		ExternalId: "123456789",
+	}
+	return withdrawal
+}
 
 func Holmes(id string) []boletoholmes.BoletoHolmes {
 
@@ -69,7 +121,7 @@ func BoletosPayment() []boletopayment.BoletoPayment {
 
 func Boleto() []boleto.Boleto {
 
-	due := time.Date(2023, 02, 10, 0, 0, 0, 0, time.UTC)
+	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 
 	boletos := []boleto.Boleto{
 		{
@@ -85,8 +137,8 @@ func Boleto() []boleto.Boleto {
 			Due:         &due,
 		},
 		{
-			Amount:      999999999,
-			Name:        "Core-Go-Test-multi-2",
+			Amount:      800000,
+			Name:        "Iron Bank S.A.",
 			TaxId:       "38.446.231/0001-04",
 			StreetLine1: "Kubasch Street, 900",
 			StreetLine2: "wefwe",
@@ -145,6 +197,12 @@ func Invoice() []invoice.Invoice {
 			Amount: 996699999,
 			Name:   "Tony Stark",
 			TaxId:  "38.446.231/0001-04",
+			Rules: []Rule.Rule{
+				{
+					"allowedTaxIds",
+					[]string{"45.059.493/0001-73"},
+				},
+			},
 		},
 	}
 	return invoices
@@ -185,7 +243,7 @@ func PaymentPreviewBrcode() []paymentpreview.PaymentPreview {
 
 	previews := []paymentpreview.PaymentPreview{
 		{
-			Id:        invoiceList[rand.Intn(len(invoices))].Brcode,
+			Id:        invoiceList[rand.Intn(len(invoiceList))].Brcode,
 			Scheduled: time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC),
 		},
 	}
@@ -259,7 +317,7 @@ func Transfer() []transfer.Transfer {
 			BankCode:      "001",
 			BranchCode:    "1234",
 			AccountNumber: "123456-0",
-			Rules:         []rule.Rule{{Key: "resendingLimit", Value: 5}},
+			Rules:         []rule.Rule{{Key: "resendingLimit", Value: 0}},
 		},
 	}
 	return transfers
