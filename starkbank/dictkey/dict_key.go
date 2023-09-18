@@ -5,7 +5,6 @@ import (
 	"github.com/starkbank/sdk-go/starkbank/utils"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
-	"time"
 )
 
 //	DictKey struct
@@ -22,13 +21,10 @@ import (
 //	- OwnerType [string]: Dict key owner type. ex: "naturalPerson" or "legalPerson"
 //	- BankName [string]: Bank name associated with the DICT key. ex: "Stark Bank"
 //	- Ispb [string]: Bank ISPB associated with the DICT key. ex: "20018183"
-//	- BranchCode [string]: Bank account branch code associated with the DICT key. ex: "9585"
-//	- AccountNumber [string]: Bank account number associated with the DICT key. ex: "9828282578010513"
-//	- AccountType [string]: Bank account type associated with the DICT key. ex: "checking", "saving", "salary" or "payment"
-//	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed"
-//	- AccountCreated [time.Time]: Creation datetime of the bank account associated with the DICT key. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-//	- Owned [time.Time]: Datetime since when the current owner holds this DICT key. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-//	- Created [time.Time]: Creation datetime for the DICT key. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
+//	- BranchCode [string]: Encrypted bank account branch code associated with the DICT key. ex: "ZW5jcnlwdGVkLWJyYW5jaC1jb2Rl"
+//	- AccountNumber [string]: Encrypted bank account number associated with the DICT key. ex: "ZW5jcnlwdGVkLWFjY291bnQtbnVtYmVy"
+//	- AccountType [string]: Bank account type associated with the DICT key. ex: "checking", "savings", "salary" or "payment"
+//	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed" 
 
 type DictKey struct {
 	Id             string     `json:",omitempty"`
@@ -42,9 +38,6 @@ type DictKey struct {
 	AccountNumber  string     `json:",omitempty"`
 	AccountType    string     `json:",omitempty"`
 	Status         string     `json:",omitempty"`
-	AccountCreated *time.Time `json:",omitempty"`
-	Owned          *time.Time `json:",omitempty"`
-	Created        *time.Time `json:",omitempty"`
 }
 
 var object DictKey
