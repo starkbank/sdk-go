@@ -1445,6 +1445,39 @@ func main() {
 
 ```
 
+## Update a Deposit
+
+Update a deposit by passing its id to be partially or fully reversed.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Deposit "github.com/starkbank/sdk-go/starkbank/deposit"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var patchData = map[string]interface{}{}
+  patchData["amount"] = 0
+
+  deposit, err := Deposit.Update("5155165527080960", patchData, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  
+  fmt.Println(deposit)
+}
+
+```
+
 ## Query deposit logs
 
 Logs are pretty important to understand the life cycle of a deposit.
