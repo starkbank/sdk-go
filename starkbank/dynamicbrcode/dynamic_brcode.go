@@ -81,6 +81,7 @@ func Get(uuid string, user user.User) (DynamicBrcode, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- DynamicBrcode struct that corresponds to the given uuid.
+	var object DynamicBrcode
 	get, err := utils.Get(resource, uuid, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -105,6 +106,7 @@ func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
 	//
 	//	Return:
 	//	- Channel of DynamicBrcode structs with updated attributes
+	var object DynamicBrcode
 	brcodes := make(chan DynamicBrcode)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -140,6 +142,7 @@ func Page(params map[string]interface{}, user user.User) ([]DynamicBrcode, strin
 	//	Return:
 	//	- Slice of DynamicBrcode structs with updated attributes
 	//	- Cursor to retrieve the next page of DynamicBrcode structs
+	var objects []DynamicBrcode
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

@@ -108,6 +108,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (CorporateCar
 	//
 	//	Return:
 	//	- CorporateCard struct that corresponds to the given id.
+	var object CorporateCard
 	get, err := utils.Get(resource, id, expand, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -136,6 +137,7 @@ func Query(params map[string]interface{}, user user.User) chan CorporateCard {
 	//
 	//	Return:
 	//	- channel of CorporateCard structs with updated attributes
+	var object CorporateCard
 	cards := make(chan CorporateCard)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -175,6 +177,7 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateCard, strin
 	//	Return:
 	//	- slice of CorporateCards structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateCards structs
+	var objects []CorporateCard
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -203,6 +206,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Corpor
 	//
 	//	Return:
 	//	- target CorporateCard with updated attributes
+	var object CorporateCard
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &object)
 	if unmarshalError != nil {
@@ -224,6 +228,7 @@ func Cancel(id string, user user.User) (CorporateCard, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled CorporateCard struct
+	var object CorporateCard
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

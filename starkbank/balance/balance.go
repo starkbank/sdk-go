@@ -40,6 +40,7 @@ func Get(user user.User) Balance {
 	//
 	//	Return:
 	//	- Balance struct with updated attributes
+	var object Balance
 	balance := make(chan Balance)
 	query := utils.Query(resource, nil, user)
 	go func() {

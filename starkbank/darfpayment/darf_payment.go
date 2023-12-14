@@ -97,6 +97,7 @@ func Get(id string, user user.User) (DarfPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- DarfPayment struct that corresponds to the given id
+	var object DarfPayment
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -139,6 +140,7 @@ func Query(params map[string]interface{}, user user.User) chan DarfPayment {
 	//
 	//	Return:
 	//	- Channel of DarfPayment structs with updated attributes
+	var object DarfPayment
 	payments := make(chan DarfPayment)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -175,6 +177,7 @@ func Page(params map[string]interface{}, user user.User) ([]DarfPayment, string,
 	//	Return:
 	//	- Slice of DarfPayment structs with updated attributes
 	//	- Cursor to retrieve the next page of DarfPayment structs
+	var objects []DarfPayment
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -196,6 +199,7 @@ func Delete(id string, user user.User) (DarfPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Deleted DarfPayment struct
+	var object DarfPayment
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

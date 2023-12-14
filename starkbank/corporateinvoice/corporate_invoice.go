@@ -90,6 +90,7 @@ func Query(params map[string]interface{}, user user.User) chan CorporateInvoice 
 	//
 	//	Return:
 	//	- channel of CorporateInvoices structs with updated attributes
+	var object CorporateInvoice
 	invoices := make(chan CorporateInvoice)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -125,6 +126,7 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateInvoice, st
 	//	Return:
 	//	- slice of CorporateInvoices structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateInvoices structs
+	var objects []CorporateInvoice
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

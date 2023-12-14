@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Fixed
+- Global objects variables
 
 ## [0.4.1] - 2023-09-18
 ### Removed 

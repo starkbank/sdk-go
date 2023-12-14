@@ -44,6 +44,7 @@ func Query(params map[string]interface{}, user user.User) chan Institution {
 	//
 	//	Return:
 	//	- Slice of Institution structs with updated attributes
+	var object Institution
 	institutions := make(chan Institution)
 	query := utils.Query(resource, params, user)
 	go func() {

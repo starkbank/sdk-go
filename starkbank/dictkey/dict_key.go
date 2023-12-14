@@ -24,7 +24,7 @@ import (
 //	- BranchCode [string]: Encrypted bank account branch code associated with the DICT key. ex: "ZW5jcnlwdGVkLWJyYW5jaC1jb2Rl"
 //	- AccountNumber [string]: Encrypted bank account number associated with the DICT key. ex: "ZW5jcnlwdGVkLWFjY291bnQtbnVtYmVy"
 //	- AccountType [string]: Bank account type associated with the DICT key. ex: "checking", "savings", "salary" or "payment"
-//	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed" 
+//	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed"
 
 type DictKey struct {
 	Id             string     `json:",omitempty"`
@@ -57,6 +57,7 @@ func Get(id string, user user.User) (DictKey, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- DictKey struct that corresponds to the given id
+	var object DictKey
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -82,6 +83,7 @@ func Query(params map[string]interface{}, user user.User) chan DictKey {
 	//
 	//	Return:
 	//	- Channel of DictKey structs with updated attributes
+	var object DictKey
 	keys := make(chan DictKey)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -118,6 +120,7 @@ func Page(params map[string]interface{}, user user.User) ([]DictKey, string, Err
 	//	Return:
 	//	- Slice of DictKey structs with updated attributes
 	//	- Cursor to retrieve the next page of DictKey structs
+	var objects []DictKey
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

@@ -47,6 +47,7 @@ func Get(id string, user user.User) (Attempt, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- event.Attempt struct that corresponds to the given id
+	var object Attempt
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -71,6 +72,7 @@ func Query(params map[string]interface{}, user user.User) chan Attempt {
 	//
 	//	Return:
 	//	- Channel of Event.Attempt structs with updated attributes
+	var object Attempt
 	attempts := make(chan Attempt)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -106,6 +108,7 @@ func Page(params map[string]interface{}, user user.User) ([]Attempt, string, Err
 	//	Return:
 	//	- Slice of Event.Attempt structs with updated attributes
 	//	- cursor to retrieve the next page of Event.Attempt structs
+	var objects []Attempt
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

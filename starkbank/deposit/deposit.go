@@ -64,6 +64,7 @@ func Get(id string, user user.User) (Deposit, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Deposit struct that corresponds to the given id
+	var object Deposit
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -90,6 +91,7 @@ func Query(params map[string]interface{}, user user.User) chan Deposit {
 	//
 	//	Return:
 	//	- Channel of Deposit structs with updated attributes
+	var object Deposit
 	deposits := make(chan Deposit)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -127,6 +129,7 @@ func Page(params map[string]interface{}, user user.User) ([]Deposit, string, Err
 	//	Return:
 	//	- Slice of Deposit structs with updated attributes
 	//	- Cursor to retrieve the next page of Deposit structs
+	var objects []Deposit
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

@@ -54,6 +54,7 @@ func Create(holmes []BoletoHolmes, user user.User) ([]BoletoHolmes, Error.StarkE
 	//
 	//	Return:
 	//	- Slice of BoletoHolmes structs with updated attributes
+	var objects []BoletoHolmes
 	create, err := utils.Multi(resource, holmes, nil, user)
 	unmarshalError := json.Unmarshal(create, &objects)
 	if unmarshalError != nil {
@@ -75,6 +76,7 @@ func Get(id string, user user.User) (BoletoHolmes, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- BoletoHolmes struct that corresponds to the given id
+	var object BoletoHolmes
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -103,6 +105,7 @@ func Query(params map[string]interface{}, user user.User) chan BoletoHolmes {
 	//
 	//	Return:
 	//	- Channel of BoletoHolmes structs with updated attributes
+	var object BoletoHolmes
 	holmes := make(chan BoletoHolmes)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -140,6 +143,7 @@ func Page(params map[string]interface{}, user user.User) ([]BoletoHolmes, string
 	//	Return:
 	//	- Slice of BoletoHolmes structs with updated attributes
 	//	- Cursor to retrieve the next page of BoletoHolmes structs
+	var objects []BoletoHolmes
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

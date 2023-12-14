@@ -38,6 +38,7 @@ func Query(params map[string]interface{}, user user.User) chan CardMethod {
 	//
 	//	Return:
 	//	- Channel of CardMethod structs with updated attributes
+	var object CardMethod
 	methods := make(chan CardMethod)
 	query := utils.Query(resource, params, user)
 	go func() {

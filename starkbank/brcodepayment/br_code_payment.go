@@ -94,6 +94,7 @@ func Get(id string, user user.User) (BrcodePayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- BrcodePayment struct that corresponds to the given id
+	var Object BrcodePayment
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &Object)
 	if unmarshalError != nil {
@@ -137,6 +138,7 @@ func Query(params map[string]interface{}, user user.User) chan BrcodePayment {
 	//
 	//	Return:
 	//	- Channel of BrcodePayment structs with updated attributes
+	var Object BrcodePayment
 	payments := make(chan BrcodePayment)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -173,6 +175,7 @@ func Page(params map[string]interface{}, user user.User) ([]BrcodePayment, strin
 	//	Return:
 	//	- Slice of BrcodePayment structs with updated attributes
 	//	- Cursor to retrieve the next page of BrcodePayment structs
+	var objects []BrcodePayment
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -197,6 +200,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Brcode
 	//
 	//	Return:
 	//	- Target BrcodePayment with updated attributes
+	var Object BrcodePayment
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &Object)
 	if unmarshalError != nil {

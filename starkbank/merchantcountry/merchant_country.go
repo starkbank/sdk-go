@@ -40,6 +40,7 @@ func Query(params map[string]interface{}, user user.User) chan MerchantCountry {
 	//
 	//	Return:
 	//	- channel of MerchantCountry structs with updated attributes
+	var object MerchantCountry
 	countries := make(chan MerchantCountry)
 	query := utils.Query(resource, params, user)
 	go func() {

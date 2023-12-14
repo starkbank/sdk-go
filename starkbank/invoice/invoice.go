@@ -113,6 +113,7 @@ func Get(id string, user user.User) (Invoice, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Invoice struct that corresponds to the given id.
+	var object Invoice
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -138,6 +139,7 @@ func Query(params map[string]interface{}, user user.User) chan Invoice {
 	//
 	//	Return:
 	//	- Channel of Invoice structs with updated attributes
+	var object Invoice
 	invoices := make(chan Invoice)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -174,6 +176,7 @@ func Page(params map[string]interface{}, user user.User) ([]Invoice, string, Err
 	//	Return:
 	//	- Slice of Invoice structs with updated attributes
 	//	- Cursor to retrieve the next page of Invoice structs
+	var objects []Invoice
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -200,6 +203,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Invoic
 	//
 	//	Return:
 	//	- Target Invoice with updated attributes
+	var object Invoice
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &object)
 	if unmarshalError != nil {

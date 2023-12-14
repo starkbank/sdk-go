@@ -76,6 +76,7 @@ func Get(id string, user user.User) (CorporateWithdrawal, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- corporateWithdrawal struct that corresponds to the given id.
+	var object CorporateWithdrawal
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -100,6 +101,7 @@ func Query(params map[string]interface{}, user user.User) chan CorporateWithdraw
 	//
 	//	Return:
 	//	- channel of CorporateWithdrawal structs with updated attributes
+	var object CorporateWithdrawal
 	withdrawals := make(chan CorporateWithdrawal)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -135,6 +137,7 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateWithdrawal,
 	//	Return:
 	//	- slice of CorporateWithdrawal structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateWithdrawal structs
+	var objects []CorporateWithdrawal
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

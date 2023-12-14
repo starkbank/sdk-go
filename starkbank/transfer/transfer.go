@@ -100,6 +100,7 @@ func Get(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Transfer struct with updated attributes
+	var Object Transfer
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &Object)
 	if unmarshalError != nil {
@@ -121,6 +122,7 @@ func Delete(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Transfer struct
+	var Object Transfer
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &Object)
 	if unmarshalError != nil {
@@ -166,6 +168,7 @@ func Query(params map[string]interface{}, user user.User) chan Transfer {
 	//
 	//	Return:
 	//	 - Channel of Transfer objects with updated attributes
+	var Object Transfer
 	transfers := make(chan Transfer)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -205,6 +208,7 @@ func Page(params map[string]interface{}, user user.User) ([]Transfer, string, Er
 	//	Return:
 	//	- Slice of Transfer structs with updated attributes
 	//	- Cursor to retrieve the next page of Transfer structs
+	var objects []Transfer
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

@@ -115,6 +115,7 @@ func Get(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Boleto struct that corresponds to the given id.
+	var object Boleto
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -158,6 +159,7 @@ func Query(params map[string]interface{}, user user.User) chan Boleto {
 	//
 	//	Return:
 	//	- Channel of Boleto structs with updated attributes
+	var object Boleto
 	boletos := make(chan Boleto)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -194,6 +196,7 @@ func Page(params map[string]interface{}, user user.User) ([]Boleto, string, Erro
 	//	Return:
 	//	- Slice of Boleto structs with updated attributes
 	//	- Cursor to retrieve the next page of Boleto structs
+	var objects []Boleto
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -215,6 +218,7 @@ func Delete(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Boleto struct
+	var object Boleto
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

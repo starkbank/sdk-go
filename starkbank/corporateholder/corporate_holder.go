@@ -63,6 +63,7 @@ func Create(holders []CorporateHolder, expand map[string]interface{}, user user.
 	//
 	//	Return:
 	//	- slice of CorporateHolder structs with updated attributes
+	var objects []CorporateHolder
 	create, err := utils.Multi(resource, holders, expand, user)
 	unmarshalError := json.Unmarshal(create, &objects)
 	if unmarshalError != nil {
@@ -85,6 +86,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (CorporateHol
 	//
 	//	Return:
 	//	- corporateHolder struct that corresponds to the given id.
+	var object CorporateHolder
 	get, err := utils.Get(resource, id, expand, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -111,6 +113,7 @@ func Query(params map[string]interface{}, user user.User) chan CorporateHolder {
 	//
 	//	Return:
 	//	- channel of CorporateHolder structs with updated attributes
+	var object CorporateHolder
 	holders := make(chan CorporateHolder)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -148,6 +151,7 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateHolder, str
 	//	Return:
 	//	- slice of CorporateHolder structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateHolder structs
+	var objects []CorporateHolder
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -177,6 +181,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Corpor
 	//
 	//	Return:
 	//	- target CorporateHolder with updated attributes
+	var object CorporateHolder
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &object)
 	if unmarshalError != nil {
@@ -198,6 +203,7 @@ func Cancel(id string, user user.User) (CorporateHolder, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled CorporateHolder struct
+	var object CorporateHolder
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

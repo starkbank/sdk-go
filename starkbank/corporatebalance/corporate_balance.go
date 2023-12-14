@@ -44,6 +44,7 @@ func Get(user user.User) CorporateBalance {
 	//
 	//	Return:
 	//	- CorporateBalance struct with updated attributes
+	var object CorporateBalance
 	balance := make(chan CorporateBalance)
 	query := utils.Query(resource, nil, user)
 	go func() {

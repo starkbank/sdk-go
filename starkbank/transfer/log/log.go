@@ -47,6 +47,7 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Transfer.Log struct with updated attributes
+	var Object Log
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &Object)
 	if unmarshalError != nil {
@@ -71,6 +72,7 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- Slice of Transfer.Log objects with updated attributes
+	var Object Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -106,6 +108,7 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- Slice of Transfer.Log structs with updated attributes
 	//	- cursor to retrieve the next page of Transfer.Log structs
+	var objects []Log
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

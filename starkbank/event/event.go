@@ -58,6 +58,7 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Event struct that corresponds to the given id
+	var object Event
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -81,6 +82,7 @@ func Query(params map[string]interface{}, user user.User) chan Event {
 	//
 	//	Return:
 	//	- Channel of Event structs with updated attributes
+	var object Event
 	events := make(chan Event)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -115,6 +117,7 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 	//	Return:
 	//	- Slice of Event structs with updated attributes
 	//	- Cursor to retrieve the next page of Event structs
+	var objects []Event
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -136,6 +139,7 @@ func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Deleted Event struct
+	var object Event
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {
@@ -161,6 +165,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Event,
 	//
 	//	Return:
 	//	- Target Event with updated attributes
+	var object Event
 	update, err := utils.Patch(resource, id, patchData, user)
 	unmarshalError := json.Unmarshal(update, &object)
 	if unmarshalError != nil {

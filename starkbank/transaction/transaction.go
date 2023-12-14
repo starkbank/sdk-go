@@ -88,6 +88,7 @@ func Get(id string, user user.User) (Transaction, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Transaction object with updated attributes
+	var Object Transaction
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &Object)
 	if unmarshalError != nil {
@@ -113,6 +114,7 @@ func Query(params map[string]interface{}, user user.User) chan Transaction {
 	//
 	//	Return:
 	//	 - Channel of Transaction objects with updated attributes
+	var Object Transaction
 	transactions := make(chan Transaction)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -149,6 +151,7 @@ func Page(params map[string]interface{}, user user.User) ([]Transaction, string,
 	//	Return:
 	//	- Slice of Transaction objects with updated attributes
 	//	- Cursor to retrieve the next page of Transaction objects
+	var objects []Transaction
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {

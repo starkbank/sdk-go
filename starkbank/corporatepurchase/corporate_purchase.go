@@ -90,6 +90,7 @@ func Get(id string, user user.User) (CorporatePurchase, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- corporatePurchase struct that corresponds to the given id.
+	var object CorporatePurchase
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -117,6 +118,7 @@ func Query(params map[string]interface{}, user user.User) chan CorporatePurchase
 	//
 	//	Return:
 	//	- channel of CorporatePurchase structs with updated attributes
+	var object CorporatePurchase
 	purchases := make(chan CorporatePurchase)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -155,6 +157,7 @@ func Page(params map[string]interface{}, user user.User) ([]CorporatePurchase, s
 	//	Return:
 	//	- slice of CorporatePurchase structs with updated attributes
 	//	- cursor to retrieve the next page of CorporatePurchase structs
+	var objects []CorporatePurchase
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -181,6 +184,7 @@ func Parse(content string, signature string, user user.User) CorporatePurchase {
 	//
 	//	Return:
 	//	- parsed CorporatePurchase struct
+	var object CorporatePurchase
 	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &object)
 	if unmarshalError != nil {
 		return object

@@ -89,6 +89,7 @@ func Get(id string, user user.User) (UtilityPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- UtilityPayment struct with updated attributes
+	var Object UtilityPayment
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &Object)
 	if unmarshalError != nil {
@@ -131,6 +132,7 @@ func Query(params map[string]interface{}, user user.User) chan UtilityPayment {
 	//
 	//	Return:
 	//	- Channel of UtilityPayment structs with updated attributes
+	var Object UtilityPayment
 	payments := make(chan UtilityPayment)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -167,6 +169,7 @@ func Page(params map[string]interface{}, user user.User) ([]UtilityPayment, stri
 	//	Return:
 	//	- Slice of UtilityPayment structs with updated attributes
 	//	- cursor to retrieve the next page of UtilityPayment structs
+	var objects []UtilityPayment
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -188,6 +191,7 @@ func Delete(id string, user user.User) (UtilityPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Deleted UtilityPayment struct
+	var Object UtilityPayment
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &Object)
 	if unmarshalError != nil {

@@ -43,6 +43,7 @@ func Query(params map[string]interface{}, user user.User) chan MerchantCategory 
 	//
 	//	Return:
 	//	- channel of MerchantCategory structs with updated attributes
+	var object MerchantCategory
 	categories := make(chan MerchantCategory)
 	query := utils.Query(resource, params, user)
 	go func() {

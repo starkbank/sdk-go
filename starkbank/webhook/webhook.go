@@ -45,6 +45,7 @@ func Create(webhook Webhook, user user.User) (Webhook, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Webhook struct with updated attributes
+	var object Webhook
 	create, err := utils.Single(resource, webhook, user)
 	unmarshalError := json.Unmarshal(create, &object)
 	if unmarshalError != nil {
@@ -66,6 +67,7 @@ func Get(id string, user user.User) (Webhook, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Webhook struct with updated attributes
+	var object Webhook
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -86,6 +88,7 @@ func Query(params map[string]interface{}, user user.User) chan Webhook {
 	//
 	//	Return:
 	//	- Channel of Webhook structs with updated attributes
+	var object Webhook
 	webhooks := make(chan Webhook)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -117,6 +120,7 @@ func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Err
 	//	Return:
 	//	- Slice of Webhook structs with updated attributes
 	//	- cursor to retrieve the next page of Webhook structs
+	var objects []Webhook
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
@@ -138,6 +142,7 @@ func Delete(id string, user user.User) (Webhook, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Webhook struct
+	var object Webhook
 	deleted, err := utils.Delete(resource, id, user)
 	unmarshalError := json.Unmarshal(deleted, &object)
 	if unmarshalError != nil {

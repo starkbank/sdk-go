@@ -84,6 +84,7 @@ func Get(id string, user user.User) (Workspace, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Workspace struct with updated attributes
+	var object Workspace
 	get, err := utils.Get(resource, id, nil, user)
 	unmarshalError := json.Unmarshal(get, &object)
 	if unmarshalError != nil {
@@ -108,6 +109,7 @@ func Query(params map[string]interface{}, user user.User) chan Workspace {
 	//
 	//	Return:
 	//	- Channel of Workspace structs with updated attributes
+	var object Workspace
 	workspaces := make(chan Workspace)
 	query := utils.Query(resource, params, user)
 	go func() {
@@ -146,6 +148,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Worksp
 	//
 	//	Return:
 	//	- target Workspace with updated attributes
+	var object Workspace
 	if patchData["picture"] != nil {
 		patchData["picture"] = fmt.Sprintf("data:%v;base64,%v", patchData["pictureType"], base64.StdEncoding.EncodeToString(patchData["picture"].([]byte)))
 		delete(patchData, "pictureType")
@@ -175,6 +178,7 @@ func Page(params map[string]interface{}, user user.User) ([]Workspace, string, E
 	//	Return:
 	//	- Slice of Workspace structs with updated attributes
 	//	- cursor to retrieve the next page of Workspace structs
+	var objects []Workspace
 	page, cursor, err := utils.Page(resource, params, user)
 	unmarshalError := json.Unmarshal(page, &objects)
 	if unmarshalError != nil {
