@@ -56,8 +56,6 @@ type PaymentRequest struct {
 	Created     *time.Time               `json:",omitempty"`
 }
 
-var object PaymentRequest
-var objects []PaymentRequest
 var resource = map[string]string{"name": "PaymentRequest"}
 
 func Create(requests []PaymentRequest, user user.User) ([]PaymentRequest, Error.StarkErrors) {
@@ -104,6 +102,7 @@ func Query(centerId string, params map[string]interface{}, user user.User) chan 
 	//	Return:
 	//	- Channel of PaymentRequest structs with updated attributes
 	var param = map[string]interface{}{}
+	var paymentRequest PaymentRequest
 	for k, v := range params {
 		param[k] = v
 	}
@@ -113,11 +112,11 @@ func Query(centerId string, params map[string]interface{}, user user.User) chan 
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &paymentRequest)
 			if err != nil {
 				panic(err)
 			}
-			requests <- object.ParseRequest()
+			requests <- paymentRequest.ParseRequest()
 		}
 		close(requests)
 	}()
@@ -150,71 +149,78 @@ func Page(centerId string, params map[string]interface{}, user user.User) ([]Pay
 	//	- Slice of PaymentRequest structs with updated attributes
 	//	- Cursor to retrieve the next page of PaymentRequest structs
 	var param = map[string]interface{}{}
+	var paymentRequests []PaymentRequest
 	for k, v := range params {
 		param[k] = v
 	}
 	param["centerId"] = centerId
 	page, cursor, err := utils.Page(resource, param, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &paymentRequests)
 	if unmarshalError != nil {
-		return ParseRequests(objects), cursor, err
+		return ParseRequests(paymentRequests), cursor, err
 	}
-	return ParseRequests(objects), cursor, err
+	return ParseRequests(paymentRequests), cursor, err
 }
 
 func (e PaymentRequest) ParseRequest() PaymentRequest {
 	if e.Type == "transfer" {
+		var transfer Transfer.Transfer
 		marshal, _ := json.Marshal(e.Payment)
-		unmarshalError := json.Unmarshal(marshal, &Transfer.Object)
+		unmarshalError := json.Unmarshal(marshal, &transfer)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Payment = Transfer.Object
+		e.Payment = transfer
 		return e
 	}
 	if e.Type == "transaction" {
+		var transaction Transaction.Transaction
 		marshal, _ := json.Marshal(e.Payment)
-		unmarshalError := json.Unmarshal(marshal, &Transaction.Object)
+		unmarshalError := json.Unmarshal(marshal, &transaction)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Payment = Transaction.Object
+		e.Payment = transaction
 		return e
 	}
 	if e.Type == "tax-payment" {
+		var taxPayment TaxPayment.TaxPayment
 		marshal, _ := json.Marshal(e.Payment)
-		unmarshalError := json.Unmarshal(marshal, &TaxPayment.Object)
+		unmarshalError := json.Unmarshal(marshal, &taxPayment)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Payment = TaxPayment.Object
+		e.Payment = taxPayment
 		return e
 	}
 	if e.Type == "brcode-payment" {
+		var brcodePayment BrcodePayment.BrcodePayment
 		marshal, _ := json.Marshal(e.Payment)
-		unmarshalError := json.Unmarshal(marshal, &BrcodePayment.Object)
+		unmarshalError := json.Unmarshal(marshal, &brcodePayment)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Payment = BrcodePayment.Object
+		e.Payment = brcodePayment
 		return e
 	}
 	if e.Type == "boleto-payment" {
+		var boletoPayment BoletoPayment.BoletoPayment
 		marshal, _ := json.Marshal(e.Payment)
-		unmarshalError := json.Unmarshal(marshal, &BoletoPayment.Object)
+		unmarshalError := json.Unmarshal(marshal, &boletoPayment)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Payment = BoletoPayment.Object
+		e.Payment = boletoPayment
 		return e
 	}
 	if e.Type == "utility-payment" {
+		var utilityPayment UtilityPayment.UtilityPayment
 		marshal, _ := json.Marshal(e.Payment)
-		unmarshalError := json.Unmarshal(marshal, &UtilityPayment.Object)
+		unmarshalError := json.Unmarshal(marshal, &utilityPayment)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Payment = UtilityPayment.Object
+		e.Payment = utilityPayment
 		return e
 	}
 	return e

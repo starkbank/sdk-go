@@ -24,7 +24,7 @@ import (
 //	- BranchCode [string]: Encrypted bank account branch code associated with the DICT key. ex: "ZW5jcnlwdGVkLWJyYW5jaC1jb2Rl"
 //	- AccountNumber [string]: Encrypted bank account number associated with the DICT key. ex: "ZW5jcnlwdGVkLWFjY291bnQtbnVtYmVy"
 //	- AccountType [string]: Bank account type associated with the DICT key. ex: "checking", "savings", "salary" or "payment"
-//	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed" 
+//	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed"
 
 type DictKey struct {
 	Id             string     `json:",omitempty"`
@@ -40,8 +40,6 @@ type DictKey struct {
 	Status         string     `json:",omitempty"`
 }
 
-var object DictKey
-var objects []DictKey
 var resource = map[string]string{"name": "DictKey"}
 
 func Get(id string, user user.User) (DictKey, Error.StarkErrors) {
@@ -57,12 +55,13 @@ func Get(id string, user user.User) (DictKey, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- DictKey struct that corresponds to the given id
+	var dictKeys DictKey
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &dictKeys)
 	if unmarshalError != nil {
-		return object, err
+		return dictKeys, err
 	}
-	return object, err
+	return dictKeys, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan DictKey {
@@ -82,16 +81,17 @@ func Query(params map[string]interface{}, user user.User) chan DictKey {
 	//
 	//	Return:
 	//	- Channel of DictKey structs with updated attributes
+	var dictKey DictKey
 	keys := make(chan DictKey)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &dictKey)
 			if err != nil {
 				panic(err)
 			}
-			keys <- object
+			keys <- dictKey
 		}
 		close(keys)
 	}()
@@ -118,10 +118,11 @@ func Page(params map[string]interface{}, user user.User) ([]DictKey, string, Err
 	//	Return:
 	//	- Slice of DictKey structs with updated attributes
 	//	- Cursor to retrieve the next page of DictKey structs
+	var dictKeys []DictKey
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &dictKeys)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return dictKeys, cursor, err
 	}
-	return objects, cursor, err
+	return dictKeys, cursor, err
 }

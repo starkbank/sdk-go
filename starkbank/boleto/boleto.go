@@ -77,8 +77,6 @@ type Boleto struct {
 	OurNumber     string                   `json:",omitempty"`
 }
 
-var object Boleto
-var objects []Boleto
 var resource = map[string]string{"name": "Boleto"}
 
 func Create(boletos []Boleto, user user.User) ([]Boleto, Error.StarkErrors) {
@@ -115,12 +113,13 @@ func Get(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Boleto struct that corresponds to the given id.
+	var boleto Boleto
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &boleto)
 	if unmarshalError != nil {
-		return object, err
+		return boleto, err
 	}
-	return object, err
+	return boleto, err
 }
 
 func Pdf(id string, params map[string]interface{}, user user.User) ([]byte, Error.StarkErrors) {
@@ -158,16 +157,17 @@ func Query(params map[string]interface{}, user user.User) chan Boleto {
 	//
 	//	Return:
 	//	- Channel of Boleto structs with updated attributes
+	var boleto Boleto
 	boletos := make(chan Boleto)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &boleto)
 			if err != nil {
 				panic(err)
 			}
-			boletos <- object
+			boletos <- boleto
 		}
 		close(boletos)
 	}()
@@ -194,12 +194,13 @@ func Page(params map[string]interface{}, user user.User) ([]Boleto, string, Erro
 	//	Return:
 	//	- Slice of Boleto structs with updated attributes
 	//	- Cursor to retrieve the next page of Boleto structs
+	var boletos []Boleto
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &boletos)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return boletos, cursor, err
 	}
-	return objects, cursor, err
+	return boletos, cursor, err
 }
 
 func Delete(id string, user user.User) (Boleto, Error.StarkErrors) {
@@ -215,10 +216,11 @@ func Delete(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Boleto struct
+	var boleto Boleto
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &boleto)
 	if unmarshalError != nil {
-		return object, err
+		return boleto, err
 	}
-	return object, err
+	return boleto, err
 }

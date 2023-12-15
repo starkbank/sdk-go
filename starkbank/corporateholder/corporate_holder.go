@@ -45,8 +45,6 @@ type CorporateHolder struct {
 	Created     *time.Time                    `json:",omitempty"`
 }
 
-var object CorporateHolder
-var objects []CorporateHolder
 var resource = map[string]string{"name": "CorporateHolder"}
 
 func Create(holders []CorporateHolder, expand map[string]interface{}, user user.User) ([]CorporateHolder, Error.StarkErrors) {
@@ -63,12 +61,13 @@ func Create(holders []CorporateHolder, expand map[string]interface{}, user user.
 	//
 	//	Return:
 	//	- slice of CorporateHolder structs with updated attributes
+	var corporateHolders []CorporateHolder
 	create, err := utils.Multi(resource, holders, expand, user)
-	unmarshalError := json.Unmarshal(create, &objects)
+	unmarshalError := json.Unmarshal(create, &corporateHolders)
 	if unmarshalError != nil {
-		return objects, err
+		return corporateHolders, err
 	}
-	return objects, err
+	return corporateHolders, err
 }
 
 func Get(id string, expand map[string]interface{}, user user.User) (CorporateHolder, Error.StarkErrors) {
@@ -85,12 +84,13 @@ func Get(id string, expand map[string]interface{}, user user.User) (CorporateHol
 	//
 	//	Return:
 	//	- corporateHolder struct that corresponds to the given id.
+	var corporateHolder CorporateHolder
 	get, err := utils.Get(resource, id, expand, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &corporateHolder)
 	if unmarshalError != nil {
-		return object, err
+		return corporateHolder, err
 	}
-	return object, err
+	return corporateHolder, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan CorporateHolder {
@@ -111,16 +111,17 @@ func Query(params map[string]interface{}, user user.User) chan CorporateHolder {
 	//
 	//	Return:
 	//	- channel of CorporateHolder structs with updated attributes
+	var corporateHolder CorporateHolder
 	holders := make(chan CorporateHolder)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &corporateHolder)
 			if err != nil {
 				print(err.Error())
 			}
-			holders <- object
+			holders <- corporateHolder
 		}
 		close(holders)
 	}()
@@ -148,12 +149,13 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateHolder, str
 	//	Return:
 	//	- slice of CorporateHolder structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateHolder structs
+	var corporateHolder []CorporateHolder
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &corporateHolder)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return corporateHolder, cursor, err
 	}
-	return objects, cursor, err
+	return corporateHolder, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (CorporateHolder, Error.StarkErrors) {
@@ -166,7 +168,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Corpor
 	//  - patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
 	//		Parameters (optional):
 	//		- centerId [string, default nil]: target cost center ID. ex: "5656565656565656"
-	//		- permissions [slice of Permission object, default nil]: slice of Permission object representing access granted to an user for a particular cardholder.
+	//		- permissions [slice of Permission corporateHolder, default nil]: slice of Permission corporateHolder representing access granted to an user for a particular cardholder.
 	//		- status [string, default nil]: You may block the CorporateHolder by passing 'blocked' in the status. ex: "blocked"
 	//		- name [string, default nil]: card holder name. ex: "Jaime Lannister"
 	//		- tags [slice of strings, default nil]: Slice of strings for tagging
@@ -177,12 +179,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Corpor
 	//
 	//	Return:
 	//	- target CorporateHolder with updated attributes
+	var corporateHolder CorporateHolder
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &corporateHolder)
 	if unmarshalError != nil {
-		return object, err
+		return corporateHolder, err
 	}
-	return object, err
+	return corporateHolder, err
 }
 
 func Cancel(id string, user user.User) (CorporateHolder, Error.StarkErrors) {
@@ -198,10 +201,11 @@ func Cancel(id string, user user.User) (CorporateHolder, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled CorporateHolder struct
+	var corporateHolder CorporateHolder
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &corporateHolder)
 	if unmarshalError != nil {
-		return object, err
+		return corporateHolder, err
 	}
-	return object, err
+	return corporateHolder, err
 }

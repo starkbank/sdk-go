@@ -49,8 +49,6 @@ type CorporateInvoice struct {
 	Created                *time.Time `json:",omitempty"`
 }
 
-var object CorporateInvoice
-var objects []CorporateInvoice
 var resource = map[string]string{"name": "CorporateInvoice"}
 
 func Create(invoice CorporateInvoice, user user.User) (CorporateInvoice, Error.StarkErrors) {
@@ -90,16 +88,17 @@ func Query(params map[string]interface{}, user user.User) chan CorporateInvoice 
 	//
 	//	Return:
 	//	- channel of CorporateInvoices structs with updated attributes
+	var corporateInvoice CorporateInvoice
 	invoices := make(chan CorporateInvoice)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &corporateInvoice)
 			if err != nil {
 				print(err.Error())
 			}
-			invoices <- object
+			invoices <- corporateInvoice
 		}
 		close(invoices)
 	}()
@@ -125,10 +124,11 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateInvoice, st
 	//	Return:
 	//	- slice of CorporateInvoices structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateInvoices structs
+	var corporateInvoices []CorporateInvoice
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &corporateInvoices)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return corporateInvoices, cursor, err
 	}
-	return objects, cursor, err
+	return corporateInvoices, cursor, err
 }

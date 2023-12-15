@@ -41,8 +41,6 @@ type Workspace struct {
 	Created        *time.Time `json:",omitempty"`
 }
 
-var object Workspace
-var objects []Workspace
 var resource = map[string]string{"name": "Workspace"}
 
 func Create(workspace Workspace, user user.User) (Workspace, Error.StarkErrors) {
@@ -84,12 +82,13 @@ func Get(id string, user user.User) (Workspace, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Workspace struct with updated attributes
+	var workspace Workspace
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &workspace)
 	if unmarshalError != nil {
-		return object, err
+		return workspace, err
 	}
-	return object, err
+	return workspace, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Workspace {
@@ -108,16 +107,17 @@ func Query(params map[string]interface{}, user user.User) chan Workspace {
 	//
 	//	Return:
 	//	- Channel of Workspace structs with updated attributes
+	var workspace Workspace
 	workspaces := make(chan Workspace)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &workspace)
 			if err != nil {
 				panic(err)
 			}
-			workspaces <- object
+			workspaces <- workspace
 		}
 		close(workspaces)
 	}()
@@ -146,16 +146,17 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Worksp
 	//
 	//	Return:
 	//	- target Workspace with updated attributes
+	var workspace Workspace
 	if patchData["picture"] != nil {
 		patchData["picture"] = fmt.Sprintf("data:%v;base64,%v", patchData["pictureType"], base64.StdEncoding.EncodeToString(patchData["picture"].([]byte)))
 		delete(patchData, "pictureType")
 	}
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &workspace)
 	if unmarshalError != nil {
-		return object, err
+		return workspace, err
 	}
-	return object, err
+	return workspace, err
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Workspace, string, Error.StarkErrors) {
@@ -175,10 +176,11 @@ func Page(params map[string]interface{}, user user.User) ([]Workspace, string, E
 	//	Return:
 	//	- Slice of Workspace structs with updated attributes
 	//	- cursor to retrieve the next page of Workspace structs
+	var workspaces []Workspace
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &workspaces)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return workspaces, cursor, err
 	}
-	return objects, cursor, err
+	return workspaces, cursor, err
 }

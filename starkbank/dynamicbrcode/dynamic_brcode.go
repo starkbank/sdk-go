@@ -43,8 +43,6 @@ type DynamicBrcode struct {
 	Updated    *time.Time `json:",omitempty"`
 }
 
-var object DynamicBrcode
-var objects []DynamicBrcode
 var resource = map[string]string{"name": "DynamicBrcode"}
 
 func Create(brcodes []DynamicBrcode, user user.User) ([]DynamicBrcode, Error.StarkErrors) {
@@ -81,12 +79,13 @@ func Get(uuid string, user user.User) (DynamicBrcode, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- DynamicBrcode struct that corresponds to the given uuid.
+	var dynamicBrcode DynamicBrcode
 	get, err := utils.Get(resource, uuid, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &dynamicBrcode)
 	if unmarshalError != nil {
-		return object, err
+		return dynamicBrcode, err
 	}
-	return object, err
+	return dynamicBrcode, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
@@ -105,16 +104,17 @@ func Query(params map[string]interface{}, user user.User) chan DynamicBrcode {
 	//
 	//	Return:
 	//	- Channel of DynamicBrcode structs with updated attributes
+	var dynamicBrcode DynamicBrcode
 	brcodes := make(chan DynamicBrcode)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &dynamicBrcode)
 			if err != nil {
 				panic(err)
 			}
-			brcodes <- object
+			brcodes <- dynamicBrcode
 		}
 		close(brcodes)
 	}()
@@ -140,10 +140,11 @@ func Page(params map[string]interface{}, user user.User) ([]DynamicBrcode, strin
 	//	Return:
 	//	- Slice of DynamicBrcode structs with updated attributes
 	//	- Cursor to retrieve the next page of DynamicBrcode structs
+	var dynamicBrcodes []DynamicBrcode
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &dynamicBrcodes)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return dynamicBrcodes, cursor, err
 	}
-	return objects, cursor, err
+	return dynamicBrcodes, cursor, err
 }

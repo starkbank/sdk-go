@@ -11,7 +11,6 @@ import (
 )
 
 func TestBoletoPreviewPost(t *testing.T) {
-
 	starkbank.User = Utils.ExampleProject
 
 	previews, err := PaymentPreview.Create(Example.PaymentPreviewBoleto(), nil)

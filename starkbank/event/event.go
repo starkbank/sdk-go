@@ -5,13 +5,13 @@ import (
 	BoletoLog "github.com/starkbank/sdk-go/starkbank/boleto/log"
 	HolmesLog "github.com/starkbank/sdk-go/starkbank/boletoholmes/log"
 	BoletoPaymentLog "github.com/starkbank/sdk-go/starkbank/boletopayment/log"
-	BrcodePaymentlog "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
-	DarfPaymentlog "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
-	Depositlog "github.com/starkbank/sdk-go/starkbank/deposit/log"
+	BrcodePaymentLog "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
+	DarfPaymentLog "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
+	DepositLog "github.com/starkbank/sdk-go/starkbank/deposit/log"
 	InvoiceLog "github.com/starkbank/sdk-go/starkbank/invoice/log"
-	TaxPaymentlog "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
-	Transferlog "github.com/starkbank/sdk-go/starkbank/transfer/log"
-	UtilityPaymentlog "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
+	TaxPaymentLog "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
+	TransferLog "github.com/starkbank/sdk-go/starkbank/transfer/log"
+	UtilityPaymentLog "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
 	"github.com/starkbank/sdk-go/starkbank/utils"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
@@ -41,8 +41,6 @@ type Event struct {
 	WorkspaceId  string      `json:",omitempty"`
 }
 
-var object Event
-var objects []Event
 var resource = map[string]string{"name": "Event"}
 
 func Get(id string, user user.User) (Event, Error.StarkErrors) {
@@ -58,12 +56,13 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Event struct that corresponds to the given id
+	var event Event
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &event)
 	if unmarshalError != nil {
-		return object.ParseLog(), err
+		return event.ParseLog(), err
 	}
-	return object.ParseLog(), err
+	return event.ParseLog(), err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Event {
@@ -81,16 +80,17 @@ func Query(params map[string]interface{}, user user.User) chan Event {
 	//
 	//	Return:
 	//	- Channel of Event structs with updated attributes
+	var event Event
 	events := make(chan Event)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &event)
 			if err != nil {
 				panic(err)
 			}
-			events <- object.ParseLog()
+			events <- event.ParseLog()
 		}
 		close(events)
 	}()
@@ -115,12 +115,13 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 	//	Return:
 	//	- Slice of Event structs with updated attributes
 	//	- Cursor to retrieve the next page of Event structs
+	var events []Event
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &events)
 	if unmarshalError != nil {
-		return ParseEvents(objects), cursor, err
+		return ParseEvents(events), cursor, err
 	}
-	return ParseEvents(objects), cursor, err
+	return ParseEvents(events), cursor, err
 }
 
 func Delete(id string, user user.User) (Event, Error.StarkErrors) {
@@ -136,12 +137,13 @@ func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Deleted Event struct
+	var event Event
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &event)
 	if unmarshalError != nil {
-		return object.ParseLog(), err
+		return event.ParseLog(), err
 	}
-	return object.ParseLog(), err
+	return event.ParseLog(), err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (Event, Error.StarkErrors) {
@@ -161,12 +163,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Event,
 	//
 	//	Return:
 	//	- Target Event with updated attributes
+	var event Event
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &event)
 	if unmarshalError != nil {
-		return object.ParseLog(), err
+		return event.ParseLog(), err
 	}
-	return object.ParseLog(), err
+	return event.ParseLog(), err
 }
 
 func Parse(content string, signature string, user user.User) interface{} {
@@ -190,93 +193,104 @@ func Parse(content string, signature string, user user.User) interface{} {
 
 func (e Event) ParseLog() Event {
 	if e.Subscription == "invoice" {
+		var log InvoiceLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &InvoiceLog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = InvoiceLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "boleto" {
+		var log BoletoLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &BoletoLog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = BoletoLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "boleto-holmes" {
+		var log HolmesLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &HolmesLog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
+
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = HolmesLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "boleto-payment" {
+		var log BoletoPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &BoletoPaymentLog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = BoletoPaymentLog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "brcode-payment" {
+		var log BrcodePaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &BrcodePaymentlog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = BrcodePaymentlog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "darf-payment" {
+		var log DarfPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &DarfPaymentlog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = DarfPaymentlog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "deposit" {
+		var log DepositLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &Depositlog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = Depositlog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "tax-payment" {
+		var log TaxPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &TaxPaymentlog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = TaxPaymentlog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "transfer" {
+		var log TransferLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &Transferlog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = Transferlog.Object
+		e.Log = log
 		return e
 	}
 	if e.Subscription == "utility-payment" {
+		var log UtilityPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
-		unmarshalError := json.Unmarshal(marshal, &UtilityPaymentlog.Object)
+		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
 			panic(unmarshalError)
 		}
-		e.Log = UtilityPaymentlog.Object
+		e.Log = log
 		return e
 	}
 	return e

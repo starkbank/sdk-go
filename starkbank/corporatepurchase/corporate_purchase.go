@@ -73,8 +73,6 @@ type CorporatePurchase struct {
 	Created                 *time.Time `json:",omitempty"`
 }
 
-var object CorporatePurchase
-var objects []CorporatePurchase
 var resource = map[string]string{"name": "CorporatePurchase"}
 
 func Get(id string, user user.User) (CorporatePurchase, Error.StarkErrors) {
@@ -90,12 +88,13 @@ func Get(id string, user user.User) (CorporatePurchase, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- corporatePurchase struct that corresponds to the given id.
+	var corporatePurchase CorporatePurchase
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &corporatePurchase)
 	if unmarshalError != nil {
-		return object, err
+		return corporatePurchase, err
 	}
-	return object, err
+	return corporatePurchase, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan CorporatePurchase {
@@ -117,16 +116,17 @@ func Query(params map[string]interface{}, user user.User) chan CorporatePurchase
 	//
 	//	Return:
 	//	- channel of CorporatePurchase structs with updated attributes
+	var corporatePurchase CorporatePurchase
 	purchases := make(chan CorporatePurchase)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &corporatePurchase)
 			if err != nil {
 				print(err.Error())
 			}
-			purchases <- object
+			purchases <- corporatePurchase
 		}
 		close(purchases)
 	}()
@@ -155,12 +155,13 @@ func Page(params map[string]interface{}, user user.User) ([]CorporatePurchase, s
 	//	Return:
 	//	- slice of CorporatePurchase structs with updated attributes
 	//	- cursor to retrieve the next page of CorporatePurchase structs
+	var corporatePurchases []CorporatePurchase
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &corporatePurchases)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return corporatePurchases, cursor, err
 	}
-	return objects, cursor, err
+	return corporatePurchases, cursor, err
 }
 
 func Parse(content string, signature string, user user.User) CorporatePurchase {
@@ -181,11 +182,12 @@ func Parse(content string, signature string, user user.User) CorporatePurchase {
 	//
 	//	Return:
 	//	- parsed CorporatePurchase struct
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &object)
+	var corporatePurchase CorporatePurchase
+	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &corporatePurchase)
 	if unmarshalError != nil {
-		return object
+		return corporatePurchase
 	}
-	return object
+	return corporatePurchase
 }
 
 func Response(authorization map[string]interface{}) string {
