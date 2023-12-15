@@ -37,8 +37,6 @@ type BoletoHolmes struct {
 	Updated  *time.Time `json:",omitempty"`
 }
 
-var object BoletoHolmes
-var objects []BoletoHolmes
 var resource = map[string]string{"name": "BoletoHolmes"}
 
 func Create(holmes []BoletoHolmes, user user.User) ([]BoletoHolmes, Error.StarkErrors) {
@@ -54,12 +52,13 @@ func Create(holmes []BoletoHolmes, user user.User) ([]BoletoHolmes, Error.StarkE
 	//
 	//	Return:
 	//	- Slice of BoletoHolmes structs with updated attributes
+	var boletoHolmes []BoletoHolmes
 	create, err := utils.Multi(resource, holmes, nil, user)
-	unmarshalError := json.Unmarshal(create, &objects)
+	unmarshalError := json.Unmarshal(create, &boletoHolmes)
 	if unmarshalError != nil {
-		return objects, err
+		return boletoHolmes, err
 	}
-	return objects, err
+	return boletoHolmes, err
 }
 
 func Get(id string, user user.User) (BoletoHolmes, Error.StarkErrors) {
@@ -75,12 +74,13 @@ func Get(id string, user user.User) (BoletoHolmes, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- BoletoHolmes struct that corresponds to the given id
+	var boletoHolmes BoletoHolmes
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &boletoHolmes)
 	if unmarshalError != nil {
-		return object, err
+		return boletoHolmes, err
 	}
-	return object, err
+	return boletoHolmes, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan BoletoHolmes {
@@ -103,16 +103,17 @@ func Query(params map[string]interface{}, user user.User) chan BoletoHolmes {
 	//
 	//	Return:
 	//	- Channel of BoletoHolmes structs with updated attributes
+	var boletoHolmes BoletoHolmes
 	holmes := make(chan BoletoHolmes)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &boletoHolmes)
 			if err != nil {
 				panic(err)
 			}
-			holmes <- object
+			holmes <- boletoHolmes
 		}
 		close(holmes)
 	}()
@@ -140,10 +141,11 @@ func Page(params map[string]interface{}, user user.User) ([]BoletoHolmes, string
 	//	Return:
 	//	- Slice of BoletoHolmes structs with updated attributes
 	//	- Cursor to retrieve the next page of BoletoHolmes structs
+	var boletoHolmes []BoletoHolmes
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &boletoHolmes)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return boletoHolmes, cursor, err
 	}
-	return objects, cursor, err
+	return boletoHolmes, cursor, err
 }

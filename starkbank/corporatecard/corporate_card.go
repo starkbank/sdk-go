@@ -65,8 +65,6 @@ type CorporateCard struct {
 	Created      *time.Time                    `json:",omitempty"`
 }
 
-var object CorporateCard
-var objects []CorporateCard
 var resource = map[string]string{"name": "CorporateCard"}
 
 func Create(card CorporateCard, expand map[string]interface{}, user user.User) (CorporateCard, Error.StarkErrors) {
@@ -108,12 +106,13 @@ func Get(id string, expand map[string]interface{}, user user.User) (CorporateCar
 	//
 	//	Return:
 	//	- CorporateCard struct that corresponds to the given id.
+	var corporateCard CorporateCard
 	get, err := utils.Get(resource, id, expand, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &corporateCard)
 	if unmarshalError != nil {
-		return object, err
+		return corporateCard, err
 	}
-	return object, err
+	return corporateCard, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan CorporateCard {
@@ -136,16 +135,17 @@ func Query(params map[string]interface{}, user user.User) chan CorporateCard {
 	//
 	//	Return:
 	//	- channel of CorporateCard structs with updated attributes
+	var corporateCard CorporateCard
 	cards := make(chan CorporateCard)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &corporateCard)
 			if err != nil {
 				print(err.Error())
 			}
-			cards <- object
+			cards <- corporateCard
 		}
 		close(cards)
 	}()
@@ -175,12 +175,13 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateCard, strin
 	//	Return:
 	//	- slice of CorporateCards structs with updated attributes
 	//	- cursor to retrieve the next page of CorporateCards structs
+	var corporateCards []CorporateCard
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &corporateCards)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return corporateCards, cursor, err
 	}
-	return objects, cursor, err
+	return corporateCards, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (CorporateCard, Error.StarkErrors) {
@@ -203,12 +204,13 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Corpor
 	//
 	//	Return:
 	//	- target CorporateCard with updated attributes
+	var corporateCard CorporateCard
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &object)
+	unmarshalError := json.Unmarshal(update, &corporateCard)
 	if unmarshalError != nil {
-		return object, err
+		return corporateCard, err
 	}
-	return object, err
+	return corporateCard, err
 }
 
 func Cancel(id string, user user.User) (CorporateCard, Error.StarkErrors) {
@@ -224,10 +226,11 @@ func Cancel(id string, user user.User) (CorporateCard, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- canceled CorporateCard struct
+	var corporateCard CorporateCard
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &object)
+	unmarshalError := json.Unmarshal(deleted, &corporateCard)
 	if unmarshalError != nil {
-		return object, err
+		return corporateCard, err
 	}
-	return object, err
+	return corporateCard, err
 }

@@ -31,8 +31,6 @@ type CorporateTransaction struct {
 	Created     *time.Time `json:",omitempty"`
 }
 
-var object CorporateTransaction
-var objects []CorporateTransaction
 var resource = map[string]string{"name": "CorporateTransaction"}
 
 func Get(id string, user user.User) (CorporateTransaction, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (CorporateTransaction, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- corporateTransaction struct that corresponds to the given id.
+	var corporateTransaction CorporateTransaction
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &object)
+	unmarshalError := json.Unmarshal(get, &corporateTransaction)
 	if unmarshalError != nil {
-		return object, err
+		return corporateTransaction, err
 	}
-	return object, err
+	return corporateTransaction, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan CorporateTransaction {
@@ -74,16 +73,17 @@ func Query(params map[string]interface{}, user user.User) chan CorporateTransact
 	//
 	//	Return:
 	//	- channel of CorporateTransaction structs with updated attributes
+	var corporateTransaction CorporateTransaction
 	transactions := make(chan CorporateTransaction)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &corporateTransaction)
 			if err != nil {
 				print(err.Error())
 			}
-			transactions <- object
+			transactions <- corporateTransaction
 		}
 		close(transactions)
 	}()
@@ -111,10 +111,11 @@ func Page(params map[string]interface{}, user user.User) ([]CorporateTransaction
 	//	Return:
 	//	- slice of CorporateTransaction structs with updated attributes
 	//	- cursor to retrieve the next page of CorporatePurchase structs
+	var corporateTransactions []CorporateTransaction
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &corporateTransactions)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return corporateTransactions, cursor, err
 	}
-	return objects, cursor, err
+	return corporateTransactions, cursor, err
 }

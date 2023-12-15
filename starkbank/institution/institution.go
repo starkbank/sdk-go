@@ -26,7 +26,6 @@ type Institution struct {
 	StrCode     string `json:",omitempty"`
 }
 
-var object Institution
 var resource = map[string]string{"name": "Institution"}
 
 func Query(params map[string]interface{}, user user.User) chan Institution {
@@ -44,16 +43,17 @@ func Query(params map[string]interface{}, user user.User) chan Institution {
 	//
 	//	Return:
 	//	- Slice of Institution structs with updated attributes
+	var institution Institution
 	institutions := make(chan Institution)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &institution)
 			if err != nil {
 				panic(err)
 			}
-			institutions <- object
+			institutions <- institution
 		}
 		close(institutions)
 	}()

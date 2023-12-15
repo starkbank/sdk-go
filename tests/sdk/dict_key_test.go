@@ -11,7 +11,6 @@ import (
 )
 
 func TestDictKeyGet(t *testing.T) {
-
 	starkbank.User = Utils.ExampleProject
 
 	var keyList []DictKey.DictKey
@@ -35,7 +34,6 @@ func TestDictKeyGet(t *testing.T) {
 }
 
 func TestDictKeyQuery(t *testing.T) {
-
 	starkbank.User = Utils.ExampleProject
 
 	var i int
@@ -52,7 +50,6 @@ func TestDictKeyQuery(t *testing.T) {
 }
 
 func TestDictKeyPage(t *testing.T) {
-
 	starkbank.User = Utils.ExampleProject
 
 	var ids []string

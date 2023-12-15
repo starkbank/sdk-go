@@ -31,7 +31,6 @@ type CorporateBalance struct {
 	Updated  *time.Time `json:",omitempty"`
 }
 
-var object CorporateBalance
 var resource = map[string]string{"name": "CorporateBalance"}
 
 func Get(user user.User) CorporateBalance {
@@ -44,16 +43,17 @@ func Get(user user.User) CorporateBalance {
 	//
 	//	Return:
 	//	- CorporateBalance struct with updated attributes
+	var corporateBalance CorporateBalance
 	balance := make(chan CorporateBalance)
 	query := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &object)
+			err := json.Unmarshal(contentByte, &corporateBalance)
 			if err != nil {
 				print(err.Error())
 			}
-			balance <- object
+			balance <- corporateBalance
 		}
 		close(balance)
 	}()

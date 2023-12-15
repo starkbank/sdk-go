@@ -51,8 +51,6 @@ type TaxPayment struct {
 	Created        *time.Time `json:",omitempty"`
 }
 
-var Object TaxPayment
-var objects []TaxPayment
 var resource = map[string]string{"name": "TaxPayment"}
 
 func Create(payments []TaxPayment, user user.User) ([]TaxPayment, Error.StarkErrors) {
@@ -89,12 +87,13 @@ func Get(id string, user user.User) (TaxPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- TaxPayment struct with updated attributes
+	var taxPayment TaxPayment
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &taxPayment)
 	if unmarshalError != nil {
-		return Object, err
+		return taxPayment, err
 	}
-	return Object, err
+	return taxPayment, err
 }
 
 func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
@@ -133,16 +132,17 @@ func Query(params map[string]interface{}, user user.User) chan TaxPayment {
 	//
 	//	Return:
 	//	 - Channel of TaxPayment structs with updated attributes\
+	var taxPayment TaxPayment
 	payments := make(chan TaxPayment)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &taxPayment)
 			if err != nil {
 				panic(err)
 			}
-			payments <- Object
+			payments <- taxPayment
 		}
 		close(payments)
 	}()
@@ -169,12 +169,13 @@ func Page(params map[string]interface{}, user user.User) ([]TaxPayment, string, 
 	//	Return:
 	//	- Slice of TaxPayment structs with updated attributes
 	//	- cursor to retrieve the next page of TaxPayment structs
+	var taxPayments []TaxPayment
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &taxPayments)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return taxPayments, cursor, err
 	}
-	return objects, cursor, err
+	return taxPayments, cursor, err
 }
 
 func Delete(id string, user user.User) (TaxPayment, Error.StarkErrors) {
@@ -190,10 +191,11 @@ func Delete(id string, user user.User) (TaxPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted TaxPayment struct
+	var taxPayment TaxPayment
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &Object)
+	unmarshalError := json.Unmarshal(deleted, &taxPayment)
 	if unmarshalError != nil {
-		return Object, err
+		return taxPayment, err
 	}
-	return Object, err
+	return taxPayment, err
 }

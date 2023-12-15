@@ -34,8 +34,6 @@ type Log struct {
 	Created                *time.Time                          `json:",omitempty"`
 }
 
-var Object Log
-var objects []Log
 var resource = map[string]string{"name": "CorporatePurchaseLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -51,12 +49,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- corporatePurchase.Log struct that corresponds to the given id.
+	var corporatePurchaseLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &corporatePurchaseLog)
 	if unmarshalError != nil {
-		return Object, err
+		return corporatePurchaseLog, err
 	}
-	return Object, err
+	return corporatePurchaseLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -76,16 +75,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- channel of CorporatePurchase.Log structs with updated attributes
+	var corporatePurchaseLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &corporatePurchaseLog)
 			if err != nil {
 				print(err.Error())
 			}
-			logs <- Object
+			logs <- corporatePurchaseLog
 		}
 		close(logs)
 	}()
@@ -112,10 +112,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- slice of CorporatePurchase.Log structs with updated attributes
 	//	- cursor to retrieve the next page of CorporatePurchase.Log structs
+	var corporatePurchaseLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &corporatePurchaseLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return corporatePurchaseLogs, cursor, err
 	}
-	return objects, cursor, err
+	return corporatePurchaseLogs, cursor, err
 }

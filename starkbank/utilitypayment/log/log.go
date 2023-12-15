@@ -30,8 +30,6 @@ type Log struct {
 	Created *time.Time                    `json:",omitempty"`
 }
 
-var Object Log
-var objects []Log
 var resource = map[string]string{"name": "UtilityPaymentLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -47,12 +45,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- utilitypayment.Log object with updated attributes
+	var utilityPaymetLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &utilityPaymetLog)
 	if unmarshalError != nil {
-		return Object, err
+		return utilityPaymetLog, err
 	}
-	return Object, err
+	return utilityPaymetLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -71,16 +70,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	// 	Return:
 	//	  - Channel of utilitypayment.Log objects with updated attributes
+	var utilityPaymetLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &utilityPaymetLog)
 			if err != nil {
 				panic(err)
 			}
-			logs <- Object
+			logs <- utilityPaymetLog
 		}
 		close(logs)
 	}()
@@ -96,20 +96,21 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
 	//		- cursor [string, default nil]: cursor returned on the previous page function call
-	//		- limit [int, default nil]: maximum number of objects to be retrieved. Unlimited if nil. ex: 35
-	//		- after [string, default nil]: date filter for objects created only after specified date.
-	//		- before [string, default nil]: date filter for objects created only before specified date.
-	//		- types [slice of strings, default nil]: filter retrieved objects by event types. ex: []string{"processing", "success"}
-	//		- paymentIds [slice of strings, default nil]: list of UtilityPayment ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- limit [int, default nil]: maximum number of structs to be retrieved. Unlimited if nil. ex: 35
+	//		- after [string, default nil]: date filter for structs created only after specified date.
+	//		- before [string, default nil]: date filter for structs created only before specified date.
+	//		- types [slice of strings, default nil]: filter retrieved structs by event types. ex: []string{"processing", "success"}
+	//		- paymentIds [slice of strings, default nil]: list of UtilityPayment ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Slice of UtilityPayment structs with updated attributes
 	//	- cursor to retrieve the next page of UtilityPayment structs
+	var utilityPaymetLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &utilityPaymetLogs)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return utilityPaymetLogs, cursor, err
 	}
-	return objects, cursor, err
+	return utilityPaymetLogs, cursor, err
 }

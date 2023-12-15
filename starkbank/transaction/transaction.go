@@ -50,8 +50,6 @@ type Transaction struct {
 	Created     *time.Time `json:",omitempty"`
 }
 
-var Object Transaction
-var objects []Transaction
 var resource = map[string]string{"name": "Transaction"}
 
 func Create(transactions []Transaction, user user.User) ([]Transaction, Error.StarkErrors) {
@@ -88,12 +86,13 @@ func Get(id string, user user.User) (Transaction, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Transaction object with updated attributes
+	var transaction Transaction
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &transaction)
 	if unmarshalError != nil {
-		return Object, err
+		return transaction, err
 	}
-	return Object, err
+	return transaction, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Transaction {
@@ -113,16 +112,17 @@ func Query(params map[string]interface{}, user user.User) chan Transaction {
 	//
 	//	Return:
 	//	 - Channel of Transaction objects with updated attributes
+	var transaction Transaction
 	transactions := make(chan Transaction)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &transaction)
 			if err != nil {
 				panic(err)
 			}
-			transactions <- Object
+			transactions <- transaction
 		}
 		close(transactions)
 	}()
@@ -132,27 +132,28 @@ func Query(params map[string]interface{}, user user.User) chan Transaction {
 func Page(params map[string]interface{}, user user.User) ([]Transaction, string, Error.StarkErrors) {
 	//	Retrieve paged Transaction structs
 	//
-	//	Receive a slice of up to 100 Transaction objects previously created in the Stark Bank API and the cursor to the next page.
+	//	Receive a slice of up to 100 Transaction transactions previously created in the Stark Bank API and the cursor to the next page.
 	//	Use this function instead of query if you want to manually page your requests.
 	//
 	// 	Parameters (optional):
 	//  - params [map[string]interface{}, default nil]: map of parameters for the query
 	//		- cursor [string, default nil]: cursor returned on the previous page function call
-	//		- limit [int, default 100]: maximum number of objects to be retrieved. It must be an int between 1 and 100. ex: 50
-	//		- after [string, default nil]: date filter for objects created only after specified date.
-	//		- before [string, default nil]: date filter for objects created only before specified date.
-	//		- tags [slice of strings, default nil]: tags to filter retrieved objects. ex: []string{"John", "Paul"}
-	//		- ids [slice of strings, default nil]: list of ids to filter retrieved objects. ex: []string{"5656565656565656", "4545454545454545"}
-	//		- status [string, default nil]: filter for status of retrieved objects. ex: "success"
+	//		- limit [int, default 100]: maximum number of structs to be retrieved. It must be an int between 1 and 100. ex: 50
+	//		- after [string, default nil]: date filter for structs created only after specified date.
+	//		- before [string, default nil]: date filter for structs created only before specified date.
+	//		- tags [slice of strings, default nil]: tags to filter retrieved structs. ex: []string{"John", "Paul"}
+	//		- ids [slice of strings, default nil]: list of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- status [string, default nil]: filter for status of retrieved structs. ex: "success"
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Slice of Transaction objects with updated attributes
-	//	- Cursor to retrieve the next page of Transaction objects
+	//	- Slice of Transaction transactions with updated attributes
+	//	- Cursor to retrieve the next page of Transaction transactions
+	var transactions []Transaction
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &transactions)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return transactions, cursor, err
 	}
-	return objects, cursor, err
+	return transactions, cursor, err
 }

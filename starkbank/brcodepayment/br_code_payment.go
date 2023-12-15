@@ -56,8 +56,6 @@ type BrcodePayment struct {
 	Created        *time.Time   `json:",omitempty"`
 }
 
-var Object BrcodePayment
-var objects []BrcodePayment
 var resource = map[string]string{"name": "BrcodePayment"}
 
 func Create(payments []BrcodePayment, user user.User) ([]BrcodePayment, Error.StarkErrors) {
@@ -94,12 +92,13 @@ func Get(id string, user user.User) (BrcodePayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- BrcodePayment struct that corresponds to the given id
+	var brCodePayment BrcodePayment
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &brCodePayment)
 	if unmarshalError != nil {
-		return Object, err
+		return brCodePayment, err
 	}
-	return Object, err
+	return brCodePayment, err
 }
 
 func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
@@ -137,16 +136,17 @@ func Query(params map[string]interface{}, user user.User) chan BrcodePayment {
 	//
 	//	Return:
 	//	- Channel of BrcodePayment structs with updated attributes
+	var brCodePayment BrcodePayment
 	payments := make(chan BrcodePayment)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &brCodePayment)
 			if err != nil {
 				panic(err)
 			}
-			payments <- Object
+			payments <- brCodePayment
 		}
 		close(payments)
 	}()
@@ -173,12 +173,13 @@ func Page(params map[string]interface{}, user user.User) ([]BrcodePayment, strin
 	//	Return:
 	//	- Slice of BrcodePayment structs with updated attributes
 	//	- Cursor to retrieve the next page of BrcodePayment structs
+	var brCodePayments []BrcodePayment
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &brCodePayments)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return brCodePayments, cursor, err
 	}
-	return objects, cursor, err
+	return brCodePayments, cursor, err
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (BrcodePayment, Error.StarkErrors) {
@@ -197,10 +198,11 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Brcode
 	//
 	//	Return:
 	//	- Target BrcodePayment with updated attributes
+	var brCodePayment BrcodePayment
 	update, err := utils.Patch(resource, id, patchData, user)
-	unmarshalError := json.Unmarshal(update, &Object)
+	unmarshalError := json.Unmarshal(update, &brCodePayment)
 	if unmarshalError != nil {
-		return Object, err
+		return brCodePayment, err
 	}
-	return Object, err
+	return brCodePayment, err
 }

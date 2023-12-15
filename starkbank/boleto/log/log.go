@@ -31,8 +31,6 @@ type Log struct {
 	Created *time.Time    `json:",omitempty"`
 }
 
-var Object Log
-var Objects []Log
 var resource = map[string]string{"name": "BoletoLog"}
 
 func Get(id string, user user.User) (Log, Error.StarkErrors) {
@@ -48,12 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Boleto.Log struct that corresponds to the given id.
+	var boletoLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &boletoLog)
 	if unmarshalError != nil {
-		return Object, err
+		return boletoLog, err
 	}
-	return Object, err
+	return boletoLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -72,16 +71,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- Channel of boleto.Log structs with updated attributes
+	var boletoLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &boletoLog)
 			if err != nil {
 				panic(err)
 			}
-			logs <- Object
+			logs <- boletoLog
 		}
 		close(logs)
 	}()
@@ -101,16 +101,17 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- types [slice of strings, default nil]: Filter for log event types. ex: []string{"paid", "registered"}
-	//		- boletoIds [slice of strings, default nil]: List of Boleto ids to filter Objects. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- boletoIds [slice of strings, default nil]: List of Boleto ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
 	//	- Slice of Boleto.Log structs with updated attributes
 	//	- Cursor to retrieve the next page of Boleto.Log structs
+	var boletoLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &Objects)
+	unmarshalError := json.Unmarshal(page, &boletoLogs)
 	if unmarshalError != nil {
-		return Objects, cursor, err
+		return boletoLogs, cursor, err
 	}
-	return Objects, cursor, err
+	return boletoLogs, cursor, err
 }

@@ -62,8 +62,6 @@ type Transfer struct {
 	Updated        *time.Time             `json:",omitempty"`
 }
 
-var Object Transfer
-var objects []Transfer
 var resource = map[string]string{"name": "Transfer"}
 
 func Create(transfers []Transfer, user user.User) ([]Transfer, Error.StarkErrors) {
@@ -100,12 +98,13 @@ func Get(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Transfer struct with updated attributes
+	var transfer Transfer
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &transfer)
 	if unmarshalError != nil {
-		return Object, err
+		return transfer, err
 	}
-	return Object, err
+	return transfer, err
 }
 
 func Delete(id string, user user.User) (Transfer, Error.StarkErrors) {
@@ -121,12 +120,13 @@ func Delete(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- deleted Transfer struct
+	var transfer Transfer
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &Object)
+	unmarshalError := json.Unmarshal(deleted, &transfer)
 	if unmarshalError != nil {
-		return Object, err
+		return transfer, err
 	}
-	return Object, err
+	return transfer, err
 }
 
 func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
@@ -166,16 +166,17 @@ func Query(params map[string]interface{}, user user.User) chan Transfer {
 	//
 	//	Return:
 	//	 - Channel of Transfer objects with updated attributes
+	var transfer Transfer
 	transfers := make(chan Transfer)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &transfer)
 			if err != nil {
 				panic(err)
 			}
-			transfers <- Object
+			transfers <- transfer
 		}
 		close(transfers)
 	}()
@@ -205,10 +206,11 @@ func Page(params map[string]interface{}, user user.User) ([]Transfer, string, Er
 	//	Return:
 	//	- Slice of Transfer structs with updated attributes
 	//	- Cursor to retrieve the next page of Transfer structs
+	var transfers []Transfer
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &transfers)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return transfers, cursor, err
 	}
-	return objects, cursor, err
+	return transfers, cursor, err
 }

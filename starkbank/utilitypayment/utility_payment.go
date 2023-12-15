@@ -51,8 +51,6 @@ type UtilityPayment struct {
 	Updated        *time.Time `json:",omitempty"`
 }
 
-var Object UtilityPayment
-var objects []UtilityPayment
 var resource = map[string]string{"name": "UtilityPayment"}
 
 func Create(payments []UtilityPayment, user user.User) ([]UtilityPayment, Error.StarkErrors) {
@@ -89,12 +87,13 @@ func Get(id string, user user.User) (UtilityPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- UtilityPayment struct with updated attributes
+	var utilityPayment UtilityPayment
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &Object)
+	unmarshalError := json.Unmarshal(get, &utilityPayment)
 	if unmarshalError != nil {
-		return Object, err
+		return utilityPayment, err
 	}
-	return Object, err
+	return utilityPayment, err
 }
 
 func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
@@ -131,16 +130,17 @@ func Query(params map[string]interface{}, user user.User) chan UtilityPayment {
 	//
 	//	Return:
 	//	- Channel of UtilityPayment structs with updated attributes
+	var utilityPayment UtilityPayment
 	payments := make(chan UtilityPayment)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &Object)
+			err := json.Unmarshal(contentByte, &utilityPayment)
 			if err != nil {
 				panic(err)
 			}
-			payments <- Object
+			payments <- utilityPayment
 		}
 		close(payments)
 	}()
@@ -167,12 +167,13 @@ func Page(params map[string]interface{}, user user.User) ([]UtilityPayment, stri
 	//	Return:
 	//	- Slice of UtilityPayment structs with updated attributes
 	//	- cursor to retrieve the next page of UtilityPayment structs
+	var utilityPayments []UtilityPayment
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &objects)
+	unmarshalError := json.Unmarshal(page, &utilityPayments)
 	if unmarshalError != nil {
-		return objects, cursor, err
+		return utilityPayments, cursor, err
 	}
-	return objects, cursor, err
+	return utilityPayments, cursor, err
 }
 
 func Delete(id string, user user.User) (UtilityPayment, Error.StarkErrors) {
@@ -188,10 +189,11 @@ func Delete(id string, user user.User) (UtilityPayment, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Deleted UtilityPayment struct
+	var utilityPayment UtilityPayment
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &Object)
+	unmarshalError := json.Unmarshal(deleted, &utilityPayment)
 	if unmarshalError != nil {
-		return Object, err
+		return utilityPayment, err
 	}
-	return Object, err
+	return utilityPayment, err
 }
