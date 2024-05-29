@@ -24,27 +24,29 @@ import (
 //	- Type [string]: Type of settlement that originated the deposit. ex: "pix" or "ted"
 //	- Status [string]: Current Deposit status. ex: "created"
 //	- Tags [slice of strings]: Slice of strings that are tagging the deposit. ex: []string{"reconciliationId", "txId"}
+//	- DisplayDescription [string, default nil]: optional description to be shown in the receiver bank interface. ex: "Payment for service 1234"
 //	- Fee [int]: Fee charged by this deposit. ex: 50 (= R$ 0.50)
 //	- TransactionIds [slice of strings]: Ledger transaction ids linked to this deposit (if there are more than one, all but the first are reversals or failed reversal chargebacks). ex: []string{"19827356981273"}
 //	- Created [time.Time]: Creation datetime for the Deposit. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: Latest update datetime for the Deposit. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Deposit struct {
-	Id             string     `json:",omitempty"`
-	Name           string     `json:",omitempty"`
-	TaxId          string     `json:",omitempty"`
-	BankCode       string     `json:",omitempty"`
-	BranchCode     string     `json:",omitempty"`
-	AccountNumber  string     `json:",omitempty"`
-	AccountType    string     `json:",omitempty"`
-	Amount         int        `json:",omitempty"`
-	Type           string     `json:",omitempty"`
-	Status         string     `json:",omitempty"`
-	Tags           []string   `json:",omitempty"`
-	Fee            int        `json:",omitempty"`
-	TransactionIds []string   `json:",omitempty"`
-	Created        *time.Time `json:",omitempty"`
-	Updated        *time.Time `json:",omitempty"`
+	Id             		string     `json:",omitempty"`
+	Name           		string     `json:",omitempty"`
+	TaxId          		string     `json:",omitempty"`
+	BankCode       		string     `json:",omitempty"`
+	BranchCode     		string     `json:",omitempty"`
+	AccountNumber  		string     `json:",omitempty"`
+	AccountType    		string     `json:",omitempty"`
+	Amount         		int        `json:",omitempty"`
+	Type           		string     `json:",omitempty"`
+	Status         		string     `json:",omitempty"`
+	Tags           		[]string   `json:",omitempty"`
+	DisplayDescription  string	   `json:",omitempty"`
+	Fee            		int        `json:",omitempty"`
+	TransactionIds 		[]string   `json:",omitempty"`
+	Created        		*time.Time `json:",omitempty"`
+	Updated        		*time.Time `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "Deposit"}

@@ -28,7 +28,8 @@ import (
 //	- ExternalId [string, default nil]: url safe string that must be unique among all your transfers. Duplicated external_ids will cause failures. By default, this parameter will block any transfer that repeats amount and receiver information on the same date. ex: "my-internal-id-123456"
 //	- Scheduled [time.Time, default now]: date when the transfer will be processed. May be pushed to next business day if necessary. ex: time.Date(2020, 3, 10, 10, 30, 0, 0, time.UTC) or ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
 //	- Description [string, default nil]: optional description to override default description to be shown in the bank statement. ex: "Payment for service #1234"
-//	- Tags [slice of strings, default nil]: slice of strings for reference when searching for transfers. ex: []string{"John", "Paul"}
+//	- DisplayDescription [string, default nil]: optional description to be shown in the receiver bank interface. ex: "Payment for service 1234"
+//  - Tags [slice of strings, default nil]: slice of strings for reference when searching for transfers. ex: []string{"John", "Paul"}
 //	- Rules [slice of Transfer.Rule structs, default nil]: slice of Transfer.Rule structs for modifying transfer behavior. ex: []rule.Rule{{Key: "resendingLimit", Value: 5}},
 //
 //	Attributes (return-only):
@@ -41,25 +42,26 @@ import (
 //	- Updated [time.Time]: latest update datetime for the transfer. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Transfer struct {
-	Id             string                 `json:",omitempty"`
-	Amount         int                    `json:",omitempty"`
-	Name           string                 `json:",omitempty"`
-	TaxId          string                 `json:",omitempty"`
-	BankCode       string                 `json:",omitempty"`
-	BranchCode     string                 `json:",omitempty"`
-	AccountNumber  string                 `json:",omitempty"`
-	AccountType    string                 `json:",omitempty"`
-	ExternalId     string                 `json:",omitempty"`
-	Scheduled      *time.Time             `json:",omitempty"`
-	Description    string                 `json:",omitempty"`
-	Tags           []string               `json:",omitempty"`
-	Rules          []rule.Rule            `json:",omitempty"`
-	Fee            int                    `json:",omitempty"`
-	Status         string                 `json:",omitempty"`
-	TransactionIds []string               `json:",omitempty"`
-	Metadata       map[string]interface{} `json:",omitempty"`
-	Created        *time.Time             `json:",omitempty"`
-	Updated        *time.Time             `json:",omitempty"`
+	Id                 string                 `json:",omitempty"`
+	Amount             int                    `json:",omitempty"`
+	Name               string                 `json:",omitempty"`
+	TaxId              string                 `json:",omitempty"`
+	BankCode           string                 `json:",omitempty"`
+	BranchCode         string                 `json:",omitempty"`
+	AccountNumber      string                 `json:",omitempty"`
+	AccountType        string                 `json:",omitempty"`
+	ExternalId         string                 `json:",omitempty"`
+	Scheduled          *time.Time             `json:",omitempty"`
+	Description        string                 `json:",omitempty"`
+	DisplayDescription string                 `json:",omitempty"`
+	Tags               []string               `json:",omitempty"`
+	Rules              []rule.Rule            `json:",omitempty"`
+	Fee                int                    `json:",omitempty"`
+	Status             string                 `json:",omitempty"`
+	TransactionIds     []string               `json:",omitempty"`
+	Metadata           map[string]interface{} `json:",omitempty"`
+	Created            *time.Time             `json:",omitempty"`
+	Updated            *time.Time             `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "Transfer"}
