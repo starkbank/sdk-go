@@ -34,6 +34,7 @@ import (
 //	- Descriptions [slice of maps, default nil]: slice of maps with "key":string and (optional) "value":string pairs
 //
 //	Attributes (return-only):
+//	- DisplayDescription [string, default nil]: optional description to be shown in the receiver bank interface. ex: "Payment for service 1234"
 //	- Pdf [string]: public Invoice PDF URL. ex: "https://invoice.starkbank.com/pdf/d454fa4e524441c1b0c1a729457ed9d8"
 //	- Link [string]: public Invoice webpage URL. ex: "https://my-workspace.sandbox.starkbank.com/invoicelink/d454fa4e524441c1b0c1a729457ed9d8"
 //	- NominalAmount [int]: Invoice emission value in cents (will change if invoice is updated, but not if it's paid). ex: 400000
@@ -49,30 +50,31 @@ import (
 //	- Updated [time.Time]: latest update datetime for the Invoice. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type Invoice struct {
-	Id             string                   `json:",omitempty"`
-	Amount         int                      `json:",omitempty"`
-	Name           string                   `json:",omitempty"`
-	TaxId          string                   `json:",omitempty"`
-	Due            *time.Time               `json:",omitempty"`
-	Expiration     int                      `json:",omitempty"`
-	Fine           float64                  `json:",omitempty"`
-	Interest       float64                  `json:",omitempty"`
-	Discounts      []map[string]interface{} `json:",omitempty"`
-	Tags           []string                 `json:",omitempty"`
-	Rules          []rule.Rule              `json:",omitempty"`
-	Descriptions   []map[string]interface{} `json:",omitempty"`
-	Pdf            string                   `json:",omitempty"`
-	Link           string                   `json:",omitempty"`
-	NominalAmount  int                      `json:",omitempty"`
-	FineAmount     int                      `json:",omitempty"`
-	InterestAmount int                      `json:",omitempty"`
-	DiscountAmount int                      `json:",omitempty"`
-	Brcode         string                   `json:",omitempty"`
-	Status         string                   `json:",omitempty"`
-	Fee            int                      `json:",omitempty"`
-	TransactionIds []string                 `json:",omitempty"`
-	Created        *time.Time               `json:",omitempty"`
-	Updated        *time.Time               `json:",omitempty"`
+	Id             		string                   `json:",omitempty"`
+	Amount         		int                      `json:",omitempty"`
+	Name           		string                   `json:",omitempty"`
+	TaxId          		string                   `json:",omitempty"`
+	Due            		*time.Time               `json:",omitempty"`
+	Expiration     		int                      `json:",omitempty"`
+	Fine           		float64                  `json:",omitempty"`
+	Interest       		float64                  `json:",omitempty"`
+	Discounts      		[]map[string]interface{} `json:",omitempty"`
+	Tags           		[]string                 `json:",omitempty"`
+	Rules          		[]rule.Rule              `json:",omitempty"`
+	Descriptions   		[]map[string]interface{} `json:",omitempty"`
+	DisplayDescription  string                 	 `json:",omitempty"`
+	Pdf            		string                   `json:",omitempty"`
+	Link           		string                   `json:",omitempty"`
+	NominalAmount  		int                      `json:",omitempty"`
+	FineAmount     		int                      `json:",omitempty"`
+	InterestAmount 		int                      `json:",omitempty"`
+	DiscountAmount 		int                      `json:",omitempty"`
+	Brcode         		string                   `json:",omitempty"`
+	Status         		string                   `json:",omitempty"`
+	Fee            		int                      `json:",omitempty"`
+	TransactionIds 		[]string                 `json:",omitempty"`
+	Created        		*time.Time               `json:",omitempty"`
+	Updated        		*time.Time               `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "Invoice"}

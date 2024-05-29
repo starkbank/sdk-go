@@ -317,6 +317,7 @@ func Transfer() []transfer.Transfer {
 			BankCode:      "001",
 			BranchCode:    "1234",
 			AccountNumber: "123456-0",
+			DisplayDescription: "Payment for service 1234",
 			Rules:         []rule.Rule{{Key: "resendingLimit", Value: 0}},
 		},
 	}
