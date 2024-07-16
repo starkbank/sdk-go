@@ -4574,6 +4574,351 @@ func main() {
 
 **Note**: the Organization user can only update a workspace with the Workspace ID set.
 
+# request
+
+This resource allows you to send HTTP requests to StarkBank routes.
+
+## GET
+
+You can perform a GET request to any StarkBank route.
+
+It's possible to get a single resource using its id in the path.
+
+```golang
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	data := map[string]interface{}{}
+	var path string
+
+	path = "/invoice/5155165527080960"
+
+	response, err := Request.Get(
+		path,
+		nil,
+		nil,
+	)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+  
+  fmt.Println(data)
+}
+```
+
+You can also get the specific resource log,
+
+```golang
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	data := map[string]interface{}{}
+	var path string
+
+	path = "/invoice/log/5155165527080960"
+
+	response, err := Request.Get(
+		path,
+		nil,
+		nil,
+	)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+  
+  fmt.Println(data)
+}
+```
+
+This same method will be used to list all created items for the requested resource.
+
+```golang
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	data := map[string]interface{}{}
+	var path string
+	var query = map[string]interface{}{}
+
+	path = "/invoice/"
+	query["limit"] = 2
+  query["status"] = "paid"
+
+	response, err := Request.Get(
+		path,
+		query,
+		nil,
+	)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+  
+  fmt.Println(data)
+}
+```
+
+To list logs, you will use the same logic as for getting a single log.
+
+```golang
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	data := map[string]interface{}{}
+	var path string
+	var query = map[string]interface{}{}
+
+	path = "/invoice/log"
+	query["limit"] = 2
+  query["status"] = "paid"
+
+	response, err := Request.Get(
+		path,
+		query,
+		nil,
+	)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+  
+  fmt.Println(data)
+}
+```
+
+You can get a resource file using this method.
+
+```golang
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	var path string
+
+	path = "/invoice/log/5155165527080960/pdf"
+
+	response, err := Request.Get(
+		path,
+		nil,
+		nil,
+	)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+  filename := fmt.Sprintf("%v%v.pdf", "transfer", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
+}
+```
+
+## POST
+
+You can perform a POST request to any StarkBank route.
+
+This will create an object for each item sent in your request
+
+**Note**: It's not possible to create multiple resources simultaneously. You need to send separate requests if you want to create multiple resources, such as invoices and boletos.
+
+```golang
+import (
+  "fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	starkbank.User = Utils.ExampleProject
+	data := map[string]interface{}{}
+	var path string
+	body := map[string][]map[string]interface{}{
+        "invoices": {
+            {
+				"amount": 996699999,
+				"name":   "Tony Stark",
+				"taxId":  "38.446.231/0001-04",
+			},
+        },
+    }
+	path = "/invoice/"
+
+	response, err := Request.Post(
+		path,
+		body,
+		nil,
+		Utils.ExampleProject,
+	)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+
+  fmt.Println(data)
+}
+```
+
+## PATCH
+
+You can perform a PATCH request to any StarkBank route.
+
+It's possible to update a single item of a StarkBank resource.
+```golang
+import (
+  "fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+  starkbank.User = Utils.ExampleProject
+
+  body := map[string]interface{}{
+    "amount" : 0,
+  }
+	path = "/invoice/log/5155165527080960"
+
+  response, err := Request.Patch(
+    path,
+    body,
+    nil,
+    Utils.ExampleProject,
+  )
+
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  unmarshalError := json.Unmarshal(response.Content, &data)
+  if unmarshalError != nil {
+    panic(unmarshalError)
+  }
+  fmt.Println(data)
+}
+```
+
+## PUT
+
+You can perform a PUT request to any StarkBank route.
+
+It's possible to put a single item of a StarkBank resource.
+```golang
+import (
+  "fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+	starkbank.User = Utils.ExampleProject
+	data := map[string]interface{}{}
+	body := map[string][]map[string]interface{}{
+        "profiles": {
+            {
+				"interval": "day",
+				"delay": 0,
+			},
+        },
+    }
+	path := "split-profile/"
+	response, err := Request.Put(
+		path,
+		body,
+		nil,
+		Utils.ExampleProject,
+	)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+	unmarshalError := json.Unmarshal(response.Content, &data)
+	if unmarshalError != nil {
+		panic(unmarshalError)
+	}
+  fmt.Println(data)
+}
+```
+
+## DELETE
+
+You can perform a DELETE request to any StarkBank route.
+
+It's possible to delete a single item of a StarkBank resource.
+```golang
+import (
+  "fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	Request "github.com/starkbank/sdk-go/starkbank/request"
+)
+func main() {
+starkbank.User = Utils.ExampleProject
+  path = "transfer/5155165527080960"
+  response, err := Request.Delete(
+    path,
+    Utils.ExampleProject,
+  )
+
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+    }
+  }
+  unmarshalError := json.Unmarshal(response.Content, &data)
+  if unmarshalError != nil {
+    panic(unmarshalError)
+  }
+  fmt.Println(data)
+}
+```
+
 # Handling errors
 
 The SDK may return errors as the StarkErrors struct, which contains the "code" and "message" attributes.

@@ -82,9 +82,15 @@ func Create(card CorporateCard, expand map[string]interface{}, user user.User) (
 	//
 	//	Return:
 	//	- CorporateCard struct with updated attributes
+	data := map[string][]map[string]interface{}{}
+	cardResource:= api.ApiJson(card, resource)
 	path := fmt.Sprintf("%v/%v", api.Endpoint(resource), "token")
-	raw, err := utils.PostRaw(path, api.ApiJson(card, resource), expand, user)
-	jsonBytes, _ := json.Marshal(raw[api.LastName(resource)])
+	raw, err := utils.PostRaw(path, cardResource, user, expand, "", true)
+	unmarshalErrorRaw := json.Unmarshal(raw.Content, &data)
+	if unmarshalErrorRaw != nil {
+		return card, err
+	}
+	jsonBytes, _ := json.Marshal(data[api.LastName(resource)])
 	unmarshalError := json.Unmarshal(jsonBytes, &card)
 	if unmarshalError != nil {
 		return card, err

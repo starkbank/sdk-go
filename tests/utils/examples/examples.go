@@ -35,6 +35,7 @@ func CorporateCard() corporatecard.CorporateCard {
 	var holderIds []corporateholder.CorporateHolder
 	var params = map[string]interface{}{}
 	params["limit"] = rand.Intn(100)
+	params["status"] = "active"
 
 	holders := corporateholder.Query(params, Utils.ExampleProject)
 	for holder := range holders {
