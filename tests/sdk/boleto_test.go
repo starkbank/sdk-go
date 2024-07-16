@@ -37,6 +37,7 @@ func TestBoletoQuery(t *testing.T) {
 
 	boletos := Boleto.Query(params, nil)
 	for boleto := range boletos {
+		fmt.Println(boleto)
 		assert.Equal(t, boleto.Status, "registered")
 	}
 }

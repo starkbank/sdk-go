@@ -3,8 +3,8 @@ module github.com/starkbank/sdk-go
 go 1.17
 
 require (
-	github.com/starkinfra/core-go v0.2.2
-	github.com/stretchr/testify v1.8.0
+	github.com/starkinfra/core-go v0.2.3
+	github.com/stretchr/testify v1.9.0
 )
 
 require (

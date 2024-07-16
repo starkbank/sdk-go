@@ -5,6 +5,7 @@ import (
 	Errors "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
 	"github.com/starkinfra/core-go/starkcore/utils/rest"
+	"github.com/starkinfra/core-go/starkcore/utils/request"
 )
 
 func Page(resource map[string]string, params map[string]interface{}, user user.User) ([]byte, string, Errors.StarkErrors) {
@@ -70,9 +71,37 @@ func Patch(resource map[string]string, id string, payload map[string]interface{}
 	return rest.PatchId(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, user, resource, id, payload, nil)
 }
 
-func PostRaw(path string, entity interface{}, query map[string]interface{}, user user.User) (map[string]interface{}, Errors.StarkErrors) {
+func GetRaw(path string, query map[string]interface{}, user user.User, prefix string, throwError bool) (request.Response, Errors.StarkErrors) {
 	if user == nil {
-		return rest.PostRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, entity, starkbank.User, query)
+		return rest.GetRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, starkbank.User, query, prefix, throwError)
 	}
-	return rest.PostRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, entity, user, query)
+	return rest.GetRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, user, query, prefix, throwError)
+}
+
+func PostRaw(path string, body interface{}, user user.User, query map[string]interface{}, prefix string, throwError bool) (request.Response, Errors.StarkErrors) {
+	if user == nil {
+		return rest.PostRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, body, starkbank.User, query, prefix, throwError)
+	}
+	return rest.PostRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, body, user, query, prefix, throwError)
+}
+
+func PatchRaw(path string, body interface{}, user user.User, query map[string]interface{}, prefix string, throwError bool) (request.Response, Errors.StarkErrors) {
+	if user == nil {
+		return rest.PatchRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, body, starkbank.User, query, prefix, throwError)
+	}
+	return rest.PatchRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, body, user, query, prefix, throwError)
+}
+
+func PutRaw(path string, body interface{}, user user.User, query map[string]interface{}, prefix string, throwError bool) (request.Response, Errors.StarkErrors) {
+	if user == nil {
+		return rest.PutRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, body, starkbank.User, query, prefix, throwError)
+	}
+	return rest.PutRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, body, user, query, prefix, throwError)
+}
+
+func DeleteRaw(path string, user user.User, prefix string, throwError bool) (request.Response, Errors.StarkErrors) {
+	if user == nil {
+		return rest.DeleteRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, starkbank.User, prefix, throwError)
+	}
+	return rest.DeleteRaw(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, path, user, prefix, throwError)
 }
