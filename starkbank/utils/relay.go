@@ -43,6 +43,13 @@ func SubResource(resource map[string]string, id string, user user.User, subResou
 	return rest.GetSubResource(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, user, resource, id, subResource, nil)
 }
 
+func PostSubResource(resource map[string]string, entity interface{}, id string, user user.User, subResource map[string]string) ([]byte, Errors.StarkErrors) {
+	if user == nil {
+		return rest.PostSubResource(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, nil, resource, id, subResource, entity, starkbank.Language, starkbank.Timeout)
+	}
+	return rest.PostSubResource(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, user, resource, id, subResource, entity, starkbank.Language, starkbank.Timeout)
+}
+
 func Multi(resource map[string]string, entities interface{}, query map[string]interface{}, user user.User) ([]byte, Errors.StarkErrors) {
 	if user == nil {
 		return rest.PostMulti(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, starkbank.User, resource, entities, query)
