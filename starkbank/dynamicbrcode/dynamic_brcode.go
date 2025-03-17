@@ -2,6 +2,7 @@ package dynamicbrcode
 
 import (
 	"encoding/json"
+	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode/rule"
 	"github.com/starkbank/sdk-go/starkbank/utils"
 	Error "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
@@ -33,14 +34,16 @@ import (
 //	- Updated [time.Time]: latest update datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 
 type DynamicBrcode struct {
-	Id         string     `json:",omitempty"`
-	Amount     int        `json:",omitempty"`
-	Expiration int        `json:",omitempty"`
-	Tags       []string   `json:",omitempty"`
-	Uuid       string     `json:",omitempty"`
-	PictureUrl string     `json:",omitempty"`
-	Created    *time.Time `json:",omitempty"`
-	Updated    *time.Time `json:",omitempty"`
+	Id                        string           `json:",omitempty"`
+	Amount                    int              `json:",omitempty"`
+	Expiration                int              `json:",omitempty"`
+	Tags                      []string         `json:",omitempty"`
+	Uuid                      string           `json:",omitempty"`
+	PictureUrl                string           `json:",omitempty"`
+	Rules                     []rule.Rule      `json:",omitempty"`
+	DisplayDescription        string           `json:",omitempty"`
+	Created                   *time.Time       `json:",omitempty"`
+	Updated                   *time.Time       `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "DynamicBrcode"}

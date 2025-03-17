@@ -13,6 +13,7 @@ import (
 	"github.com/starkbank/sdk-go/starkbank/corporatewithdrawal"
 	"github.com/starkbank/sdk-go/starkbank/darfpayment"
 	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
+	DynamicBrCodeRule "github.com/starkbank/sdk-go/starkbank/dynamicbrcode/rule"
 	"github.com/starkbank/sdk-go/starkbank/invoice"
 	Rule "github.com/starkbank/sdk-go/starkbank/invoice/rule"
 	"github.com/starkbank/sdk-go/starkbank/paymentpreview"
@@ -211,11 +212,20 @@ func Invoice() []invoice.Invoice {
 
 func DynamicBrcode() []dynamicbrcode.DynamicBrcode {
 
+	rule := []DynamicBrCodeRule.Rule{
+		{
+			Key: "allowedTaxIds", 
+			Value: []string{"012.345.678-90"},
+		},
+	}
+
 	brcodes := []dynamicbrcode.DynamicBrcode{
 		{
 			Amount:     rand.Intn(400000),
 			Expiration: rand.Intn(3600),
 			Tags:       []string{"SDK-Golang-Test"},
+			DisplayDescription: "Payment for service #1234",
+			Rules:      rule,
 		},
 	}
 	return brcodes
