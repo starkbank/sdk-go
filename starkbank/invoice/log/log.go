@@ -66,11 +66,11 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- types [slice of strings, default nil]: filter for log event types. []string{"paid", "registered"}
-	//		- boletoIds [slice of strings, default nil]: list of Invoice ids to filter logs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- invoiceIds [slice of strings, default nil]: list of Invoice ids to filter logs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
-	//	- Channel of boleto.Log structs with updated attributes
+	//	- Channel of Invoice.Log structs with updated attributes
 	var invoiceLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
@@ -107,7 +107,7 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//		- after [string, default nil]: Date filter for structs created only after specified date. ex: "2022-11-10"
 	//		- before [string, default nil]: Date filter for structs created only before specified date. ex: "2022-11-10"
 	//		- types [slice of strings, default nil]: filter for log event types. []string{"paid", "registered"}
-	//		- boletoIds [slice of strings, default nil]: list of Invoice ids to filter logs. ex: []string{"5656565656565656", "4545454545454545"}
+	//		- invoiceIds [slice of strings, default nil]: list of Invoice ids to filter logs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	//
 	//	Return:
