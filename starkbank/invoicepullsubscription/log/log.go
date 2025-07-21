@@ -24,11 +24,11 @@ import (
 //	- Created [time.Time]: creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
 
 type Log struct {
-	Id                      string                                          `json:",omitempty"`
-	InvoicePullSubscription InvoicePullSubscription.InvoicePullSubscription `json:",omitempty"`
-	Errors                  []string                                        `json:",omitempty"`
-	Type                    string                                          `json:",omitempty"`
-	Created                 *time.Time                                      `json:",omitempty"`
+	Id           string                                          `json:",omitempty"`
+	Subscription InvoicePullSubscription.InvoicePullSubscription `json:",omitempty"`
+	Errors       []string                                        `json:",omitempty"`
+	Type         string                                          `json:",omitempty"`
+	Created      *time.Time                                      `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "InvoicePullSubscriptionLog"}
@@ -46,13 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- InvoicePullSubscription.Log struct that corresponds to the given id.
-	var invoicePullSubscription Log
+	var invoicePullSubscriptionLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &invoicePullSubscription)
+	unmarshalError := json.Unmarshal(get, &invoicePullSubscriptionLog)
 	if unmarshalError != nil {
-		return invoicePullSubscription, err
+		return invoicePullSubscriptionLog, err
 	}
-	return invoicePullSubscription, err
+	return invoicePullSubscriptionLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -71,17 +71,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- Channel of InvoicePullSubscription.Log structs with updated attributes
-	var invoicePullSubscription Log
+	var invoicePullSubscriptionLogs Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &invoicePullSubscription)
+			err := json.Unmarshal(contentByte, &invoicePullSubscriptionLogs)
 			if err != nil {
 				panic(err)
 			}
-			logs <- invoicePullSubscription
+			logs <- invoicePullSubscriptionLogs
 		}
 		close(logs)
 	}()
@@ -107,11 +107,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- Slice of InvoicePullSubscription.Log structs with updated attributes
 	//	- Cursor to retrieve the next page of InvoicePullSubscription.Log structs
-	var invoicePullSubscription []Log
+	var invoicePullSubscriptionLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &invoicePullSubscription)
+	unmarshalError := json.Unmarshal(page, &invoicePullSubscriptionLogs)
 	if unmarshalError != nil {
-		return invoicePullSubscription, cursor, err
+		return invoicePullSubscriptionLogs, cursor, err
 	}
-	return invoicePullSubscription, cursor, err
+	return invoicePullSubscriptionLogs, cursor, err
 }
