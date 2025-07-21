@@ -24,11 +24,11 @@ import (
 //	- Created [time.Time]: creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
 
 type Log struct {
-	Id                  string                                `json:",omitempty"`
-	InvoicePullRequest  InvoicePullRequest.InvoicePullRequest `json:",omitempty"`
-	Errors              []string                              `json:",omitempty"`
-	Type                string                                `json:",omitempty"`
-	Created             *time.Time                            `json:",omitempty"`
+	Id      string                                `json:",omitempty"`
+	Request InvoicePullRequest.InvoicePullRequest `json:",omitempty"`
+	Errors  []string                              `json:",omitempty"`
+	Type    string                                `json:",omitempty"`
+	Created *time.Time                            `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "InvoicePullRequestLog"}
@@ -46,13 +46,13 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- InvoicePullRequest.Log struct that corresponds to the given id.
-	var invoicePullRequest Log
+	var invoicePullRequestLog Log
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &invoicePullRequest)
+	unmarshalError := json.Unmarshal(get, &invoicePullRequestLog)
 	if unmarshalError != nil {
-		return invoicePullRequest, err
+		return invoicePullRequestLog, err
 	}
-	return invoicePullRequest, err
+	return invoicePullRequestLog, err
 }
 
 func Query(params map[string]interface{}, user user.User) chan Log {
@@ -71,17 +71,17 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//
 	//	Return:
 	//	- Channel of InvoicePullRequest.Log structs with updated attributes
-	var invoicePullRequest Log
+	var invoicePullRequestLog Log
 	logs := make(chan Log)
 	query := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &invoicePullRequest)
+			err := json.Unmarshal(contentByte, &invoicePullRequestLog)
 			if err != nil {
 				panic(err)
 			}
-			logs <- invoicePullRequest
+			logs <- invoicePullRequestLog
 		}
 		close(logs)
 	}()
@@ -107,11 +107,11 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	//	Return:
 	//	- Slice of InvoicePullRequest.Log structs with updated attributes
 	//	- Cursor to retrieve the next page of InvoicePullRequest.Log structs
-	var invoicePullRequest []Log
+	var invoicePullRequestLogs []Log
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &invoicePullRequest)
+	unmarshalError := json.Unmarshal(page, &invoicePullRequestLogs)
 	if unmarshalError != nil {
-		return invoicePullRequest, cursor, err
+		return invoicePullRequestLogs, cursor, err
 	}
-	return invoicePullRequest, cursor, err
+	return invoicePullRequestLogs, cursor, err
 }
