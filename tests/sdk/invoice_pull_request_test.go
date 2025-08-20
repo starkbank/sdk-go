@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 	"github.com/starkbank/sdk-go/starkbank"
+	Event "github.com/starkbank/sdk-go/starkbank/event"
 	Invoice "github.com/starkbank/sdk-go/starkbank/invoice"
 	InvoicePullSubscription "github.com/starkbank/sdk-go/starkbank/invoicepullsubscription"
 	InvoicePullRequest "github.com/starkbank/sdk-go/starkbank/invoicepullrequest"
@@ -102,4 +103,15 @@ func TestInvoicePullRequestPage(t *testing.T) {
 		cursor = nextCursor
 	}
 	assert.Equal(t, 10, count)
+}
+
+func TestParseInvoicePullRequestEvent(t *testing.T) {
+	starkbank.User = Utils.ExampleProject
+
+	content := "{\"event\": {\"created\": \"2025-07-25T17:36:41.040267+00:00\", \"id\": \"4805265536843776\", \"log\": {\"created\": \"2025-07-25T17:36:39.571648+00:00\", \"description\": \"\", \"errors\": [], \"id\": \"5789040171286528\", \"reason\": \"\", \"request\": {\"attemptType\": \"default\", \"created\": \"2025-07-25T17:36:37.201258+00:00\", \"displayDescription\": \"\", \"due\": \"2025-07-30T07:00:00+00:00\", \"externalId\": \"a15c4821d1c2413a82a4f3cfeee1315e\", \"id\": \"5397390693498880\", \"installmentId\": \"5424937942646784\", \"invoiceId\": \"5118508564217856\", \"status\": \"pending\", \"subscriptionId\": \"5181739848695808\", \"tags\": [], \"updated\": \"2025-07-25T17:36:39.571665+00:00\"}, \"type\": \"pending\"}, \"subscription\": \"invoice-pull-request\", \"workspaceId\": \"6235001133727744\"}}"
+	validSignature := "MEUCIQCvbPc+mWLLL5nwvOBy/3MVJ3JU9fG/rNmyqmHtaeJA9wIgOR8Tw75MSj7lR9DPqhM62tlq+cFkbw14T4KmDBeC5rM="
+
+	event := Event.Parse(content, validSignature, starkbank.User)
+
+	assert.NotNil(t, event)
 }
