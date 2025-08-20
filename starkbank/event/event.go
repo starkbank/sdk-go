@@ -172,7 +172,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Event,
 	return event.ParseLog(), err
 }
 
-func Parse(content string, signature string, user user.User) interface{} {
+func Parse(content string, signature string, user user.User) Event {
 	//	Create single notification Event from a content string
 	//
 	//	Create a single Event struct received from event listening at subscribed user endpoint.
@@ -188,7 +188,20 @@ func Parse(content string, signature string, user user.User) interface{} {
 	//
 	//	Return:
 	//	- Parsed Event struct
-	return utils.ParseAndVerify(content, signature, "event", user)
+	var event Event
+
+	parsed := utils.ParseAndVerify(content, signature, "event", user)
+	var parsedMap map[string]interface{}
+	json.Unmarshal([]byte(parsed), &parsedMap)
+	inner := parsedMap["event"]
+	innerBytes, err := json.Marshal(inner)
+	if err != nil {
+		return event
+	}
+	if err := json.Unmarshal(innerBytes, &event); err != nil {
+		return event
+	}
+	return event.ParseLog()
 }
 
 func (e Event) ParseLog() Event {
