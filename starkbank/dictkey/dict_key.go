@@ -64,7 +64,7 @@ func Get(id string, user user.User) (DictKey, Error.StarkErrors) {
 	return dictKeys, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan DictKey {
+func Query(params map[string]interface{}, user user.User) (chan DictKey, chan Error.StarkErrors) {
 	//	Retrieve DictKey structs
 	//
 	//	Receive a channel of DictKey structs associated with your Stark Bank Workspace
@@ -83,19 +83,25 @@ func Query(params map[string]interface{}, user user.User) chan DictKey {
 	//	- Channel of DictKey structs with updated attributes
 	var dictKey DictKey
 	keys := make(chan DictKey)
-	query := utils.Query(resource, params, user)
+	keysError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &dictKey)
 			if err != nil {
-				panic(err)
+				keysError <- Error.UnknownError(err.Error())
+				continue
 			}
 			keys <- dictKey
 		}
+		for err := range errorChannel {
+			keysError <- err
+		}
 		close(keys)
+		close(keysError)
 	}()
-	return keys
+	return keys, keysError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]DictKey, string, Error.StarkErrors) {

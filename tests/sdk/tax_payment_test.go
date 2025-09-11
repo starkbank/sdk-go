@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -18,7 +17,7 @@ func TestTaxPaymentPost(t *testing.T) {
 	payments, err := TaxPayment.Create(Example.TaxPayment(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, payment := range payments {
@@ -30,20 +29,34 @@ func TestTaxPaymentGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var paymentList []TaxPayment.TaxPayment
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
-
-	payments := TaxPayment.Query(params, nil)
-	for payment := range payments {
-		paymentList = append(paymentList, payment)
+	params["limit"] = limit
+	
+	var paymentList []TaxPayment.TaxPayment
+	
+	payments, errorChannel := TaxPayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case payment, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			paymentList = append(paymentList, payment)
+		}
 	}
 
 	payment, err := TaxPayment.Get(paymentList[rand.Intn(len(paymentList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -55,17 +68,31 @@ func TestTaxPaymentQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 10
 	var params = map[string]interface{}{}
 	params["status"] = "processing"
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
 
-	payments := TaxPayment.Query(params, nil)
+	var paymentList []TaxPayment.TaxPayment
 
-	for payment := range payments {
-		assert.NotNil(t, payment.Id)
-		i++
+	payments, errorChannel := TaxPayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case payment, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			paymentList = append(paymentList, payment)
+		}
 	}
+	assert.Equal(t, limit, len(paymentList))
 }
 
 func TestTaxPaymentPage(t *testing.T) {
@@ -79,7 +106,7 @@ func TestTaxPaymentPage(t *testing.T) {
 	payments, cursor, err := TaxPayment.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, payment := range payments {
@@ -97,14 +124,14 @@ func TestTaxPaymentCancel(t *testing.T) {
 	payments, err := TaxPayment.Create(Example.TaxPayment(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	canceled, err := TaxPayment.Delete(payments[rand.Intn(len(payments))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, canceled.Id)
@@ -114,19 +141,36 @@ func TestTaxPaymentPdf(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var paymentList []TaxPayment.TaxPayment
+	limit := 3
 	var params = map[string]interface{}{}
 	params["status"] = "success"
+	params["limit"] = limit
+	
+	var paymentList []TaxPayment.TaxPayment
 
-	payments := TaxPayment.Query(params, nil)
-	for payment := range payments {
-		paymentList = append(paymentList, payment)
+	payments, errorChannel := TaxPayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case payment, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			paymentList = append(paymentList, payment)
+		}
 	}
+	assert.Equal(t, limit, len(paymentList))
 
 	pdf, err := TaxPayment.Pdf(paymentList[rand.Intn(len(paymentList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, pdf)

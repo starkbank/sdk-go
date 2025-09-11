@@ -121,7 +121,7 @@ func Get(id string, expand map[string]interface{}, user user.User) (CorporateCar
 	return corporateCard, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan CorporateCard {
+func Query(params map[string]interface{}, user user.User) (chan CorporateCard, chan Error.StarkErrors) {
 	//	Retrieve CorporateCard structs
 	//
 	//	Receive a channel of CorporateCards structs previously created in the Stark Bank API
@@ -143,19 +143,25 @@ func Query(params map[string]interface{}, user user.User) chan CorporateCard {
 	//	- channel of CorporateCard structs with updated attributes
 	var corporateCard CorporateCard
 	cards := make(chan CorporateCard)
-	query := utils.Query(resource, params, user)
+	cardsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateCard)
 			if err != nil {
-				print(err.Error())
+				cardsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			cards <- corporateCard
 		}
+		for err := range errorChannel {
+			cardsError <- err
+		}
 		close(cards)
+		close(cardsError)
 	}()
-	return cards
+	return cards, cardsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]CorporateCard, string, Error.StarkErrors) {

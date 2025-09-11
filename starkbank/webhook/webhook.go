@@ -74,7 +74,7 @@ func Get(id string, user user.User) (Webhook, Error.StarkErrors) {
 	return webhook, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Webhook {
+func Query(params map[string]interface{}, user user.User) (chan Webhook, chan Error.StarkErrors) {
 	//	Retrieve Webhook structs
 	//
 	//	Receive a channel of Webhook structs previously created in the Stark Bank API
@@ -88,19 +88,25 @@ func Query(params map[string]interface{}, user user.User) chan Webhook {
 	//	- Channel of Webhook structs with updated attributes
 	var webhook Webhook
 	webhooks := make(chan Webhook)
-	query := utils.Query(resource, params, user)
+	webhooksError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &webhook)
 			if err != nil {
-				panic(err)
+				webhooksError <- Error.UnknownError(err.Error())
+				continue
 			}
 			webhooks <- webhook
 		}
+		for err := range errorChannel {
+			webhooksError <- err
+		}
 		close(webhooks)
+		close(webhooksError)
 	}()
-	return webhooks
+	return webhooks, webhooksError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Error.StarkErrors) {

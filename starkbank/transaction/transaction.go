@@ -95,7 +95,7 @@ func Get(id string, user user.User) (Transaction, Error.StarkErrors) {
 	return transaction, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Transaction {
+func Query(params map[string]interface{}, user user.User) (chan Transaction, chan Error.StarkErrors) {
 	//	Retrieve Transaction structs
 	//
 	//	Receive a channel of Transaction structs previously created by this user in the Stark Bank API
@@ -114,19 +114,25 @@ func Query(params map[string]interface{}, user user.User) chan Transaction {
 	//	 - Channel of Transaction objects with updated attributes
 	var transaction Transaction
 	transactions := make(chan Transaction)
-	query := utils.Query(resource, params, user)
+	transactionsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &transaction)
 			if err != nil {
-				panic(err)
+				transactionsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			transactions <- transaction
 		}
+		for err := range errorChannel {
+			transactionsError <- err
+		}
 		close(transactions)
+		close(transactionsError)
 	}()
-	return transactions
+	return transactions, transactionsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Transaction, string, Error.StarkErrors) {

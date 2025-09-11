@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	TaxPaymentLog "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,20 +13,34 @@ func TestTaxPaymentLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var logList []TaxPaymentLog.Log
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
+	
+	var logList []TaxPaymentLog.Log
 
-	logs := TaxPaymentLog.Query(params, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	logs, errorChannel := TaxPaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	payment, err := TaxPaymentLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -39,15 +52,32 @@ func TestTaxPaymentLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
 	params["types"] = "failed"
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
 
-	payments := TaxPaymentLog.Query(params, nil)
+	var logList []TaxPaymentLog.Log
 
-	for payment := range payments {
-		assert.Equal(t, payment.Type, "failed")
+	payments, errorChannel := TaxPaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
+
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestTaxPaymentLogPage(t *testing.T) {
@@ -61,7 +91,7 @@ func TestTaxPaymentLogPage(t *testing.T) {
 	payments, cursor, err := TaxPaymentLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, payment := range payments {

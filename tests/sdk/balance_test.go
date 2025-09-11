@@ -12,7 +12,8 @@ func TestBalanceGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	balance := balance.Get(nil)
+	balance, err := balance.Get(nil)
 	assert.NotNil(t, balance.Amount)
 	assert.NotNil(t, balance.Id)
+	assert.Nil(t, err.Errors)
 }

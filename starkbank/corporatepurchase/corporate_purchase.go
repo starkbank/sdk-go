@@ -97,7 +97,7 @@ func Get(id string, user user.User) (CorporatePurchase, Error.StarkErrors) {
 	return corporatePurchase, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan CorporatePurchase {
+func Query(params map[string]interface{}, user user.User) (chan CorporatePurchase, chan Error.StarkErrors) {
 	//	Retrieve CorporatePurchase structs
 	//
 	//	Receive a channel of CorporatePurchase structs previously created in the Stark Bank API
@@ -118,19 +118,25 @@ func Query(params map[string]interface{}, user user.User) chan CorporatePurchase
 	//	- channel of CorporatePurchase structs with updated attributes
 	var corporatePurchase CorporatePurchase
 	purchases := make(chan CorporatePurchase)
-	query := utils.Query(resource, params, user)
+	purchasesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporatePurchase)
 			if err != nil {
-				print(err.Error())
+				purchasesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			purchases <- corporatePurchase
 		}
+		for err := range errorChannel {
+			purchasesError <- err
+		}
 		close(purchases)
+		close(purchasesError)
 	}()
-	return purchases
+	return purchases, purchasesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]CorporatePurchase, string, Error.StarkErrors) {
@@ -164,7 +170,7 @@ func Page(params map[string]interface{}, user user.User) ([]CorporatePurchase, s
 	return corporatePurchases, cursor, err
 }
 
-func Parse(content string, signature string, user user.User) CorporatePurchase {
+func Parse(content string, signature string, user user.User) (CorporatePurchase, Error.StarkErrors) {
 	//	Create single verified CorporatePurchase authorization request from a content string
 	//
 	//	Use this method to parse and verify the authenticity of the authorization request received at the informed endpoint.
@@ -183,11 +189,15 @@ func Parse(content string, signature string, user user.User) CorporatePurchase {
 	//	Return:
 	//	- parsed CorporatePurchase struct
 	var corporatePurchase CorporatePurchase
-	unmarshalError := json.Unmarshal([]byte(utils.ParseAndVerify(content, signature, "", user)), &corporatePurchase)
-	if unmarshalError != nil {
-		return corporatePurchase
+	response, err := utils.ParseAndVerify(content, signature, "", user)
+	if err.Errors != nil {
+		return corporatePurchase, err
 	}
-	return corporatePurchase
+	unmarshalError := json.Unmarshal([]byte(response), &corporatePurchase)
+	if unmarshalError != nil {
+		return corporatePurchase, err
+	}
+	return corporatePurchase, err
 }
 
 func Response(authorization map[string]interface{}) string {

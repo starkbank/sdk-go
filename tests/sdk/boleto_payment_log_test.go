@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	BoletoPaymentLog "github.com/starkbank/sdk-go/starkbank/boletopayment/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,20 +13,34 @@ func TestBoletoPaymentLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var logList []BoletoPaymentLog.Log
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
+	
+	var logList []BoletoPaymentLog.Log
 
-	logs := BoletoPaymentLog.Query(params, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	logs, errorChannel := BoletoPaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	payment, err := BoletoPaymentLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, payment.Id)
@@ -37,16 +50,30 @@ func TestBoletoPaymentLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := BoletoPaymentLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
-		i++
+	var logList []BoletoPaymentLog.Log
+
+	logs, errorChannel := BoletoPaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
-	assert.Equal(t, 201, i)
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestBoletoPaymentLogPage(t *testing.T) {
@@ -60,7 +87,7 @@ func TestBoletoPaymentLogPage(t *testing.T) {
 	logs, cursor, err := BoletoPaymentLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {

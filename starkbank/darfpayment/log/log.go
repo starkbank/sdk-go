@@ -54,7 +54,7 @@ func Get(id string, user user.User) (Log, Error.StarkErrors) {
 	return darfPaymentLog, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Log {
+func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.StarkErrors) {
 	//	Retrieve DarfPayment.Log structs
 	//
 	//	Receive a channel of DarfPayment.Log objects previously created in the Stark Bank API
@@ -72,19 +72,25 @@ func Query(params map[string]interface{}, user user.User) chan Log {
 	//	- Slice of DarfPayment.Log objects with updated attributes
 	var darfPaymentLog Log
 	logs := make(chan Log)
-	query := utils.Query(resource, params, user)
+	logsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &darfPaymentLog)
 			if err != nil {
-				panic(err)
+				logsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			logs <- darfPaymentLog
 		}
+		for err := range errorChannel {
+			logsError <- err
+		}
 		close(logs)
+		close(logsError)
 	}()
-	return logs
+	return logs, logsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.StarkErrors) {

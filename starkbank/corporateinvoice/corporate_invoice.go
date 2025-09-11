@@ -72,7 +72,7 @@ func Create(invoice CorporateInvoice, user user.User) (CorporateInvoice, Error.S
 	return invoice, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan CorporateInvoice {
+func Query(params map[string]interface{}, user user.User) (chan CorporateInvoice, chan Error.StarkErrors) {
 	//	Retrieve CorporateInvoice
 	//
 	//	Receive a channel of CorporateInvoices structs previously created in the Stark Bank API
@@ -90,19 +90,25 @@ func Query(params map[string]interface{}, user user.User) chan CorporateInvoice 
 	//	- channel of CorporateInvoices structs with updated attributes
 	var corporateInvoice CorporateInvoice
 	invoices := make(chan CorporateInvoice)
-	query := utils.Query(resource, params, user)
+	invoicesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateInvoice)
 			if err != nil {
-				print(err.Error())
+				invoicesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			invoices <- corporateInvoice
 		}
+		for err := range errorChannel {
+			invoicesError <- err
+		}
 		close(invoices)
+		close(invoicesError)
 	}()
-	return invoices
+	return invoices, invoicesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]CorporateInvoice, string, Error.StarkErrors) {

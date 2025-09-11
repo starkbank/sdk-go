@@ -113,7 +113,7 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	return utils.GetContent(resource, id, nil, user, "pdf")
 }
 
-func Query(params map[string]interface{}, user user.User) chan TaxPayment {
+func Query(params map[string]interface{}, user user.User) (chan TaxPayment, chan Error.StarkErrors) {
 	//	Retrieve TaxPayment structs
 	//
 	//	Receive a channel of TaxPayment structs previously created by this user in the Stark Bank API
@@ -134,19 +134,25 @@ func Query(params map[string]interface{}, user user.User) chan TaxPayment {
 	//	 - Channel of TaxPayment structs with updated attributes\
 	var taxPayment TaxPayment
 	payments := make(chan TaxPayment)
-	query := utils.Query(resource, params, user)
+	paymentsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &taxPayment)
 			if err != nil {
-				panic(err)
+				paymentsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			payments <- taxPayment
 		}
+		for err := range errorChannel {
+			paymentsError <- err
+		}
 		close(payments)
+		close(paymentsError)
 	}()
-	return payments
+	return payments, paymentsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]TaxPayment, string, Error.StarkErrors) {

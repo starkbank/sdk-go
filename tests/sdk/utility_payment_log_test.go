@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	UtilityLog "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,20 +13,34 @@ func TestUtilityLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var logList []UtilityLog.Log
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
 
-	logs := UtilityLog.Query(params, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	var logList []UtilityLog.Log
+
+	logs, errorChannel := UtilityLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	utility, err := UtilityLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 
@@ -38,16 +51,30 @@ func TestUtilityLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 201
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := UtilityLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
-		i++
+	var logList []UtilityLog.Log
+
+	logs, errorChannel := UtilityLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
-	assert.Equal(t, 201, i)
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestUtilityLogPage(t *testing.T) {
@@ -61,7 +88,7 @@ func TestUtilityLogPage(t *testing.T) {
 	logs, cursor, err := UtilityLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {

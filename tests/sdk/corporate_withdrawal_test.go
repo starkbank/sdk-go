@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	CorporateWithdrawal "github.com/starkbank/sdk-go/starkbank/corporatewithdrawal"
 	"github.com/starkbank/sdk-go/tests/utils"
@@ -18,27 +17,42 @@ func TestCorporateWithdrawalPost(t *testing.T) {
 	withdrawal, err := CorporateWithdrawal.Create(Example.CorporateWithdrawal(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	assert.NotNil(t, withdrawal.Id)
-	fmt.Println(withdrawal.Id)
-
 }
 
 func TestCorporateWithdrawalQuery(t *testing.T) {
 
 	starkbank.User = utils.ExampleProject
 
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	withdrawals := CorporateWithdrawal.Query(params, nil)
-	for withdrawal := range withdrawals {
-		assert.NotNil(t, withdrawal.Id)
-		fmt.Println(withdrawal.Id)
+	var withdrawalList []CorporateWithdrawal.CorporateWithdrawal
+
+	withdrawals, errorChannel := CorporateWithdrawal.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case withdrawal, ok := <-withdrawals:
+			if !ok {
+				break loop
+			}
+			withdrawalList = append(withdrawalList, withdrawal)
+		}
 	}
+
+	assert.Equal(t, limit, len(withdrawalList))
 }
 
 func TestCorporateWithdrawalPage(t *testing.T) {
@@ -48,41 +62,51 @@ func TestCorporateWithdrawalPage(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 1
 
-	withdrawals, cursor, err := CorporateWithdrawal.Page(params, nil)
+	withdrawals, _, err := CorporateWithdrawal.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	for _, withdrawal := range withdrawals {
 		assert.NotNil(t, withdrawal.Id)
-		fmt.Println(withdrawal.Id)
 	}
-
-	fmt.Println(cursor)
 }
 
 func TestCorporateWithdrawalGet(t *testing.T) {
 
 	starkbank.User = utils.ExampleProject
 
-	var withdrawalList []CorporateWithdrawal.CorporateWithdrawal
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var withdrawalList []CorporateWithdrawal.CorporateWithdrawal
 
-	withdrawals := CorporateWithdrawal.Query(paramsQuery, nil)
-	for withdrawal := range withdrawals {
-		withdrawalList = append(withdrawalList, withdrawal)
+	withdrawals, errorChannel := CorporateWithdrawal.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case withdrawal, ok := <-withdrawals:
+			if !ok {
+				break loop
+			}
+			withdrawalList = append(withdrawalList, withdrawal)
+		}
 	}
 
 	withdrawal, err := CorporateWithdrawal.Get(withdrawalList[rand.Intn(len(withdrawalList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
-
 	assert.NotNil(t, withdrawal.Id)
-	fmt.Println(withdrawal.Id)
 }

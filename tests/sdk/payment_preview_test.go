@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	PaymentPreview "github.com/starkbank/sdk-go/starkbank/paymentpreview"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -16,7 +15,7 @@ func TestBoletoPreviewPost(t *testing.T) {
 	previews, err := PaymentPreview.Create(Example.PaymentPreviewBoleto(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, preview := range previews {
@@ -32,7 +31,7 @@ func TestBrcodePreviewPost(t *testing.T) {
 	previews, err := PaymentPreview.Create(Example.PaymentPreviewBrcode(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, preview := range previews {
@@ -48,7 +47,7 @@ func TestTaxPreviewPost(t *testing.T) {
 	previews, err := PaymentPreview.Create(Example.PaymentPreviewTaxPreview(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, preview := range previews {
@@ -64,7 +63,7 @@ func TestUtilityPreviewPost(t *testing.T) {
 	previews, err := PaymentPreview.Create(Example.PaymentPreviewUtility(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, preview := range previews {

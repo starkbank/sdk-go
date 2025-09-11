@@ -12,6 +12,11 @@ func TestCorporateBalanceGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	balance := balance.Get(nil)
+	balance, err := balance.Get(nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 	assert.NotNil(t, balance)
 }

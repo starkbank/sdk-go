@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	Webhook "github.com/starkbank/sdk-go/starkbank/webhook"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -18,7 +17,7 @@ func TestWebhookPost(t *testing.T) {
 	webhook, err := Webhook.Create(Example.Webhook(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -29,19 +28,34 @@ func TestWebhookGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var webhookList []Webhook.Webhook
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var webhookList []Webhook.Webhook
 
-	webhooks := Webhook.Query(params, nil)
-	for webhook := range webhooks {
-		webhookList = append(webhookList, webhook)
+	webhooks, errorChannel := Webhook.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case webhook, ok := <-webhooks:
+			if !ok {
+				break loop
+			}
+			webhookList = append(webhookList, webhook)
+		}
 	}
 
 	webhook, err := Webhook.Get(webhookList[rand.Intn(len(webhookList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, webhook.Id)
@@ -51,17 +65,31 @@ func TestWebhookQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 2
+	params["limit"] = limit
 
-	webhooks := Webhook.Query(params, nil)
+	var webhookList []Webhook.Webhook
 
-	for webhook := range webhooks {
-		assert.NotNil(t, webhook.Id)
-		i++
+	webhooks, errorChannel := Webhook.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case webhook, ok := <-webhooks:
+			if !ok {
+				break loop
+			}
+			webhookList = append(webhookList, webhook)
+		}
 	}
-	assert.Equal(t, params["limit"], i)
+
+	assert.Equal(t, limit, len(webhookList))
 }
 
 func TestWebhookPage(t *testing.T) {
@@ -75,7 +103,7 @@ func TestWebhookPage(t *testing.T) {
 	webhooks, cursor, err := Webhook.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, webhook := range webhooks {
@@ -93,13 +121,13 @@ func TestWebhookDelete(t *testing.T) {
 	webhook, errCreate := Webhook.Create(Example.Webhook(), nil)
 	if errCreate.Errors != nil {
 		for _, erro := range errCreate.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	canceled, err := Webhook.Delete(webhook.Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, canceled.Id)

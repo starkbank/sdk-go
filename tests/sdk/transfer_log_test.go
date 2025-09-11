@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	TransferLog "github.com/starkbank/sdk-go/starkbank/transfer/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,19 +13,34 @@ func TestTransferLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var logList []TransferLog.Log
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var logList []TransferLog.Log
 
-	logs := TransferLog.Query(params, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	logs, errorChannel := TransferLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	transfer, err := TransferLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, transfer)
@@ -36,16 +50,30 @@ func TestTransferLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := TransferLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
-		i++
+	var logList []TransferLog.Log
+
+	logs, errorChannel := TransferLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
-	assert.Equal(t, 201, i)
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestTransferLogPage(t *testing.T) {
@@ -59,7 +87,7 @@ func TestTransferLogPage(t *testing.T) {
 	logs, cursor, err := TransferLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {

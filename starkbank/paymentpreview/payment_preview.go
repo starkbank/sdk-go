@@ -46,65 +46,77 @@ func Create(previews []PaymentPreview, user user.User) ([]PaymentPreview, Error.
 	//	Return:
 	//	- Slice of PaymentPreview structs with updated attributes
 	create, err := utils.Multi(subresource, previews, nil, user)
+	if err.Errors != nil {
+		return nil, err
+	}
+
 	unmarshalError := json.Unmarshal(create, &previews)
 	if unmarshalError != nil {
-		return ParsePreviews(previews), err
-
+		return nil, Error.UnknownError(unmarshalError.Error())
 	}
-	return ParsePreviews(previews), err
+
+	parsedPreviews, parseErr := ParsePreviews(previews)
+	if parseErr.Errors != nil {
+		return nil, parseErr
+	}
+	return parsedPreviews, Error.StarkErrors{}
 }
 
-func (e PaymentPreview) ParsePreview() PaymentPreview {
+func (e PaymentPreview) ParsePreview() (PaymentPreview, Error.StarkErrors) {
 	if e.Type == "tax-payment" {
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &PreviewTax)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return PaymentPreview{}, Error.UnknownError(unmarshalError.Error())
 		}
 		scheduled, _ := time.Parse("2006-01-02", e.Scheduled.(string))
 		e.Scheduled = scheduled
 		e.Payment = PreviewTax
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "brcode-payment" {
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &PreviewBrcode)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return PaymentPreview{}, Error.UnknownError(unmarshalError.Error())
 		}
 		scheduled, _ := time.Parse("2006-01-02", e.Scheduled.(string))
 		e.Scheduled = scheduled
 		e.Payment = PreviewBrcode
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "boleto-payment" {
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &PreviewBoleto)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return PaymentPreview{}, Error.UnknownError(unmarshalError.Error())
 		}
 		scheduled, _ := time.Parse("2006-01-02", e.Scheduled.(string))
 		e.Scheduled = scheduled
 		e.Payment = PreviewBoleto
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "utility-payment" {
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &PreviewUtility)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return PaymentPreview{}, Error.UnknownError(unmarshalError.Error())
 		}
 		scheduled, _ := time.Parse("2006-01-02", e.Scheduled.(string))
 		e.Scheduled = scheduled
 		e.Payment = PreviewUtility
-		return e
+		return e, Error.StarkErrors{}
 	}
-	return e
+	return e, Error.StarkErrors{}
 }
 
-func ParsePreviews(previews []PaymentPreview) []PaymentPreview {
+func ParsePreviews(previews []PaymentPreview) ([]PaymentPreview, Error.StarkErrors) {
+	var err Error.StarkErrors
 	for i := 0; i < len(previews); i++ {
-		previews[i] = previews[i].ParsePreview()
+		previews[i], err = previews[i].ParsePreview()
+		if err.Errors != nil {
+			return nil, err
+		}
 	}
-	return previews
+	return previews, Error.StarkErrors{}
 }

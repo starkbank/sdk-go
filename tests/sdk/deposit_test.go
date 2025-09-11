@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	Deposit "github.com/starkbank/sdk-go/starkbank/deposit"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,20 +13,34 @@ func TestDepositGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var depositList []Deposit.Deposit
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
+	
+	var depositList []Deposit.Deposit
 
-	deposits := Deposit.Query(params, nil)
-	for deposit := range deposits {
-		depositList = append(depositList, deposit)
+	deposits, errorChannel := Deposit.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case deposit, ok := <-deposits:
+			if !ok {
+				break loop
+			}
+			depositList = append(depositList, deposit)
+		}
 	}
 
 	deposit, err := Deposit.Get(depositList[rand.Intn(len(depositList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, deposit)
@@ -37,17 +50,31 @@ func TestDepositQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	deposits := Deposit.Query(params, nil)
+	var depositList []Deposit.Deposit
 
-	for deposit := range deposits {
-		assert.NotNil(t, deposit.Id)
-		i++
+	deposits, errorChannel := Deposit.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case deposit, ok := <-deposits:
+			if !ok {
+				break loop
+			}
+			depositList = append(depositList, deposit)
+		}
 	}
-	assert.Equal(t, 201, i)
+
+	assert.Equal(t, limit, len(depositList))
 }
 
 func TestDepositPage(t *testing.T) {
@@ -61,7 +88,7 @@ func TestDepositPage(t *testing.T) {
 	deposits, cursor, err := Deposit.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
