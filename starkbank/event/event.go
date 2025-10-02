@@ -58,14 +58,23 @@ func Get(id string, user user.User) (Event, Error.StarkErrors) {
 	//	- Event struct that corresponds to the given id
 	var event Event
 	get, err := utils.Get(resource, id, nil, user)
+	if err.Errors != nil {
+		return event, err
+	}
+	
 	unmarshalError := json.Unmarshal(get, &event)
 	if unmarshalError != nil {
-		return event.ParseLog(), err
+		return event, Error.UnknownError(unmarshalError.Error())
 	}
-	return event.ParseLog(), err
+
+	parsedEvent, err := event.ParseLog()
+	if err.Errors != nil {
+		return event, err
+	}
+	return parsedEvent, Error.StarkErrors{}
 }
 
-func Query(params map[string]interface{}, user user.User) chan Event {
+func Query(params map[string]interface{}, user user.User) (chan Event, chan Error.StarkErrors) {
 	//	Retrieve notification Event struct
 	//
 	//	Receive a channel of notification Event structs previously created in the Stark Bank API
@@ -82,19 +91,30 @@ func Query(params map[string]interface{}, user user.User) chan Event {
 	//	- Channel of Event structs with updated attributes
 	var event Event
 	events := make(chan Event)
-	query := utils.Query(resource, params, user)
+	eventsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &event)
 			if err != nil {
-				panic(err)
+				eventsError <- Error.UnknownError(err.Error())
+				continue
 			}
-			events <- event.ParseLog()
+			parsedEvent, parseErr := event.ParseLog()
+			if parseErr.Errors != nil {
+				eventsError <- parseErr
+				continue
+			}
+			events <- parsedEvent
+		}
+		for err := range errorChannel {
+			eventsError <- err
 		}
 		close(events)
+		close(eventsError)
 	}()
-	return events
+	return events, eventsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Event, string, Error.StarkErrors) {
@@ -117,11 +137,20 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 	//	- Cursor to retrieve the next page of Event structs
 	var events []Event
 	page, cursor, err := utils.Page(resource, params, user)
+	if err.Errors != nil {
+		return nil, "", err
+	}
+	
 	unmarshalError := json.Unmarshal(page, &events)
 	if unmarshalError != nil {
-		return ParseEvents(events), cursor, err
+		return nil, "", Error.UnknownError(unmarshalError.Error())
 	}
-	return ParseEvents(events), cursor, err
+
+	parsedEvents, err := ParseEvents(events)
+	if err.Errors != nil {
+		return nil, "", err
+	}
+	return parsedEvents, cursor, Error.StarkErrors{}
 }
 
 func Delete(id string, user user.User) (Event, Error.StarkErrors) {
@@ -139,11 +168,20 @@ func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//	- Deleted Event struct
 	var event Event
 	deleted, err := utils.Delete(resource, id, user)
+	if err.Errors != nil {
+		return event, err
+	}
+
 	unmarshalError := json.Unmarshal(deleted, &event)
 	if unmarshalError != nil {
-		return event.ParseLog(), err
+		return event, Error.UnknownError(unmarshalError.Error())
 	}
-	return event.ParseLog(), err
+
+	parsedEvent, err := event.ParseLog()
+	if err.Errors != nil {
+		return event, err
+	}
+	return parsedEvent, Error.StarkErrors{}
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (Event, Error.StarkErrors) {
@@ -165,14 +203,23 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Event,
 	//	- Target Event with updated attributes
 	var event Event
 	update, err := utils.Patch(resource, id, patchData, user)
+	if err.Errors != nil {
+		return event, err
+	}
+
 	unmarshalError := json.Unmarshal(update, &event)
 	if unmarshalError != nil {
-		return event.ParseLog(), err
+		return event, Error.UnknownError(unmarshalError.Error())
 	}
-	return event.ParseLog(), err
+
+	parsedEvent, err := event.ParseLog()
+	if err.Errors != nil {
+		return event, err
+	}
+	return parsedEvent, Error.StarkErrors{}
 }
 
-func Parse(content string, signature string, user user.User) interface{} {
+func Parse(content string, signature string, user user.User) (interface{}, Error.StarkErrors) {
 	//	Create single notification Event from a content string
 	//
 	//	Create a single Event struct received from event listening at subscribed user endpoint.
@@ -191,26 +238,26 @@ func Parse(content string, signature string, user user.User) interface{} {
 	return utils.ParseAndVerify(content, signature, "event", user)
 }
 
-func (e Event) ParseLog() Event {
+func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	if e.Subscription == "invoice" {
 		var log InvoiceLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "boleto" {
 		var log BoletoLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "boleto-holmes" {
 		var log HolmesLog.Log
@@ -218,87 +265,91 @@ func (e Event) ParseLog() Event {
 		unmarshalError := json.Unmarshal(marshal, &log)
 
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "boleto-payment" {
 		var log BoletoPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "brcode-payment" {
 		var log BrcodePaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "darf-payment" {
 		var log DarfPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "deposit" {
 		var log DepositLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "tax-payment" {
 		var log TaxPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "transfer" {
 		var log TransferLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Subscription == "utility-payment" {
 		var log UtilityPaymentLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
-		return e
+		return e, Error.StarkErrors{}
 	}
-	return e
+	return e, Error.StarkErrors{}
 }
 
-func ParseEvents(events []Event) []Event {
+func ParseEvents(events []Event) ([]Event, Error.StarkErrors) {
+	var err Error.StarkErrors
 	for i := 0; i < len(events); i++ {
-		events[i] = events[i].ParseLog()
+		events[i], err = events[i].ParseLog()
+		if err.Errors != nil {
+			return nil, err
+		}
 	}
-	return events
+	return events, Error.StarkErrors{}
 }

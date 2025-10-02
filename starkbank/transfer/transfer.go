@@ -148,7 +148,7 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	return utils.GetContent(resource, id, nil, user, "pdf")
 }
 
-func Query(params map[string]interface{}, user user.User) chan Transfer {
+func Query(params map[string]interface{}, user user.User) (chan Transfer, chan Error.StarkErrors) {
 	//	Retrieve Transfer structs
 	//
 	//	Receive a channel of Transfer structs previously created by this user in the Stark Bank API
@@ -170,19 +170,25 @@ func Query(params map[string]interface{}, user user.User) chan Transfer {
 	//	 - Channel of Transfer objects with updated attributes
 	var transfer Transfer
 	transfers := make(chan Transfer)
-	query := utils.Query(resource, params, user)
+	transfersError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &transfer)
 			if err != nil {
-				panic(err)
+				transfersError <- Error.UnknownError(err.Error())
+				continue
 			}
 			transfers <- transfer
 		}
+		for err := range errorChannel {
+			transfersError <- err
+		}
 		close(transfers)
+		close(transfersError)
 	}()
-	return transfers
+	return transfers, transfersError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Transfer, string, Error.StarkErrors) {

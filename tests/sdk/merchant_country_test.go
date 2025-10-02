@@ -15,8 +15,21 @@ func TestMerchantCountryQuery(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["search"] = "brazil"
 
-	countries := MerchantCountry.Query(params, nil)
-	for country := range countries {
-		assert.NotNil(t, country.Code)
+	countries, errorChannel := MerchantCountry.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case country, ok := <-countries:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, country.Code)
+		}
 	}
 }

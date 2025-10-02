@@ -73,7 +73,7 @@ func Get(id string, user user.User) (Deposit, Error.StarkErrors) {
 	return deposit, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Deposit {
+func Query(params map[string]interface{}, user user.User) (chan Deposit, chan Error.StarkErrors) {
 	//	Retrieve Deposit structs
 	//
 	//	Receive a channel of Deposit structs from the Stark Bank API
@@ -93,19 +93,25 @@ func Query(params map[string]interface{}, user user.User) chan Deposit {
 	//	- Channel of Deposit structs with updated attributes
 	var deposit Deposit
 	deposits := make(chan Deposit)
-	query := utils.Query(resource, params, user)
+	depositsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &deposit)
 			if err != nil {
-				panic(err)
+				depositsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			deposits <- deposit
 		}
+		for err := range errorChannel {
+			depositsError <- err
+		}
 		close(deposits)
+		close(depositsError)
 	}()
-	return deposits
+	return deposits, depositsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]Deposit, string, Error.StarkErrors) {

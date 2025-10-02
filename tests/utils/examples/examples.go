@@ -35,10 +35,19 @@ func CorporateCard() corporatecard.CorporateCard {
 
 	var holderIds []corporateholder.CorporateHolder
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = 10
 	params["status"] = "active"
 
-	holders := corporateholder.Query(params, Utils.ExampleProject)
+	holders, errorChannel := corporateholder.Query(params, Utils.ExampleProject)
+	go func() {
+		for err := range errorChannel {
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Println(e.Code, e.Message)
+				}
+			}
+		}
+	}()
 	for holder := range holders {
 		holderIds = append(holderIds, holder)
 	}
@@ -102,10 +111,19 @@ func BoletosPayment() []boletopayment.BoletoPayment {
 
 	var boletoList []boleto.Boleto
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = 10
 	params["status"] = "registered"
 
-	boletos := boleto.Query(params, Utils.ExampleProject)
+	boletos, errorChannel := boleto.Query(params, Utils.ExampleProject)
+	go func() {
+		for err := range errorChannel {
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Println(e.Code, e.Message)
+				}
+			}
+		}
+	}()
 	for boleto := range boletos {
 		boletoList = append(boletoList, boleto)
 	}
@@ -158,7 +176,7 @@ func BrcodePayment() []brcodepayment.BrcodePayment {
 	invoices, errCreate := invoice.Create(Invoice(), Utils.ExampleProject)
 	if errCreate.Errors != nil {
 		for _, e := range errCreate.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			fmt.Println(e.Code, e.Message)
 		}
 	}
 
@@ -245,9 +263,18 @@ func PaymentPreviewBrcode() []paymentpreview.PaymentPreview {
 
 	var invoiceList []invoice.Invoice
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = 10
 
-	invoices := invoice.Query(params, Utils.ExampleProject)
+	invoices, errorChannel := invoice.Query(params, Utils.ExampleProject)
+	go func() {
+		for err := range errorChannel {
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					fmt.Println(e.Code, e.Message)
+				}
+			}
+		}
+	}()
 	for invoice := range invoices {
 		invoiceList = append(invoiceList, invoice)
 	}
@@ -349,7 +376,7 @@ func Utility() []utilitypayment.UtilityPayment {
 func Webhook() webhook.Webhook {
 
 	webhookExample := webhook.Webhook{
-		Url:           fmt.Sprintf("https://webhook.site/%v", rand.Intn(20-11)),
+		Url:           fmt.Sprintf("https://webhook.site/%v", rand.Intn(2000000000)),
 		Subscriptions: []string{"boleto"},
 	}
 	return webhookExample

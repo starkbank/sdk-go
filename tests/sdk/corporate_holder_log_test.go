@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	CorporateHolderLog "github.com/starkbank/sdk-go/starkbank/corporateholder/log"
 	"github.com/starkbank/sdk-go/tests/utils"
@@ -14,14 +13,31 @@ func TestCorporateHolderLogQuery(t *testing.T) {
 
 	starkbank.User = utils.ExampleProject
 
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
 
-	logs := CorporateHolderLog.Query(paramsQuery, nil)
+	var logList []CorporateHolderLog.Log
 
-	for log := range logs {
-		assert.NotNil(t, log.Id)
+	logs, errorChannel := CorporateHolderLog.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
+	
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestCorporateHolderLogPage(t *testing.T) {
@@ -34,7 +50,7 @@ func TestCorporateHolderLogPage(t *testing.T) {
 	logs, cursor, err := CorporateHolderLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -48,19 +64,34 @@ func TestCorporateHolderLogGet(t *testing.T) {
 
 	starkbank.User = utils.ExampleProject
 
-	var logList []CorporateHolderLog.Log
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var logList []CorporateHolderLog.Log
 
-	logs := CorporateHolderLog.Query(paramsQuery, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	logs, errorChannel := CorporateHolderLog.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	log, err := CorporateHolderLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 

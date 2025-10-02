@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	DictKey "github.com/starkbank/sdk-go/starkbank/dictkey"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -13,21 +12,35 @@ import (
 func TestDictKeyGet(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
+	limit := 1
 	var keyList []DictKey.DictKey
 	var params = map[string]interface{}{}
 	params["status"] = "registered"
-	params["limit"] = 1
+	params["limit"] = limit
 	params["type"] = "evp"
 
-	keys := DictKey.Query(params, nil)
-	for key := range keys {
-		keyList = append(keyList, key)
+	keys, errorChannel := DictKey.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case key, ok := <-keys:
+			if !ok {
+				break loop
+			}
+			keyList = append(keyList, key)
+		}
 	}
 
 	key, err := DictKey.Get(keyList[rand.Intn(len(keyList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, key.Id)
@@ -36,17 +49,31 @@ func TestDictKeyGet(t *testing.T) {
 func TestDictKeyQuery(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 1
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	keys := DictKey.Query(params, nil)
+	var keyList []DictKey.DictKey
 
-	for key := range keys {
-		assert.NotNil(t, key.Id)
-		i++
+	keys, errorChannel := DictKey.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case key, ok := <-keys:
+			if !ok {
+				break loop
+			}
+			keyList = append(keyList, key)
+		}
 	}
-	assert.Equal(t, params["limit"], i)
+
+	assert.Equal(t, limit, len(keyList))
 }
 
 func TestDictKeyPage(t *testing.T) {
@@ -59,7 +86,7 @@ func TestDictKeyPage(t *testing.T) {
 	keys, cursor, err := DictKey.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, key := range keys {

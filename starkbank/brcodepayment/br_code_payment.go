@@ -117,7 +117,7 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	return utils.GetContent(resource, id, nil, user, "pdf")
 }
 
-func Query(params map[string]interface{}, user user.User) chan BrcodePayment {
+func Query(params map[string]interface{}, user user.User) (chan BrcodePayment, chan Error.StarkErrors) {
 	//	Retrieve BrcodePayment structs
 	//
 	//	Receive a channel of BrcodePayment structs previously created in the Stark Bank API
@@ -138,19 +138,25 @@ func Query(params map[string]interface{}, user user.User) chan BrcodePayment {
 	//	- Channel of BrcodePayment structs with updated attributes
 	var brCodePayment BrcodePayment
 	payments := make(chan BrcodePayment)
-	query := utils.Query(resource, params, user)
+	paymentsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &brCodePayment)
 			if err != nil {
-				panic(err)
+				paymentsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			payments <- brCodePayment
 		}
+		for err := range errorChannel {
+			paymentsError <- err
+		}
 		close(payments)
+		close(paymentsError)
 	}()
-	return payments
+	return payments, paymentsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]BrcodePayment, string, Error.StarkErrors) {

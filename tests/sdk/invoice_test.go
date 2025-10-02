@@ -7,7 +7,7 @@ import (
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"math/rand"
 	"testing"
 )
@@ -19,7 +19,7 @@ func TestInvoicePost(t *testing.T) {
 	invoices, err := Invoice.Create(Example.Invoice(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, invoice := range invoices {
@@ -31,19 +31,34 @@ func TestInvoiceGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var invoiceList []Invoice.Invoice
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var invoiceList []Invoice.Invoice
 
-	invoices := Invoice.Query(params, nil)
-	for invoice := range invoices {
-		invoiceList = append(invoiceList, invoice)
+	invoices, errorChannel := Invoice.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
+		}
 	}
 
 	invoice, err := Invoice.Get(invoiceList[rand.Intn(len(invoiceList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -54,15 +69,32 @@ func TestInvoiceQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2020-04-01"
-	params["before"] = "2020-04-30"
+	params["limit"] = limit
 
-	invoices := Invoice.Query(params, nil)
+	var invoiceList []Invoice.Invoice
 
-	for invoice := range invoices {
-		assert.NotNil(t, invoice.Id)
+	invoices, errorChannel := Invoice.Query(params, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
+		}
 	}
+
+	assert.Equal(t, limit, len(invoiceList))
 }
 
 func TestInvoicePage(t *testing.T) {
@@ -76,7 +108,7 @@ func TestInvoicePage(t *testing.T) {
 	invoices, cursor, err := Invoice.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -92,13 +124,28 @@ func TestInvoiceUpdate(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var invoiceList []Invoice.Invoice
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var invoiceList []Invoice.Invoice
 
-	invoices := Invoice.Query(params, nil)
-	for invoice := range invoices {
-		invoiceList = append(invoiceList, invoice)
+	invoices, errorChannel := Invoice.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
+		}
 	}
 
 	var patchData = map[string]interface{}{}
@@ -107,7 +154,7 @@ func TestInvoiceUpdate(t *testing.T) {
 	updated, err := Invoice.Update(invoiceList[rand.Intn(len(invoiceList))].Id, patchData, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -118,26 +165,41 @@ func TestInvoiceQrcode(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var invoiceList []Invoice.Invoice
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var invoiceList []Invoice.Invoice
 
-	invoices := Invoice.Query(params, nil)
-	for invoice := range invoices {
-		invoiceList = append(invoiceList, invoice)
+	invoices, errorChannel := Invoice.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
+		}
 	}
 
 	qrcode, err := Invoice.Qrcode(invoiceList[rand.Intn(len(invoiceList))].Id, nil, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	filename := fmt.Sprintf("%v%v.png", "invoice", invoiceList[rand.Intn(len(invoiceList))].Id)
-	errFile := ioutil.WriteFile(filename, qrcode, 0666)
+	errFile := os.WriteFile(filename, qrcode, 0666)
 	if errFile != nil {
-		fmt.Print(errFile)
+		t.Errorf("error writing file: %s", errFile.Error())
 	}
 
 	assert.NotNil(t, qrcode)
@@ -147,26 +209,41 @@ func TestInvoicePdf(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var invoiceList []Invoice.Invoice
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var invoiceList []Invoice.Invoice
 
-	invoices := Invoice.Query(params, nil)
-	for invoice := range invoices {
-		invoiceList = append(invoiceList, invoice)
+	invoices, errorChannel := Invoice.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
+		}
 	}
 
 	pdf, err := Invoice.Pdf(invoiceList[rand.Intn(len(invoiceList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	filename := fmt.Sprintf("%v%v.pdf", "invoice", invoiceList[rand.Intn(len(invoiceList))].Id)
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
+	errFile := os.WriteFile(filename, pdf, 0666)
 	if errFile != nil {
-		fmt.Print(errFile)
+		t.Errorf("error writing file: %s", errFile.Error())
 	}
 	assert.NotNil(t, pdf)
 }
@@ -175,20 +252,35 @@ func TestInvoicePayment(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var invoiceList []Invoice.Invoice
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(12)
+	params["limit"] = limit
 	params["status"] = "paid"
+	
+	var invoiceList []Invoice.Invoice
 
-	invoices := Invoice.Query(params, nil)
-	for invoice := range invoices {
-		invoiceList = append(invoiceList, invoice)
+	invoices, errorChannel := Invoice.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case invoice, ok := <-invoices:
+			if !ok {
+				break loop
+			}
+			invoiceList = append(invoiceList, invoice)
+		}
 	}
 
 	payment, err := Invoice.GetPayment(invoiceList[rand.Intn(len(invoiceList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, payment.Name)

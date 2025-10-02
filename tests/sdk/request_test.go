@@ -31,27 +31,27 @@ func TestRequestGet(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("Unmarshall error: %v", unmarshalError)
 	}
 	invoicesData, ok1 := data["invoices"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, invoice := range invoicesData{
 		invoiceMap, ok2 := invoice.(map[string]interface{})
         if !ok2 {
-            fmt.Println("Erro ao converter item de list 'invoices' para map[string]interface{}")
+            t.Errorf("Erro ao converter item de list 'invoices' para map[string]interface{}")
             continue
         }
         id, ok3 := invoiceMap["id"].(string)
         if !ok3 {
-            fmt.Println("Erro ao converter list 'id' para string")
+            t.Errorf("Erro ao converter list 'id' para string")
             continue
         }
 		path = "invoice/" + id
@@ -66,21 +66,21 @@ func TestRequestGet(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		unmarshalError := json.Unmarshal(response.Content, &data)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			t.Errorf("Unmarshall error: %v", unmarshalError)
 		}
 		invoiceData, ok4 := data["invoice"].(map[string]interface{})
         if !ok4 {
-            fmt.Println("Erro ao converter 'id' para string")
+            t.Errorf("Erro ao converter 'id' para string")
             continue
         }
 		getId, ok5 := invoiceData["id"].(string)
 		if !ok5 {
-            fmt.Println("Erro ao converter 'id' para string")
+            t.Errorf("Erro ao converter 'id' para string")
             continue
         }
 		assert.Equal(t, id, getId)
@@ -105,27 +105,27 @@ func TestRequestGetFile(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("Unmarshall error: %v", unmarshalError)
 	}
 	invoicesData, ok1 := data["invoices"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, invoice := range invoicesData{
 		invoiceMap, ok2 := invoice.(map[string]interface{})
         if !ok2 {
-            fmt.Println("Erro ao converter item de list 'invoices' para map[string]interface{}")
+            t.Errorf("Erro ao converter item de list 'invoices' para map[string]interface{}")
             continue
         }
         id, ok3 := invoiceMap["id"].(string)
         if !ok3 {
-            fmt.Println("Erro ao converter list 'id' para string")
+            t.Errorf("Erro ao converter list 'id' para string")
             continue
         }
 		path = "invoice/" + id + "/pdf"
@@ -140,13 +140,13 @@ func TestRequestGetFile(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		filename := fmt.Sprintf("%v%v.pdf", "invoice", id)
 		errFile := os.WriteFile(filename, pdf.Content, 0666)
 		if errFile != nil {
-		  fmt.Print(errFile)
+			t.Errorf("Erro ao salvar o arquivo: %v", errFile)
 		}
 		assert.NotNil(t, pdf)
 
@@ -162,13 +162,13 @@ func TestRequestGetFile(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		qrCodefilename := fmt.Sprintf("%v%v.png", "invoice", id)
 		qrErrFile := os.WriteFile(qrCodefilename, qrCode.Content, 0666)
 		if qrErrFile != nil {
-			fmt.Print(errFile)
+			t.Errorf("Erro ao salvar o arquivo: %v", qrErrFile)
   		}
 	}
 }
@@ -199,12 +199,12 @@ func TestRequestPost(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("Unmarshall error: %v", unmarshalError)
 	}
 	assert.NotNil(t, data)
 }
@@ -227,16 +227,16 @@ func TestRequestPatch(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("Unmarshall error: %v", unmarshalError)
 	}
 	invoicesData, ok1 := data["invoices"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, invoice := range invoicesData{
@@ -259,12 +259,12 @@ func TestRequestPatch(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		unmarshalError := json.Unmarshal(response.Content, &data)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			t.Errorf("Unmarshall error: %v", unmarshalError)
 		}
 		invoiceData, _ := data["invoice"].(map[string]interface{})
 		amount, _ := invoiceData["amount"].(int)
@@ -292,12 +292,12 @@ func TestRequestPut(t *testing.T) {
 	)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("Unmarshall error: %v", unmarshalError)
 	}
 	assert.NotNil(t, data)
 }
@@ -338,27 +338,27 @@ func TestRequestDelete(t *testing.T) {
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	unmarshalError := json.Unmarshal(response.Content, &data)
 	if unmarshalError != nil {
-		panic(unmarshalError)
+		t.Errorf("Unmarshall error: %v", unmarshalError)
 	}
 	transfersData, ok1 := data["transfers"].([]interface{})
 	if !ok1 {
-        fmt.Println("Erro ao converter os tipos content")
+        t.Errorf("Erro ao converter os tipos content")
         return
     }
 	for _, transfer := range transfersData{
 		transferMap, ok2 := transfer.(map[string]interface{})
         if !ok2 {
-            fmt.Println("Erro ao converter item de list 'invoices' para map[string]interface{}")
+            t.Errorf("Erro ao converter item de list 'invoices' para map[string]interface{}")
             continue
         }
         id, ok3 := transferMap["id"].(string)
         if !ok3 {
-            fmt.Println("Erro ao converter list 'id' para string")
+            t.Errorf("Erro ao converter list 'id' para string")
             continue
         }
 		path = "transfer/" + id
@@ -372,12 +372,12 @@ func TestRequestDelete(t *testing.T) {
 	
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		unmarshalError := json.Unmarshal(response.Content, &data)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			t.Errorf("Unmarshall error: %v", unmarshalError)
 		}
 		assert.NotNil(t, data)
 	}

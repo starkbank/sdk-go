@@ -72,14 +72,23 @@ func Create(requests []PaymentRequest, user user.User) ([]PaymentRequest, Error.
 	//	Return:
 	//	- Slice of PaymentRequest structs with updated attributes
 	create, err := utils.Multi(resource, requests, nil, user)
+	if err.Errors != nil {
+		return nil, err
+	}
+
 	unmarshalError := json.Unmarshal(create, &requests)
 	if unmarshalError != nil {
-		return ParseRequests(requests), err
+		return nil, Error.UnknownError(unmarshalError.Error())
 	}
-	return ParseRequests(requests), err
+
+	parsedRequests, err := ParseRequests(requests)
+	if err.Errors != nil {
+		return nil, err
+	}
+	return parsedRequests, Error.StarkErrors{}
 }
 
-func Query(centerId string, params map[string]interface{}, user user.User) chan PaymentRequest {
+func Query(centerId string, params map[string]interface{}, user user.User) (chan PaymentRequest, chan Error.StarkErrors) {
 	//	Retrieve PaymentRequest structs
 	//
 	//	Receive a channel of PaymentRequest structs previously created by this user in the Stark Bank API
@@ -108,19 +117,29 @@ func Query(centerId string, params map[string]interface{}, user user.User) chan 
 	}
 	param["centerId"] = centerId
 	requests := make(chan PaymentRequest)
-	query := utils.Query(resource, param, user)
+	requestsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, param, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &paymentRequest)
 			if err != nil {
-				panic(err)
+				requestsError <- Error.UnknownError(err.Error())
+				continue
 			}
-			requests <- paymentRequest.ParseRequest()
+			parsedRequest, parseErr := paymentRequest.ParseRequest()
+			if parseErr.Errors != nil {
+				requestsError <- parseErr
+			}
+			requests <- parsedRequest
+		}
+		for err := range errorChannel {
+			requestsError <- err
 		}
 		close(requests)
+		close(requestsError)
 	}()
-	return requests
+	return requests, requestsError
 }
 
 func Page(centerId string, params map[string]interface{}, user user.User) ([]PaymentRequest, string, Error.StarkErrors) {
@@ -155,80 +174,93 @@ func Page(centerId string, params map[string]interface{}, user user.User) ([]Pay
 	}
 	param["centerId"] = centerId
 	page, cursor, err := utils.Page(resource, param, user)
+	if err.Errors != nil {
+		return nil, "", err
+	}
+
 	unmarshalError := json.Unmarshal(page, &paymentRequests)
 	if unmarshalError != nil {
-		return ParseRequests(paymentRequests), cursor, err
+		return nil, "", Error.UnknownError(unmarshalError.Error())
 	}
-	return ParseRequests(paymentRequests), cursor, err
+	
+	parsedRequests, err := ParseRequests(paymentRequests)
+	if err.Errors != nil {
+		return nil, "", err
+	}
+	return parsedRequests, cursor, Error.StarkErrors{}
 }
 
-func (e PaymentRequest) ParseRequest() PaymentRequest {
+func (e PaymentRequest) ParseRequest() (PaymentRequest, Error.StarkErrors) {
 	if e.Type == "transfer" {
 		var transfer Transfer.Transfer
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &transfer)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Payment = transfer
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "transaction" {
 		var transaction Transaction.Transaction
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &transaction)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Payment = transaction
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "tax-payment" {
 		var taxPayment TaxPayment.TaxPayment
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &taxPayment)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Payment = taxPayment
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "brcode-payment" {
 		var brcodePayment BrcodePayment.BrcodePayment
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &brcodePayment)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Payment = brcodePayment
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "boleto-payment" {
 		var boletoPayment BoletoPayment.BoletoPayment
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &boletoPayment)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Payment = boletoPayment
-		return e
+		return e, Error.StarkErrors{}
 	}
 	if e.Type == "utility-payment" {
 		var utilityPayment UtilityPayment.UtilityPayment
 		marshal, _ := json.Marshal(e.Payment)
 		unmarshalError := json.Unmarshal(marshal, &utilityPayment)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Payment = utilityPayment
-		return e
+		return e, Error.StarkErrors{}
 	}
-	return e
+	return e, Error.StarkErrors{}
 }
 
-func ParseRequests(previews []PaymentRequest) []PaymentRequest {
+func ParseRequests(previews []PaymentRequest) ([]PaymentRequest, Error.StarkErrors) {
+	var err Error.StarkErrors
 	for i := 0; i < len(previews); i++ {
-		previews[i] = previews[i].ParseRequest()
+		previews[i], err = previews[i].ParseRequest()
+		if err.Errors != nil {
+			return nil, err
+		}
 	}
-	return previews
+	return previews, Error.StarkErrors{}
 }

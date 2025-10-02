@@ -91,7 +91,7 @@ func Get(id string, user user.User) (Workspace, Error.StarkErrors) {
 	return workspace, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan Workspace {
+func Query(params map[string]interface{}, user user.User) (chan Workspace, chan Error.StarkErrors) {
 	//	Retrieve Workspaces
 	//
 	//	Receive a channel of Workspace structs previously created in the Stark Bank API.
@@ -109,19 +109,25 @@ func Query(params map[string]interface{}, user user.User) chan Workspace {
 	//	- Channel of Workspace structs with updated attributes
 	var workspace Workspace
 	workspaces := make(chan Workspace)
-	query := utils.Query(resource, params, user)
+	workspacesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &workspace)
 			if err != nil {
-				panic(err)
+				workspacesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			workspaces <- workspace
 		}
+		for err := range errorChannel {
+			workspacesError <- err
+		}
 		close(workspaces)
+		close(workspacesError)
 	}()
-	return workspaces
+	return workspaces, workspacesError
 }
 
 func Update(id string, patchData map[string]interface{}, user user.User) (Workspace, Error.StarkErrors) {

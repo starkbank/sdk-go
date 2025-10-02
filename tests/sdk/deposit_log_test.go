@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	DepositLog "github.com/starkbank/sdk-go/starkbank/deposit/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -13,22 +12,35 @@ func TestDepositLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var logIds, depositsIds []string
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
+	
+	var logIds, depositsIds []string
 
-	logs := DepositLog.Query(params, nil)
-
-	for log := range logs {
-		assert.NotNil(t, log)
-		logIds = append(logIds, log.Id)
+	logs, errorChannel := DepositLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logIds = append(logIds, log.Id)
+		}
 	}
+
 	for _, ids := range logIds {
 		deposit, err := DepositLog.Get(ids, nil)
 		if err.Errors != nil {
 			for _, erro := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+				t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 			}
 		}
 		assert.NotNil(t, deposit)
@@ -41,17 +53,31 @@ func TestDepositLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := DepositLog.Query(params, nil)
+	var logList []DepositLog.Log
 
-	for log := range logs {
-		assert.NotNil(t, log.Id)
-		i++
+	logs, errorChannel := DepositLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
-	assert.Equal(t, 201, i)
+
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestDepositLogPage(t *testing.T) {
@@ -66,7 +92,7 @@ func TestDepositLogPage(t *testing.T) {
 	for _, log := range logs {
 		if err.Errors != nil {
 			for _, erro := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+				t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 			}
 		}
 		ids = append(ids, log.Id)

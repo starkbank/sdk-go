@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	CorporateCardLog "github.com/starkbank/sdk-go/starkbank/corporatecard/log"
 	"github.com/starkbank/sdk-go/tests/utils"
@@ -14,13 +13,32 @@ func TestCorporateCardLogQuery(t *testing.T) {
 
 	starkbank.User = utils.ExampleProject
 
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	logs := CorporateCardLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
+	var logList []CorporateCardLog.Log
+
+	logs, errorChannel := CorporateCardLog.Query(params, nil)
+	
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
+
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestCorporateCardLogPage(t *testing.T) {
@@ -33,7 +51,7 @@ func TestCorporateCardLogPage(t *testing.T) {
 	logs, cursor, err := CorporateCardLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -48,19 +66,34 @@ func TestCorporateCardLogGet(t *testing.T) {
 
 	starkbank.User = utils.ExampleProject
 
-	var logList []CorporateCardLog.Log
+	limit := 10
 	var paramsQuery = map[string]interface{}{}
-	paramsQuery["limit"] = rand.Intn(100)
+	paramsQuery["limit"] = limit
+	
+	var logList []CorporateCardLog.Log
 
-	logs := CorporateCardLog.Query(paramsQuery, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	logs, errorChannel := CorporateCardLog.Query(paramsQuery, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	log, err := CorporateCardLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 

@@ -55,7 +55,7 @@ func Get(id string, user user.User) (CorporateTransaction, Error.StarkErrors) {
 	return corporateTransaction, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan CorporateTransaction {
+func Query(params map[string]interface{}, user user.User) (chan CorporateTransaction, chan Error.StarkErrors) {
 	//	Retrieve CorporateTransaction structs
 	//
 	//	Receive a channel of CorporateTransaction structs previously created in the Stark Bank API
@@ -75,19 +75,25 @@ func Query(params map[string]interface{}, user user.User) chan CorporateTransact
 	//	- channel of CorporateTransaction structs with updated attributes
 	var corporateTransaction CorporateTransaction
 	transactions := make(chan CorporateTransaction)
-	query := utils.Query(resource, params, user)
+	transactionsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateTransaction)
 			if err != nil {
-				print(err.Error())
+				transactionsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			transactions <- corporateTransaction
 		}
+		for err := range errorChannel {
+			transactionsError <- err
+		}
 		close(transactions)
+		close(transactionsError)
 	}()
-	return transactions
+	return transactions, transactionsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]CorporateTransaction, string, Error.StarkErrors) {

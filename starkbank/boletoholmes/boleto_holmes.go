@@ -83,7 +83,7 @@ func Get(id string, user user.User) (BoletoHolmes, Error.StarkErrors) {
 	return boletoHolmes, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan BoletoHolmes {
+func Query(params map[string]interface{}, user user.User) (chan BoletoHolmes, chan Error.StarkErrors) {
 	//	Retrieve BoletoHolmes structs
 	//
 	//	Receive a channel of BoletoHolmes structs previously created in the Stark Bank API
@@ -105,19 +105,25 @@ func Query(params map[string]interface{}, user user.User) chan BoletoHolmes {
 	//	- Channel of BoletoHolmes structs with updated attributes
 	var boletoHolmes BoletoHolmes
 	holmes := make(chan BoletoHolmes)
-	query := utils.Query(resource, params, user)
+	holmesError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &boletoHolmes)
 			if err != nil {
-				panic(err)
+				holmesError <- Error.UnknownError(err.Error())
+				continue
 			}
 			holmes <- boletoHolmes
 		}
+		for err := range errorChannel {
+			holmesError <- err
+		}
 		close(holmes)
+		close(holmesError)
 	}()
-	return holmes
+	return holmes, holmesError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]BoletoHolmes, string, Error.StarkErrors) {

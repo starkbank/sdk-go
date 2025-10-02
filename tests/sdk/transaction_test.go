@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -18,7 +17,7 @@ func TestTransactionPost(t *testing.T) {
 	transactions, err := Transaction.Create(Example.Transaction(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, transaction := range transactions {
@@ -30,19 +29,34 @@ func TestTransactionGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var transactionList []Transaction.Transaction
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var transactionList []Transaction.Transaction
 
-	transactions := Transaction.Query(params, nil)
-	for transaction := range transactions {
-		transactionList = append(transactionList, transaction)
+	transactions, errorChannel := Transaction.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case transaction, ok := <-transactions:
+			if !ok {
+				break loop
+			}
+			transactionList = append(transactionList, transaction)
+		}
 	}
 
 	transaction, err := Transaction.Get(transactionList[rand.Intn(len(transactionList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, transaction.Id)
@@ -52,17 +66,30 @@ func TestTransactionQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	transactions := Transaction.Query(params, nil)
+	var transactionList []Transaction.Transaction
 
-	for transaction := range transactions {
-		assert.NotNil(t, transaction.Id)
-		i++
+	transactions, errorChannel := Transaction.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case transaction, ok := <-transactions:
+			if !ok {
+				break loop
+			}
+			transactionList = append(transactionList, transaction)
+		}
 	}
-	assert.Equal(t, 201, i)
+	assert.Equal(t, limit, len(transactionList))
 }
 
 func TestTransactionPage(t *testing.T) {
@@ -76,7 +103,7 @@ func TestTransactionPage(t *testing.T) {
 	transactions, cursor, err := Transaction.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, transaction := range transactions {
