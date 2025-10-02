@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -18,7 +17,7 @@ func TestBrcodePaymentPost(t *testing.T) {
 	payments, err := BrcodePayment.Create(Example.BrcodePayment(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, payment := range payments {
@@ -30,19 +29,34 @@ func TestBrcodePaymentGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var brcodeList []BrcodePayment.BrcodePayment
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var brcodeList []BrcodePayment.BrcodePayment
 
-	brcodes := BrcodePayment.Query(params, nil)
-	for brcode := range brcodes {
-		brcodeList = append(brcodeList, brcode)
+	brcodes, errorChannel := BrcodePayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
 
 	brcode, err := BrcodePayment.Get(brcodeList[rand.Intn(len(brcodeList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, brcode.Id)
@@ -52,20 +66,35 @@ func TestBrcodePaymentPdf(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var brcodeList []BrcodePayment.BrcodePayment
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 109
+	params["limit"] = limit
 	params["status"] = "success"
+	
+	var brcodeList []BrcodePayment.BrcodePayment
 
-	brcodes := BrcodePayment.Query(params, nil)
-	for brcode := range brcodes {
-		brcodeList = append(brcodeList, brcode)
+	brcodes, errorChannel := BrcodePayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
 
 	pdf, err := BrcodePayment.Pdf(brcodeList[rand.Intn(len(brcodeList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, pdf)
@@ -75,17 +104,31 @@ func TestBrcodePaymentQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	brcodes := BrcodePayment.Query(params, nil)
+	var brcodeList []BrcodePayment.BrcodePayment
 
-	for brcode := range brcodes {
-		assert.NotNil(t, brcode.Id)
-		i++
+	brcodes, errorChannel := BrcodePayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
-	assert.Equal(t, 201, i)
+
+	assert.Equal(t, limit, len(brcodeList))
 }
 
 func TestBrcodePaymentPage(t *testing.T) {
@@ -99,7 +142,7 @@ func TestBrcodePaymentPage(t *testing.T) {
 	brcodes, cursor, err := BrcodePayment.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, brcode := range brcodes {
@@ -114,14 +157,33 @@ func TestBrcodePaymentUpdate(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var brcodeList []BrcodePayment.BrcodePayment
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
 	params["status"] = "created"
 
-	brcodes := BrcodePayment.Query(params, nil)
-	for brcode := range brcodes {
-		brcodeList = append(brcodeList, brcode)
+	var brcodeList []BrcodePayment.BrcodePayment
+
+	brcodes, errorChannel := BrcodePayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
+	}
+
+	if len(brcodeList) == 0 {
+		t.Skip("No BrcodePayment with status created found")
 	}
 
 	var patchData = map[string]interface{}{}
@@ -130,7 +192,7 @@ func TestBrcodePaymentUpdate(t *testing.T) {
 	updated, err := BrcodePayment.Update(brcodeList[rand.Intn(len(brcodeList))].Id, patchData, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, updated)

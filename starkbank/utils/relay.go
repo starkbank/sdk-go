@@ -15,7 +15,7 @@ func Page(resource map[string]string, params map[string]interface{}, user user.U
 	return rest.GetPage(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, user, resource, params)
 }
 
-func Query(resource map[string]string, params map[string]interface{}, user user.User) chan map[string]interface{} {
+func Query(resource map[string]string, params map[string]interface{}, user user.User) (chan map[string]interface{}, chan Errors.StarkErrors) {
 	if user == nil {
 		return rest.GetStream(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, starkbank.User, resource, params)
 	}

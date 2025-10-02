@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	HolmesLog "github.com/starkbank/sdk-go/starkbank/boletoholmes/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,19 +13,35 @@ func TestHolmesLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var sherlock []HolmesLog.Log
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var sherlock []HolmesLog.Log
 
-	logs := HolmesLog.Query(params, nil)
-	for log := range logs {
-		sherlock = append(sherlock, log)
+	logs, err := HolmesLog.Query(params, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-err:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			sherlock = append(sherlock, log)
+		}
 	}
 
-	holmes, err := HolmesLog.Get(sherlock[rand.Intn(len(sherlock))].Id, nil)
-	if err.Errors != nil {
-		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+	holmes, errGet := HolmesLog.Get(sherlock[rand.Intn(len(sherlock))].Id, nil)
+	if errGet.Errors != nil {
+		for _, erro := range errGet.Errors {
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, holmes.Id)
@@ -36,16 +51,31 @@ func TestHolmesLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := HolmesLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
-		i++
+	var logList []HolmesLog.Log
+
+	logs, err := HolmesLog.Query(params, nil)
+
+	loop:
+	for {
+		select {
+		case err := <-err:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
-	assert.Equal(t, 201, i)
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestHolmesLogPage(t *testing.T) {
@@ -59,7 +89,7 @@ func TestHolmesLogPage(t *testing.T) {
 	logs, cursor, err := HolmesLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {

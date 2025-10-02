@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	DarfPaymentLog "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,19 +13,34 @@ func TestDarfPaymentLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var logList []DarfPaymentLog.Log
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var logList []DarfPaymentLog.Log
 
-	logs := DarfPaymentLog.Query(params, nil)
-	for log := range logs {
-		logList = append(logList, log)
+	logs, errorChannel := DarfPaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
 
 	log, err := DarfPaymentLog.Get(logList[rand.Intn(len(logList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, log)
@@ -36,13 +50,31 @@ func TestDarfPaymentLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := DarfPaymentLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
+	var logList []DarfPaymentLog.Log
+
+	logs, errorChannel := DarfPaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
+
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestDarfPaymentLogPage(t *testing.T) {
@@ -56,7 +88,7 @@ func TestDarfPaymentLogPage(t *testing.T) {
 	logs, cursor, err := DarfPaymentLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {

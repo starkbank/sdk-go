@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	DynamicBrcode "github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -18,7 +17,7 @@ func TestDynamicBrcodePost(t *testing.T) {
 	brcodes, err := DynamicBrcode.Create(Example.DynamicBrcode(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, brcode := range brcodes {
@@ -30,19 +29,34 @@ func TestDynamicBrcodeGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var brcodeList []DynamicBrcode.DynamicBrcode
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
 
-	brcodes := DynamicBrcode.Query(params, nil)
-	for brcode := range brcodes {
-		brcodeList = append(brcodeList, brcode)
+	var brcodeList []DynamicBrcode.DynamicBrcode
+
+	brcodes, errorChannel := DynamicBrcode.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
 
 	brcode, err := DynamicBrcode.Get(brcodeList[rand.Intn(len(brcodeList))].Uuid, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, brcode.Uuid)
@@ -52,13 +66,31 @@ func TestDynamicBrcodeQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
-	brcodes := DynamicBrcode.Query(params, nil)
+	params["limit"] = limit
 
-	for brcode := range brcodes {
-		assert.NotNil(t, brcode.Uuid)
+	var brcodeList []DynamicBrcode.DynamicBrcode
+
+	brcodes, errorChannel := DynamicBrcode.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
+
+	assert.Equal(t, limit, len(brcodeList))
 }
 
 func TestDynamicBrcodePage(t *testing.T) {
@@ -72,7 +104,7 @@ func TestDynamicBrcodePage(t *testing.T) {
 	brcodes, cursor, err := DynamicBrcode.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, brcode := range brcodes {

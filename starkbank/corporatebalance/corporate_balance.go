@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/starkbank/sdk-go/starkbank/utils"
 	"github.com/starkinfra/core-go/starkcore/user/user"
+	Error "github.com/starkinfra/core-go/starkcore/error"
 	"time"
 )
 
@@ -33,7 +34,7 @@ type CorporateBalance struct {
 
 var resource = map[string]string{"name": "CorporateBalance"}
 
-func Get(user user.User) CorporateBalance {
+func Get(user user.User) (CorporateBalance, Error.StarkErrors) {
 	//	Retrieve the CorporateBalance struct
 	//
 	//	Receive the CorporateBalance struct linked to your Workspace in the Stark Bank API
@@ -45,17 +46,23 @@ func Get(user user.User) CorporateBalance {
 	//	- CorporateBalance struct with updated attributes
 	var corporateBalance CorporateBalance
 	balance := make(chan CorporateBalance)
-	query := utils.Query(resource, nil, user)
+	balanceError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateBalance)
 			if err != nil {
-				print(err.Error())
+				balanceError <- Error.UnknownError(err.Error())
+				continue
 			}
 			balance <- corporateBalance
 		}
+		for err := range errorChannel {
+			balanceError <- err
+		}
 		close(balance)
+		close(balanceError)
 	}()
-	return <-balance
+	return <-balance, <-balanceError
 }

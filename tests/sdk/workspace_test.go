@@ -1,13 +1,12 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	Workspace "github.com/starkbank/sdk-go/starkbank/workspace"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"math/rand"
 	"testing"
 )
@@ -17,7 +16,7 @@ func TestWorkspacePost(t *testing.T) {
 	workspace, err := Workspace.Create(Example.Workspace(), Utils.ExampleOrganization)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, workspace.Id)
@@ -31,7 +30,16 @@ func TestWorkspaceGet(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = rand.Intn(100)
 
-	workspaces := Workspace.Query(params, nil)
+	workspaces, errorChannel := Workspace.Query(params, nil)
+	go func() {
+		for err := range errorChannel {
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		}
+	}()
 	for workspace := range workspaces {
 		workspaceList = append(workspaceList, workspace)
 	}
@@ -39,7 +47,7 @@ func TestWorkspaceGet(t *testing.T) {
 	workspace, err := Workspace.Get(workspaceList[rand.Intn(len(workspaceList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, workspace.Id)
@@ -53,7 +61,16 @@ func TestWorkspaceQuery(t *testing.T) {
 	var params = map[string]interface{}{}
 	params["limit"] = 1
 
-	workspaces := Workspace.Query(params, nil)
+	workspaces, errorChannel := Workspace.Query(params, nil)
+	go func() {
+		for err := range errorChannel {
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		}
+	}()
 
 	for workspace := range workspaces {
 		assert.NotNil(t, workspace.Id)
@@ -73,7 +90,7 @@ func TestWorkspacePage(t *testing.T) {
 	workspaces, cursor, err := Workspace.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -94,7 +111,7 @@ func TestWorkspaceReplace(t *testing.T) {
 	workspaces, cursor, err := Workspace.Page(params, Utils.ExampleOrganization.Replace("1234567890098"))
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	for _, workspace := range workspaces {
@@ -109,7 +126,7 @@ func TestWorkspaceUpdate(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	bytes, _ := ioutil.ReadFile("file.png")
+	bytes, _ := os.ReadFile("file.png")
 
 	var patchData = map[string]interface{}{}
 	patchData["picture"] = bytes
@@ -118,7 +135,7 @@ func TestWorkspaceUpdate(t *testing.T) {
 	workspace, err := Workspace.Update("5647143184367616", patchData, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 

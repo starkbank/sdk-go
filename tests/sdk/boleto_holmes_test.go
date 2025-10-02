@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	Boleto "github.com/starkbank/sdk-go/starkbank/boleto"
 	Holmes "github.com/starkbank/sdk-go/starkbank/boletoholmes"
@@ -19,14 +18,14 @@ func TestHolmesPost(t *testing.T) {
 	boletos, errCreate := Boleto.Create(Example.Boleto(), nil)
 	if errCreate.Errors != nil {
 		for _, erro := range errCreate.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 
 	sherlock, err := Holmes.Create(Example.Holmes(boletos[0].Id), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, holmes := range sherlock {
@@ -39,19 +38,35 @@ func TestHolmesGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var sherlock []Holmes.BoletoHolmes
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = limit
+	
+	var sherlock []Holmes.BoletoHolmes
 
-	logs := Holmes.Query(params, nil)
-	for log := range logs {
-		sherlock = append(sherlock, log)
+	logs, errorChannel := Holmes.Query(params, nil)
+	
+	loop: 
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			sherlock = append(sherlock, log)
+		}
 	}
 
 	holmes, err := Holmes.Get(sherlock[rand.Intn(len(sherlock))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, holmes.Id)
@@ -61,17 +76,31 @@ func TestHolmesQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
+	
+	var holmesList []Holmes.BoletoHolmes
 
-	sherlock := Holmes.Query(params, nil)
+	sherlock, errorChannel := Holmes.Query(params, nil)
 
-	for holmes := range sherlock {
-		assert.NotNil(t, holmes.Id)
-		i++
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case holmes, ok := <-sherlock:
+			if !ok {
+				break loop
+			}
+			holmesList = append(holmesList, holmes)
+		}
 	}
-	assert.Equal(t, 201, i)
+	assert.Equal(t, limit, len(holmesList))
 }
 
 func TestHolmesPage(t *testing.T) {
@@ -85,7 +114,7 @@ func TestHolmesPage(t *testing.T) {
 	sherlock, cursor, err := Holmes.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, holmes := range sherlock {

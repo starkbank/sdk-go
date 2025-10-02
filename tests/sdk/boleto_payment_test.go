@@ -7,7 +7,7 @@ import (
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"math/rand"
 	"testing"
 )
@@ -19,11 +19,10 @@ func TestBoletoPaymentPost(t *testing.T) {
 	payments, err := BoletoPayment.Create(Example.BoletosPayment(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, payment := range payments {
-		fmt.Printf("%+v", payment)
 		assert.NotNil(t, payment.Id)
 	}
 }
@@ -32,23 +31,36 @@ func TestBoletoPaymentGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var paymentList []BoletoPayment.BoletoPayment
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
+	
+	var paymentList []BoletoPayment.BoletoPayment
 
-	payments := BoletoPayment.Query(params, nil)
-	for payment := range payments {
-		paymentList = append(paymentList, payment)
+	payments, errorChannel := BoletoPayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case payment, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			paymentList = append(paymentList, payment)
+		}
 	}
-
+	
 	payment, err := BoletoPayment.Get(paymentList[rand.Intn(len(paymentList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
-	fmt.Printf("%+v", payment)
 	assert.NotNil(t, payment.Id)
 }
 
@@ -56,27 +68,42 @@ func TestBoletoPaymentPdf(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var paymentList []BoletoPayment.BoletoPayment
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
-	params["status"] = "created"
+	params["limit"] = limit
+	params["status"] = "success"
+	
+	var paymentList []BoletoPayment.BoletoPayment
 
-	payments := BoletoPayment.Query(params, nil)
-	for payment := range payments {
-		paymentList = append(paymentList, payment)
+	payments, errorChannel := BoletoPayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case payment, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			paymentList = append(paymentList, payment)
+		}
 	}
-
+			
 	pdf, err := BoletoPayment.Pdf(paymentList[rand.Intn(len(paymentList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	filename := fmt.Sprintf("%v%v.pdf", "boleto-payment", paymentList[rand.Intn(len(paymentList))].Id)
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
+	errFile := os.WriteFile(filename, pdf, 0666)
 	if errFile != nil {
-		fmt.Print(errFile)
+		t.Errorf("error writing file: %v", errFile)
 	}
 	assert.NotNil(t, pdf)
 }
@@ -85,16 +112,31 @@ func TestBoletoPaymentQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var i int
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 202
+	params["limit"] = limit
 
-	payments := BoletoPayment.Query(params, nil)
-	for payment := range payments {
-		assert.NotNil(t, payment.Id)
-		i++
+	var paymentList []BoletoPayment.BoletoPayment
+
+	payments, errorChannel := BoletoPayment.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case payment, ok := <-payments:
+			if !ok {
+				break loop
+			}
+			paymentList = append(paymentList, payment)
+		}
 	}
-	assert.Equal(t, 202, i)
+		
+	assert.Equal(t, limit, len(paymentList))
 }
 
 func TestBoletoPaymentPage(t *testing.T) {
@@ -108,7 +150,7 @@ func TestBoletoPaymentPage(t *testing.T) {
 	logs, cursor, err := BoletoPayment.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {
@@ -126,17 +168,16 @@ func TestBoletoPaymentPostDelete(t *testing.T) {
 	payments, errCreate := BoletoPayment.Create(Example.BoletosPayment(), nil)
 	if errCreate.Errors != nil {
 		for _, erro := range errCreate.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 
 	deleted, err := BoletoPayment.Delete(payments[0].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
-	fmt.Printf("%+v", deleted)
 	assert.NotNil(t, deleted.Id)
 }

@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	BrcodePaymentLog "github.com/starkbank/sdk-go/starkbank/brcodepayment/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -14,20 +13,34 @@ func TestBrcodePaymentLogGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var brcodeList []BrcodePaymentLog.Log
+	limit := 5
 	var params = map[string]interface{}{}
-	params["after"] = "2021-04-01"
-	params["before"] = "2021-04-30"
+	params["limit"] = limit
+	
+	var brcodeList []BrcodePaymentLog.Log
 
-	brcodes := BrcodePaymentLog.Query(params, nil)
-	for brcode := range brcodes {
-		brcodeList = append(brcodeList, brcode)
+	brcodes, errorChannel := BrcodePaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case brcode, ok := <-brcodes:
+			if !ok {
+				break loop
+			}
+			brcodeList = append(brcodeList, brcode)
+		}
 	}
 
 	log, err := BrcodePaymentLog.Get(brcodeList[rand.Intn(len(brcodeList))].Id, nil)
 	if err.Errors != nil {
 		for _, erro := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", erro.Code, erro.Message))
+			t.Errorf("code: %s, message: %s", erro.Code, erro.Message)
 		}
 	}
 	assert.NotNil(t, log)
@@ -37,13 +50,31 @@ func TestBrcodePaymentLogQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
+	limit := 5
 	var params = map[string]interface{}{}
-	params["limit"] = 201
+	params["limit"] = limit
 
-	logs := BrcodePaymentLog.Query(params, nil)
-	for log := range logs {
-		assert.NotNil(t, log.Id)
+	var logList []BrcodePaymentLog.Log
+
+	logs, errorChannel := BrcodePaymentLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
 	}
+	
+	assert.Equal(t, limit, len(logList))
 }
 
 func TestBrcodePaymentLogPage(t *testing.T) {
@@ -57,7 +88,7 @@ func TestBrcodePaymentLogPage(t *testing.T) {
 	logs, cursor, err := BrcodePaymentLog.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, log := range logs {

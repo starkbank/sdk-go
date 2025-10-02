@@ -7,7 +7,7 @@ import (
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"math/rand"
 	"testing"
 )
@@ -19,7 +19,7 @@ func TestUtilityPost(t *testing.T) {
 	utilities, err := Utility.Create(Example.Utility(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, utility := range utilities {
@@ -31,20 +31,34 @@ func TestUtilityGet(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var utilityList []Utility.UtilityPayment
+	limit := 10
 	var params = map[string]interface{}{}
-	params["after"] = "2022-04-01"
-	params["before"] = "2022-04-30"
+	params["limit"] = limit
 
-	utilitys := Utility.Query(params, nil)
-	for utility := range utilitys {
-		utilityList = append(utilityList, utility)
+	var utilityList []Utility.UtilityPayment
+
+	utilitys, errorChannel := Utility.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case utility, ok := <-utilitys:
+			if !ok {
+				break loop
+			}
+			utilityList = append(utilityList, utility)
+		}
 	}
 
 	utility, err := Utility.Get(utilityList[rand.Intn(len(utilityList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
@@ -55,25 +69,39 @@ func TestUtilityPdf(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	var utilityList []Utility.UtilityPayment
 	var params = map[string]interface{}{}
-	params["limit"] = rand.Intn(100)
+	params["limit"] = 10
 	params["status"] = "success"
+	
+	var utilityList []Utility.UtilityPayment
 
-	utilitys := Utility.Query(params, nil)
-	for utility := range utilitys {
-		utilityList = append(utilityList, utility)
+	utilities, errorChannel := Utility.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case utility, ok := <-utilities:
+			if !ok {
+				break loop
+			}
+			utilityList = append(utilityList, utility)
+		}
 	}
 
 	pdf, err := Utility.Pdf(utilityList[rand.Intn(len(utilityList))].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 
 	filename := fmt.Sprintf("%v%v.pdf", "utility", utilityList[rand.Intn(len(utilityList))].Id)
-	errFile := ioutil.WriteFile(filename, pdf, 0666)
+	errFile := os.WriteFile(filename, pdf, 0666)
 	if errFile != nil {
 		fmt.Print(errFile)
 	}
@@ -84,14 +112,31 @@ func TestUtilityQuery(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
+	limit := 5
 	var params = map[string]interface{}{}
 	params["status"] = "success"
-	params["limit"] = 4
+	params["limit"] = limit
 
-	utilities := Utility.Query(params, nil)
-	for utility := range utilities {
-		assert.Equal(t, utility.Status, "success")
+	var utilityList []Utility.UtilityPayment
+
+	utilities, errorChannel := Utility.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case utility, ok := <-utilities:
+			if !ok {
+				break loop
+			}
+			utilityList = append(utilityList, utility)
+		}
 	}
+	assert.Equal(t, limit, len(utilityList))
 }
 
 func TestUtilityPage(t *testing.T) {
@@ -105,7 +150,7 @@ func TestUtilityPage(t *testing.T) {
 	utilities, cursor, err := Utility.Page(params, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	for _, utility := range utilities {
@@ -125,7 +170,7 @@ func TestUtilityCancel(t *testing.T) {
 	canceled, err := Utility.Delete(utilities[0].Id, nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	assert.NotNil(t, canceled.Id)
