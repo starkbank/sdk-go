@@ -66,8 +66,8 @@ func Create(transactions []Transaction, user user.User) ([]Transaction, Error.St
 	//	Return:
 	//	- Slice of Transaction objects with updated attributes
 	//
-	//  Deprecated: Function deprecated since v0.7.0
-	return nil, Error.UnknownError("Function deprecated since v0.7.0")
+	//  Deprecated: Function deprecated since v1.1.0
+	return nil, Error.UnknownError("Function deprecated since v1.1.0")
 }
 
 func Get(id string, user user.User) (Transaction, Error.StarkErrors) {

@@ -16,7 +16,7 @@ func TestTransactionPost(t *testing.T) {
 
 	_, err := Transaction.Create(Example.Transaction(), nil)
 	for _, e := range err.Errors {
-		assert.Equal(t, "Unknown exception encountered: Function deprecated since v0.7.0", e.Message)
+		assert.Equal(t, "Unknown exception encountered: Function deprecated since v1.1.0", e.Message)
 	}
 }
 

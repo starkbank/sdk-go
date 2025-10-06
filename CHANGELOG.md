@@ -14,7 +14,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 ### Changed
-- create method from Transaction resource. This method is now deprecated
+- The create method from the Transaction resource is now deprecated
 
 ## [1.0.0] - 2025-10-02
 ### Changed
