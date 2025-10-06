@@ -92,7 +92,7 @@ func Get(id string, user user.User) (InvoicePullRequest, Error.StarkErrors) {
 	return invoicePullRequest, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan InvoicePullRequest {
+func Query(params map[string]interface{}, user user.User) (chan InvoicePullRequest, chan Error.StarkErrors) {
 	//	Retrieve InvoicePullRequest structs
 	//
 	//	Receive a channel of InvoicePullRequest structs previously created in the Stark Bank API
@@ -108,19 +108,25 @@ func Query(params map[string]interface{}, user user.User) chan InvoicePullReques
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
 	var invoicePullRequest InvoicePullRequest
 	invoicePullRequests := make(chan InvoicePullRequest)
-	query := utils.Query(resource, params, user)
+	invoicePullRequestsError := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &invoicePullRequest)
 			if err != nil {
-				panic(err)
+				invoicePullRequestsError <- Error.UnknownError(err.Error())
+				continue
 			}
 			invoicePullRequests <- invoicePullRequest
 		}
+		for err := range errorChannel {
+			invoicePullRequestsError <- err
+		}
+		close(invoicePullRequestsError)
 		close(invoicePullRequests)
 	}()
-	return invoicePullRequests
+	return invoicePullRequests, invoicePullRequestsError
 }
 
 func Page(params map[string]interface{}, user user.User) ([]InvoicePullRequest, string, Error.StarkErrors) {

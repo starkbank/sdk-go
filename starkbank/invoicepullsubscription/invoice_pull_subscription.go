@@ -114,7 +114,7 @@ func Get(id string, user user.User) (InvoicePullSubscription, Error.StarkErrors)
 	return invoicePullSubscription, err
 }
 
-func Query(params map[string]interface{}, user user.User) chan InvoicePullSubscription {
+func Query(params map[string]interface{}, user user.User) (chan InvoicePullSubscription, chan Error.StarkErrors) {
 	//	Retrieve InvoicePullSubscription structs
 	//
 	//	Receive a channel of InvoicePullSubscription structs previously created in the Stark Bank API
@@ -133,19 +133,25 @@ func Query(params map[string]interface{}, user user.User) chan InvoicePullSubscr
 	//	- Channel of InvoicePullSubscription structs with updated attributes
 	var invoicePullSubscription InvoicePullSubscription
 	invoicePullSubscriptions := make(chan InvoicePullSubscription)
-	query := utils.Query(resource, params, user)
+	invoicePullSubscriptionsErrors := make(chan Error.StarkErrors)
+	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &invoicePullSubscription)
 			if err != nil {
-				panic(err)
+				invoicePullSubscriptionsErrors <- Error.UnknownError(err.Error())
+				continue
 			}
 			invoicePullSubscriptions <- invoicePullSubscription
 		}
+		for err := range errorChannel {
+			invoicePullSubscriptionsErrors <- err
+		}
 		close(invoicePullSubscriptions)
+		close(invoicePullSubscriptionsErrors)
 	}()
-	return invoicePullSubscriptions
+	return invoicePullSubscriptions, invoicePullSubscriptionsErrors
 }
 
 func Page(params map[string]interface{}, user user.User) ([]InvoicePullSubscription, string, Error.StarkErrors) {

@@ -347,7 +347,7 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
 		return e, Error.StarkErrors{}
@@ -357,7 +357,7 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {
-			panic(unmarshalError)
+			return e, Error.UnknownError(unmarshalError.Error())
 		}
 		e.Log = log
 		return e, Error.StarkErrors{}

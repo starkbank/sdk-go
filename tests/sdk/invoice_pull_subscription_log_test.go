@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"testing"
 	"github.com/starkbank/sdk-go/starkbank"
 	InvoicePullSubscriptionLog "github.com/starkbank/sdk-go/starkbank/invoicepullsubscription/log"
@@ -12,22 +11,33 @@ import (
 func TestInvoicePullSubscriptionLogQueryAndGet(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
-	params := map[string]interface{}{"limit": 10}
-	logs := InvoicePullSubscriptionLog.Query(params, nil)
-	var firstLogId string
-	for log := range logs {
-		assert.NotNil(t, log.Id)
-		if firstLogId == "" {
-			firstLogId = log.Id
+	limit := 10
+	var params = map[string]interface{}{}
+	params["limit"] = limit
+
+	logs, errorChannel := InvoicePullSubscriptionLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			getLog, err := InvoicePullSubscriptionLog.Get(log.Id, nil)
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+			assert.Equal(t, log.Id, getLog.Id)
 		}
 	}
-	getLog, err := InvoicePullSubscriptionLog.Get(firstLogId, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
-		}
-	}
-	assert.Equal(t, firstLogId, getLog.Id)
 }
 
 func TestInvoicePullSubscriptionLogPage(t *testing.T) {
@@ -44,7 +54,7 @@ func TestInvoicePullSubscriptionLogPage(t *testing.T) {
 		page, nextCursor, err := InvoicePullSubscriptionLog.Page(params, nil)
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		for _, entity := range page {

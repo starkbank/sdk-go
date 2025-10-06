@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"testing"
 	"github.com/starkbank/sdk-go/starkbank"
 	Event "github.com/starkbank/sdk-go/starkbank/event"
@@ -19,7 +18,7 @@ func TestInvoicePullRequestCreateAndCancel(t *testing.T) {
 	invoices, err := Invoice.Create(Example.Invoice(), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	invoice := invoices[0]
@@ -27,7 +26,7 @@ func TestInvoicePullRequestCreateAndCancel(t *testing.T) {
 	invoicePullSubscription, err := InvoicePullSubscription.Create(Example.InvoicePullSubscription("push"), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	subscription := invoicePullSubscription[0]
@@ -35,44 +34,84 @@ func TestInvoicePullRequestCreateAndCancel(t *testing.T) {
 	invoicePullRequest, err := InvoicePullRequest.Create(Example.InvoicePullRequest(invoice.Id, subscription.Id), nil)
 	if err.Errors != nil {
 		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
 	request := invoicePullRequest[0]
 	assert.NotNil(t, request.Id)
 	assert.Equal(t, request.InvoiceId, invoice.Id)
 	assert.Equal(t, request.SubscriptionId, subscription.Id)
+	
+	canceledRequest, err := InvoicePullRequest.Cancel(request.Id, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+	assert.Equal(t, canceledRequest.Id, request.Id)
 }
 
 func TestInvoicePullRequestQuery(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 10
+	params["limit"] = limit
 
-	invoicePullRequests := InvoicePullRequest.Query(params, nil)
-	for request := range invoicePullRequests {
-		assert.NotNil(t, request.Id)
+	var requestsList []InvoicePullRequest.InvoicePullRequest
+
+	requests, errorChannel := InvoicePullRequest.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case request, ok := <-requests:
+			if !ok {
+				break loop
+			}
+			assert.NotNil(t, request.Id)
+			requestsList = append(requestsList, request)
+		}
 	}
+
+	assert.Equal(t, limit, len(requestsList))
 }
 
 func TestInvoicePullRequestQueryAndGet(t *testing.T) {
 	starkbank.User = Utils.ExampleProject
 
+	limit := 10
 	var params = map[string]interface{}{}
-	params["limit"] = 1
+	params["limit"] = limit
 
-	invoicePullRequestQuery := InvoicePullRequest.Query(params, nil)
-	invoicePullRequest := <-invoicePullRequestQuery
-	request, err := InvoicePullRequest.Get(invoicePullRequest.Id, nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+	requests, errorChannel := InvoicePullRequest.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case request, ok := <-requests:
+			if !ok {
+				break loop
+			}
+			getRequest, err := InvoicePullRequest.Get(request.Id, nil)
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+			assert.Equal(t, request.Id, getRequest.Id)
 		}
 	}
-
-	assert.Equal(t, invoicePullRequest.Id, request.Id)
-	assert.NotNil(t, request.InvoiceId)
 }
 
 func TestInvoicePullRequestPage(t *testing.T) {
@@ -89,7 +128,7 @@ func TestInvoicePullRequestPage(t *testing.T) {
 		page, nextCursor, err := InvoicePullRequest.Page(params, nil)
 		if err.Errors != nil {
 			for _, e := range err.Errors {
-				panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+				t.Errorf("code: %s, message: %s", e.Code, e.Message)
 			}
 		}
 		for _, entity := range page {
@@ -111,7 +150,11 @@ func TestParseInvoicePullRequestEvent(t *testing.T) {
 	content := "{\"event\": {\"created\": \"2025-07-25T17:36:41.040267+00:00\", \"id\": \"4805265536843776\", \"log\": {\"created\": \"2025-07-25T17:36:39.571648+00:00\", \"description\": \"\", \"errors\": [], \"id\": \"5789040171286528\", \"reason\": \"\", \"request\": {\"attemptType\": \"default\", \"created\": \"2025-07-25T17:36:37.201258+00:00\", \"displayDescription\": \"\", \"due\": \"2025-07-30T07:00:00+00:00\", \"externalId\": \"a15c4821d1c2413a82a4f3cfeee1315e\", \"id\": \"5397390693498880\", \"installmentId\": \"5424937942646784\", \"invoiceId\": \"5118508564217856\", \"status\": \"pending\", \"subscriptionId\": \"5181739848695808\", \"tags\": [], \"updated\": \"2025-07-25T17:36:39.571665+00:00\"}, \"type\": \"pending\"}, \"subscription\": \"invoice-pull-request\", \"workspaceId\": \"6235001133727744\"}}"
 	validSignature := "MEUCIQCvbPc+mWLLL5nwvOBy/3MVJ3JU9fG/rNmyqmHtaeJA9wIgOR8Tw75MSj7lR9DPqhM62tlq+cFkbw14T4KmDBeC5rM="
 
-	event := Event.Parse(content, validSignature, starkbank.User)
-
+	event, err := Event.Parse(content, validSignature, starkbank.User)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
 	assert.NotNil(t, event)
 }
