@@ -9,6 +9,8 @@ import (
 	DarfPaymentLog "github.com/starkbank/sdk-go/starkbank/darfpayment/log"
 	DepositLog "github.com/starkbank/sdk-go/starkbank/deposit/log"
 	InvoiceLog "github.com/starkbank/sdk-go/starkbank/invoice/log"
+	InvoicePullRequestLog "github.com/starkbank/sdk-go/starkbank/invoicepullrequest/log"
+	InvoicePullSubscriptionLog "github.com/starkbank/sdk-go/starkbank/invoicepullsubscription/log"
 	TaxPaymentLog "github.com/starkbank/sdk-go/starkbank/taxpayment/log"
 	TransferLog "github.com/starkbank/sdk-go/starkbank/transfer/log"
 	UtilityPaymentLog "github.com/starkbank/sdk-go/starkbank/utilitypayment/log"
@@ -332,6 +334,26 @@ func (e Event) ParseLog() (Event, Error.StarkErrors) {
 	}
 	if e.Subscription == "utility-payment" {
 		var log UtilityPaymentLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		unmarshalError := json.Unmarshal(marshal, &log)
+		if unmarshalError != nil {
+			return e, Error.UnknownError(unmarshalError.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "invoice-pull-subscription" {
+		var log InvoicePullSubscriptionLog.Log
+		marshal, _ := json.Marshal(e.Log)
+		unmarshalError := json.Unmarshal(marshal, &log)
+		if unmarshalError != nil {
+			return e, Error.UnknownError(unmarshalError.Error())
+		}
+		e.Log = log
+		return e, Error.StarkErrors{}
+	}
+	if e.Subscription == "invoice-pull-request" {
+		var log InvoicePullRequestLog.Log
 		marshal, _ := json.Marshal(e.Log)
 		unmarshalError := json.Unmarshal(marshal, &log)
 		if unmarshalError != nil {

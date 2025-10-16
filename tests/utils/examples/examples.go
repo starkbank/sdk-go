@@ -15,6 +15,8 @@ import (
 	"github.com/starkbank/sdk-go/starkbank/dynamicbrcode"
 	DynamicBrCodeRule "github.com/starkbank/sdk-go/starkbank/dynamicbrcode/rule"
 	"github.com/starkbank/sdk-go/starkbank/invoice"
+	"github.com/starkbank/sdk-go/starkbank/invoicepullrequest"
+	"github.com/starkbank/sdk-go/starkbank/invoicepullsubscription"
 	Rule "github.com/starkbank/sdk-go/starkbank/invoice/rule"
 	"github.com/starkbank/sdk-go/starkbank/paymentpreview"
 	"github.com/starkbank/sdk-go/starkbank/paymentrequest"
@@ -226,6 +228,72 @@ func Invoice() []invoice.Invoice {
 		},
 	}
 	return invoices
+}
+
+func InvoicePullRequest(invoiceId string, subscriptionId string) []invoicepullrequest.InvoicePullRequest {
+	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+15, 0, 0, 0, 0, time.UTC)
+
+	invoicePullRequest := invoicepullrequest.InvoicePullRequest{
+		AttemptType:        "default",
+		DisplayDescription: "sdk-go-test",
+		Due:                &due,
+		InvoiceId:          invoiceId,
+		SubscriptionId:     subscriptionId,
+		Tags:               nil,
+	}
+
+	return []invoicepullrequest.InvoicePullRequest{invoicePullRequest}
+}
+
+func InvoicePullSubscription(subscriptionType string) []invoicepullsubscription.InvoicePullSubscription {
+	var data map[string]interface{}
+	due := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+15, 0, 0, 0, 0, time.UTC)
+	start := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
+	end := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day()+30, 0, 0, 0, 0, time.UTC)
+	switch subscriptionType {
+	case "push":
+		data = map[string]interface{}{
+			"accountNumber": "9123900000",
+			"bankCode":      "05097757",
+			"branchCode":    "1126",
+			"taxId":         "20.018.183/0001-80",
+		}
+	case "qrcodeAndPayment":
+		data = map[string]interface{}{
+			"amount": 400000,
+		}
+	case "paymentAndOrQrcode":
+		data = map[string]interface{}{
+			"amount":   400000,
+			"due":      &due,
+			"fine":     2.5,
+			"interest": 1.3,
+		}
+	}
+
+	subscription := invoicepullsubscription.InvoicePullSubscription{
+		Amount:            1000000,
+		AmountMinLimit:    5000,
+		Data:              data,
+		DisplayDescription: "Dragon Travel Fare",
+		ExternalId:        fmt.Sprintf("external_id%v_%v", time.Now().Day(), time.Now().Nanosecond()),
+		Interval:          "month",
+		Name:              "John Snow",
+		PullMode:          "manual",
+		PullRetryLimit:    3,
+		Start:             &start,
+		End:               &end,
+		ReferenceCode:     "contract-12345",
+		Tags:              []string{},
+		TaxId:             "012.345.678-90",
+		Type:              subscriptionType,
+	}
+
+	if subscriptionType == "qrcode" {
+		subscription.Data = nil
+	}
+
+	return []invoicepullsubscription.InvoicePullSubscription{subscription}
 }
 
 func DynamicBrcode() []dynamicbrcode.DynamicBrcode {
