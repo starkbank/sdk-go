@@ -65,12 +65,9 @@ func Create(transactions []Transaction, user user.User) ([]Transaction, Error.St
 	//
 	//	Return:
 	//	- Slice of Transaction objects with updated attributes
-	create, err := utils.Multi(resource, transactions, nil, user)
-	unmarshalError := json.Unmarshal(create, &transactions)
-	if unmarshalError != nil {
-		return transactions, err
-	}
-	return transactions, err
+	//
+	//  Deprecated: Function deprecated since v1.2.0
+	return nil, Error.UnknownError("Function deprecated since v1.2.0")
 }
 
 func Get(id string, user user.User) (Transaction, Error.StarkErrors) {
