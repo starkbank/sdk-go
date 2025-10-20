@@ -11,17 +11,12 @@ import (
 )
 
 func TestTransactionPost(t *testing.T) {
-
+	
 	starkbank.User = Utils.ExampleProject
 
-	transactions, err := Transaction.Create(Example.Transaction(), nil)
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			t.Errorf("code: %s, message: %s", e.Code, e.Message)
-		}
-	}
-	for _, transaction := range transactions {
-		assert.NotNil(t, transaction.Id)
+	_, err := Transaction.Create(Example.Transaction(), nil)
+	for _, e := range err.Errors {
+		assert.Equal(t, "Unknown exception encountered: Function deprecated since v1.2.0", e.Message)
 	}
 }
 
