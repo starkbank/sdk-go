@@ -50,6 +50,10 @@ is as easy as sending a text message to your client!
     - [CorporateBalance](#get-your-corporatebalance): View your corporate balance
     - [CorporateTransactions](#query-corporatetransactions): View the transactions that have affected your corporate balance
     - [CorporateEnums](#corporate-enums): Query enums related to the corporate purchases, such as merchant categories, countries and card purchase methods
+    - [MerchantCard](#query-merchantcards): Stores information about approved purchase cards for reuse.
+    - [MerchantSession](#create-a-merchantsession): Manages a session to create a purchase with a new card.
+    - [MerchantPurchase](#create-a-merchantpurchase): Allows a merchant to charge their customers using debit or credit cards
+    - [MerchantInstallment](#query-merchantinstallments): Tracks the lifecycle of purchase installments
     - [Webhooks](#create-a-webhook-subscription): Configure your webhook endpoints and subscriptions
     - [WebhookEvents](#process-webhook-events): Manage webhook events
     - [WebhookEventAttempts](#query-failed-webhook-event-delivery-attempts-information): Query failed webhook event
@@ -4580,6 +4584,362 @@ func main() {
   }
 }
 
+```
+
+## Query MerchantCards
+
+The Merchant Card resource stores information about cards used in approved purchases.
+These cards can be used in new purchases without the need to create a new session.
+
+```go
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/merchantcard"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  cards, errorChannel := merchantcard.Query(nil, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case card, ok := <-cards:
+      if !ok {
+        break loop
+      }
+      fmt.Println(card)
+    }
+  }
+}
+```
+
+## Get a MerchantCard
+
+Retrieve detailed information about a specific card by its id.
+
+```go
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  "github.com/starkbank/sdk-go/starkbank/merchantcard"
+)
+
+func main() {
+
+  merchantCard, err := merchantcard.Get("5950134772826112", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Printf("%+v", merchantCard)
+} 
+```
+
+## Create a MerchantSession
+
+The Merchant Session allows you to create a session prior to a purchase.
+Sessions are essential for defining the parameters of a purchase, including funding type, expiration, 3DS, and more.
+
+```go
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+	MerchantSession "github.com/starkbank/sdk-go/starkbank/merchantsession"
+	AllowedInstallment "github.com/starkbank/sdk-go/starkbank/merchantsession/allowedinstallment"
+)
+func main() {
+
+  merchantSession := MerchantSession.MerchantSession{
+    AllowedFundingTypes: []string{"credit"},
+    AllowedIps:          []string{"192.168.0.1"},
+    AllowedInstallments: []AllowedInstallment.AllowedInstallment{
+      {Count: 1, TotalAmount: 0},
+      {Count: 2, TotalAmount: 120},
+      {Count: 12, TotalAmount: 180},
+    },
+    Expiration:   		 60,
+    ChallengeMode: 		 "disabled",
+    Tags:          		 []string{"test"},
+  }
+
+  createdSession, err := MerchantSession.Create(merchantSession, nil)
+
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+  fmt.Println(createdSession)
+}
+```
+
+You can create a MerchantPurchase through a MerchantSession by passing its UUID.
+**Note**: This method must be implemented in your front-end to ensure that sensitive card data does not pass through the back-end of the integration.
+
+## Create a MerchantSession Purchase
+
+This route can be used to create a Merchant Purchase directly from the payer's client application.
+The UUID of a Merchant Session that was previously created by the merchant is necessary to access this route.
+
+```go
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+  Purchase "github.com/starkbank/sdk-go/starkbank/merchantsession"
+)
+func main() {
+
+  	purchase := Purchase.Purchase{
+		Amount:            180,
+		InstallmentCount:  12,
+		CardExpiration:    "2035-01",
+		CardNumber:        "5102589999999913",
+		CardSecurityCode:  "123",
+		HolderName:        "Holder Name",
+		HolderEmail:       "holdeName@email.com",
+		HolderPhone:       "11111111111",
+		FundingType:       "credit",
+		BillingCountryCode: "BRA",
+		BillingCity:       "São Paulo",
+		BillingStateCode:  "SP",
+		BillingStreetLine1: "Rua do Holder Name, 123",
+		BillingStreetLine2: "casa",
+		BillingZipCode:    "11111-111",
+		Metadata: map[string]interface{}{
+			"userAgent":      "Postman",
+			"userIp":         "255.255.255.255",
+			"language":       "pt-BR",
+			"timezoneOffset": 3,
+			"extraData":      "extraData",
+		},
+	}
+
+	createdPurchase, err := MerchantSession.PostPurchase("0bb894a2697d41d99fe02cad2c00c9bc", purchase, nil)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+  fmt.Println(createdPurchase)
+}
+```
+
+## Query MerchantSessions
+
+Get a list of merchant sessions in chunks of at most 100. If you need smaller chunks, use the limit parameter.
+
+```go
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+  MerchantSession "github.com/starkbank/sdk-go/starkbank/merchantsession"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  sessions, errorChannel := MerchantSession.Query(nil, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case session, ok := <-sessions:
+      if !ok {
+        break loop
+      }
+      fmt.Println(session)
+    }
+  }
+}
+```
+
+## Get a MerchantSession
+
+Retrieve detailed information about a specific session by its id.
+
+```go
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+  MerchantSession "github.com/starkbank/sdk-go/starkbank/merchantsession"
+)
+func main() {
+	sessions, err := MerchantSession.get("5950134772826112", nil)
+
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+  fmt.Println(sessions)
+}
+```
+
+## Create a MerchantPurchase
+
+The Merchant Purchase section allows users to retrieve detailed information of the purchases.
+
+```go
+import (
+	"fmt"
+	"github.com/starkbank/sdk-go/starkbank"
+  MerchantPurchase "github.com/starkbank/sdk-go/starkbank/merchantpurchase"
+)
+
+merchantPurchase := MerchantPurchase.MerchantPurchase{
+  Amount:           	1000,
+  FundingType: 		"credit",
+  CardId: 		 	  "5920400605184000",
+  ChallengeMode: 		"disabled",
+}
+
+createdMerchantPurchase, err := MerchantPurchase.Create(merchantPurchase, nil)
+
+if err.Errors != nil {
+  for _, e := range err.Errors {
+    fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+  }
+}
+```
+
+## Query MerchantPurchases
+
+Get a list of merchant purchases in chunks of at most 100. If you need smaller chunks, use the limit parameter.
+
+```go
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  MerchantPurchase "github.com/starkbank/sdk-go/starkbank/merchantpurchase"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  purchases, errorChannel := MerchantPurchase.Query(nil, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case purchase, ok := <-purchases:
+      if !ok {
+        break loop
+      }
+      fmt.Println(purchase)
+    }
+  }
+}
+```
+
+## Get a MerchantPurchase
+
+Retrieve detailed information about a specific purchase by its id.
+
+```go
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  MerchantPurchase "github.com/starkbank/sdk-go/starkbank/merchantpurchase"
+)
+
+func main() {
+
+  merchantPurchase, err := MerchantPurchase.Get("5950134772826112", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Printf("%+v", merchantPurchase)
+}
+```
+
+## Query MerchantInstallments
+
+Merchant Installments are created for every installment in a purchase.
+These resources will track its own due payment date and settlement lifecycle.
+
+```go
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  MerchantInstallment "github.com/starkbank/sdk-go/starkbank/merchantinstallment"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  installments, errorChannel := MerchantInstallment.Query(nil, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case installment, ok := <-installments:
+      if !ok {
+        break loop
+      }
+      fmt.Println(installment)
+    }
+  }
+}
+```
+
+## Get a MerchantInstallment
+
+Retrieve detailed information about a specific installment by its id.
+
+```go
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  MerchantInstallment "github.com/starkbank/sdk-go/starkbank/merchantinstallment"
+)
+
+func main() {
+
+  merchantinstallment, err := MerchantInstallment.Get("4848075206033408", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Printf("%+v", merchantinstallment)
+}  
 ```
 
 ## Create a webhook subscription
