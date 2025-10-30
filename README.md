@@ -339,7 +339,7 @@ func main() {
 		case err := <-errorChannel:
 			if err.Errors != nil {
 				for _, e := range err.Errors {
-					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+					fmt.Printf("code: %s, message: %s", e.Code, e.Message)
 				}
 			}
 		case transaction, ok := <-transactions:
@@ -486,7 +486,7 @@ func main() {
 		case err := <-errorChannel:
 			if err.Errors != nil {
 				for _, e := range err.Errors {
-					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+					fmt.Printf("code: %s, message: %s", e.Code, e.Message)
 				}
 			}
 		case transaction, ok := <-transactions:
@@ -637,7 +637,7 @@ func main() {
 		case err := <-errorChannel:
 			if err.Errors != nil {
 				for _, e := range err.Errors {
-					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+					fmt.Printf("code: %s, message: %s", e.Code, e.Message)
 				}
 			}
 		case transfer, ok := <-transfers:
@@ -779,7 +779,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -881,7 +881,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case key, ok := <-keys:
@@ -923,7 +923,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case institution, ok := <-institutions:
@@ -1218,7 +1218,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case invoice, ok := <-invoices:
@@ -1260,7 +1260,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -1494,7 +1494,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case brcode, ok := <-brcodes:
@@ -1537,7 +1537,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case deposit, ok := <-deposits:
@@ -1609,7 +1609,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -1840,7 +1840,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case boleto, ok := <-boletos:
@@ -1882,7 +1882,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -2030,7 +2030,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case holmes, ok := <-holmes:
@@ -2072,7 +2072,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -2289,7 +2289,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case payment, ok := <-payments:
@@ -2331,7 +2331,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -2549,7 +2549,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case payment, ok := <-payments:
@@ -2591,7 +2591,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -2709,7 +2709,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case payment, ok := <-payments:
@@ -2852,7 +2852,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -2970,7 +2970,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case payment, ok := <-payments:
@@ -3112,7 +3112,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -3243,7 +3243,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case payment, ok := <-payments:
@@ -3385,7 +3385,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -3549,7 +3549,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case request, ok := <-requests:
@@ -3644,7 +3644,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case holder, ok := <-holders:
@@ -3746,7 +3746,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -3850,7 +3850,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case card, ok := <-cards:
@@ -3985,7 +3985,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -4057,7 +4057,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case purchase, ok := <-purchases:
@@ -4129,7 +4129,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case log, ok := <-logs:
@@ -4237,7 +4237,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case invoice, ok := <-invoices:
@@ -4346,7 +4346,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case withdrawal, ok := <-withdrawals:
@@ -4420,7 +4420,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case transaction, ok := <-transactions:
@@ -4493,7 +4493,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case category, ok := <-categories:
@@ -4532,7 +4532,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case country, ok := <-countries:
@@ -4572,7 +4572,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case method, ok := <-methods:
@@ -4610,7 +4610,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case card, ok := <-cards:
@@ -4760,7 +4760,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case session, ok := <-sessions:
@@ -4845,7 +4845,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case purchase, ok := <-purchases:
@@ -4905,7 +4905,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case installment, ok := <-installments:
@@ -5001,7 +5001,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case webhook, ok := <-webhooks:
@@ -5151,7 +5151,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case event, ok := <-events:
@@ -5288,7 +5288,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case attempt, ok := <-attempts:
@@ -5401,7 +5401,7 @@ func main() {
     case err := <-errorChannel:
       if err.Errors != nil {
         for _, e := range err.Errors {
-          t.Errorf("code: %s, message: %s", e.Code, e.Message)
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
         }
       }
     case workspace, ok := <-workspaces:
