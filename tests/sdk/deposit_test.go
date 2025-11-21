@@ -99,3 +99,44 @@ func TestDepositPage(t *testing.T) {
 	}
 	assert.Len(t, ids, 4)
 }
+
+func TestDepositReversal(t *testing.T) {
+
+	starkbank.User = Utils.ExampleProject
+
+	limit := 1
+	var params = map[string]interface{}{}
+	params["limit"] = limit
+	params["status"] = "created"
+
+	var depositList []Deposit.Deposit
+
+	deposits, errorChannel := Deposit.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case deposit, ok := <-deposits:
+			if !ok {
+				break loop
+			}
+			depositList = append(depositList, deposit)
+		}
+	}
+
+	newAmount := 0
+
+	deposit, err := Deposit.Update(depositList[0].Id, newAmount, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	assert.Equal(t, deposit.Amount, newAmount)
+}
