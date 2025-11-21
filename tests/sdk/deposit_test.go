@@ -77,6 +77,33 @@ func TestDepositQuery(t *testing.T) {
 	assert.Equal(t, limit, len(depositList))
 }
 
+func TestDepositUpdate(t *testing.T) {
+
+	starkbank.User = Utils.ExampleProject
+
+	var depositList []Deposit.Deposit
+	var params = map[string]interface{}{}
+	params["limit"] = 1
+	params["status"] = "created"
+
+	deposits := Deposit.Query(params, nil)
+	for deposit := range deposits {
+		depositList = append(depositList, deposit)
+	}
+
+	var patchData = map[string]interface{}{}
+	patchData["amount"] = 0
+
+	updated, err := Deposit.Update(depositList[rand.Intn(len(depositList))].Id, patchData, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			panic(fmt.Sprintf("code: %s, message: %s", e.Code, e.Message))
+		}
+	}
+
+	assert.Equal(t, updated.Amount, patchData["amount"])
+}
+
 func TestDepositPage(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
