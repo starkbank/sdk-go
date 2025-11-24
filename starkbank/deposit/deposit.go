@@ -143,3 +143,30 @@ func Page(params map[string]interface{}, user user.User) ([]Deposit, string, Err
 	}
 	return deposit, cursor, err
 }
+
+func Update(id string, amount int, user user.User) (Deposit, Error.StarkErrors) {
+	//	Update Deposit entity
+	//
+	//	Update a Deposit by passing its id to be partially or fully reversed.
+	//
+	//	Parameters (required):
+	//	- amount [int]: the new amount of the Deposit. If the amount = 0 the Deposit will be fully reversed
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
+	//
+	//	Return:
+	//	- Target Deposit with updated attributes
+	var deposit Deposit
+
+	payload := map[string]interface{} {
+		"amount": amount,
+	}
+
+	update, err := utils.Patch(resource, id, payload, user)
+	unmarshalError := json.Unmarshal(update, &deposit)
+	if unmarshalError != nil {
+		return deposit, err
+	}
+	return deposit, err
+}
