@@ -6,9 +6,9 @@ package rule
 //
 //	Attributes (return-only):
 //	- Key [string]: Rule to be customized, describes what Transfer behavior will be altered. ex: "resendingLimit"
-//	- Value [int]: Value of the rule. ex: 5
+//	- Value [int or bool]: Value of the rule. ex: 5
 
 type Rule struct {
 	Key   string `json:",omitempty"`
-	Value int
+	Value interface{} `json:",omitempty"`
 }
