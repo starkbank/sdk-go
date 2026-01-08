@@ -85,7 +85,14 @@ func Create(subscriptions []InvoicePullSubscription, user user.User) ([]InvoiceP
 	//	Return:
 	//	- Slice of InvoicePullSubscription structs with updated attributes
 	create, err := utils.Multi(resource, subscriptions, nil, user)
-	unmarshalError := json.Unmarshal(create, &subscriptions)
+	if err.Errors != nil {
+		return subscriptions, err
+	}
+
+	jsonStr := string(create)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)
+
+	unmarshalError := json.Unmarshal([]byte(jsonStr), &subscriptions)
 	if unmarshalError != nil {
 		return subscriptions, err
 	}
@@ -107,7 +114,11 @@ func Get(id string, user user.User) (InvoicePullSubscription, Error.StarkErrors)
 	//	- InvoicePullSubscription struct that corresponds to the given id.
 	var invoicePullSubscription InvoicePullSubscription
 	get, err := utils.Get(resource, id, nil, user)
-	unmarshalError := json.Unmarshal(get, &invoicePullSubscription)
+
+	jsonStr := string(get)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)
+
+	unmarshalError := json.Unmarshal([]byte(jsonStr), &invoicePullSubscription)
 	if unmarshalError != nil {
 		return invoicePullSubscription, err
 	}
@@ -138,7 +149,9 @@ func Query(params map[string]interface{}, user user.User) (chan InvoicePullSubsc
 	go func() {
 		for content := range query {
 			contentByte, _ := json.Marshal(content)
-			err := json.Unmarshal(contentByte, &invoicePullSubscription)
+			jsonStr := string(contentByte)
+			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)
+			err := json.Unmarshal([]byte(jsonStr), &invoicePullSubscription)
 			if err != nil {
 				invoicePullSubscriptionsErrors <- Error.UnknownError(err.Error())
 				continue
@@ -176,7 +189,9 @@ func Page(params map[string]interface{}, user user.User) ([]InvoicePullSubscript
 	//	- Cursor to retrieve the next page of InvoicePullSubscription structs
 	var invoicePullSubscriptions []InvoicePullSubscription
 	page, cursor, err := utils.Page(resource, params, user)
-	unmarshalError := json.Unmarshal(page, &invoicePullSubscriptions)
+	jsonStr := string(page)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)
+	unmarshalError := json.Unmarshal([]byte(jsonStr), &invoicePullSubscriptions)
 	if unmarshalError != nil {
 		return invoicePullSubscriptions, cursor, err
 	}
@@ -198,7 +213,9 @@ func Cancel(id string, user user.User) (InvoicePullSubscription, Error.StarkErro
 	//	- canceled InvoicePullSubscription struct
 	var invoicePullSubscription InvoicePullSubscription
 	deleted, err := utils.Delete(resource, id, user)
-	unmarshalError := json.Unmarshal(deleted, &invoicePullSubscription)
+	jsonStr := string(deleted)
+	jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)
+	unmarshalError := json.Unmarshal([]byte(jsonStr), &invoicePullSubscription)
 	if unmarshalError != nil {
 		return invoicePullSubscription, err
 	}
