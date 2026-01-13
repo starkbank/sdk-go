@@ -13,6 +13,9 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- parse to Transfer Rule
+- parse to Invoice Rule
 ### Fixed
 - empty due string on invoice-pull-subscription resource
 
