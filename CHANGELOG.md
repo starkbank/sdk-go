@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Fixed
+- empty due string on invoice-pull-subscription resource
 
 ## [1.4.0] - 2025-11-24
 ### Added

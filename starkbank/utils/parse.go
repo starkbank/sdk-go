@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"strings"
 	"github.com/starkbank/sdk-go/starkbank"
 	Errors "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
@@ -20,4 +21,8 @@ func ParseAndVerify(content string, signature string, key string, user user.User
 		return "", err
 	}
 	return response.(string), err
+}
+
+func ReplaceEmptyStringField(jsonStr, pattern, replacement string) string {
+	return strings.ReplaceAll(jsonStr, pattern, replacement)
 }

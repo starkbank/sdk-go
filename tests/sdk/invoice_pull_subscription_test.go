@@ -146,7 +146,7 @@ func TestInvoicePullSubscriptionCreateAndCancel(t *testing.T) {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
-	assert.Equal(t, deleted.Id, subscription.Id)
+	assert.Equal(t, subscription.Id, deleted.Id)
 }
 
 func TestInvoicePullSubscriptionPage(t *testing.T) {
