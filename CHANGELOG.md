@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+
+## [1.5.0] - 2026-01-13
 ### Added
 - parse to Transfer Rule
 - parse to Invoice Rule
