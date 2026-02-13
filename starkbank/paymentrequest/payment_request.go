@@ -48,6 +48,7 @@ type PaymentRequest struct {
 	Type        string                   `json:",omitempty"`
 	Due         *time.Time               `json:",omitempty"`
 	Tags        []string                 `json:",omitempty"`
+	Id          string                   `json:",omitempty"`
 	Amount      int                      `json:",omitempty"`
 	Description string                   `json:",omitempty"`
 	Status      string                   `json:",omitempty"`
@@ -130,6 +131,7 @@ func Query(centerId string, params map[string]interface{}, user user.User) (chan
 			parsedRequest, parseErr := paymentRequest.ParseRequest()
 			if parseErr.Errors != nil {
 				requestsError <- parseErr
+				continue
 			}
 			requests <- parsedRequest
 		}
