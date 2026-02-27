@@ -13,6 +13,9 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Added
+- HolderId attribute to MerchantSession and MerchantPurchase
+- SoftDescriptor attribute to MerchantSession
 
 ## [1.5.0] - 2026-01-13
 ### Added

@@ -23,6 +23,8 @@ type MerchantSession struct {
 	Tags                []string                                `json:",omitempty"`
 	Updated             *time.Time                              `json:",omitempty"`
 	Uuid                string                                  `json:",omitempty"`
+	HolderId            string                                  `json:",omitempty"`
+	SoftDescriptor      string                                  `json:",omitempty"`
 }
 
 var resource = map[string]string{"name": "MerchantSession"}

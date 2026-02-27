@@ -3,7 +3,6 @@ package sdk
 import (
 	"github.com/starkbank/sdk-go/starkbank"
 	MerchantSession "github.com/starkbank/sdk-go/starkbank/merchantsession"
-	Purchase "github.com/starkbank/sdk-go/starkbank/merchantsession"
 	AllowedInstallment "github.com/starkbank/sdk-go/starkbank/merchantsession/allowedinstallment"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
@@ -18,13 +17,15 @@ func TestMerchantSessionCreate(t *testing.T) {
 		AllowedFundingTypes: []string{"credit"},
 		AllowedIps:          []string{"192.168.0.1"},
 		AllowedInstallments: []AllowedInstallment.AllowedInstallment{
-			{Count: 1, TotalAmount: 0},
-			{Count: 2, TotalAmount: 120},
-			{Count: 12, TotalAmount: 180},
+			{Count: 1, TotalAmount: 500},
+			{Count: 2, TotalAmount: 1000},
+			{Count: 12, TotalAmount: 6000},
 		},
 		Expiration:   		 60,
 		ChallengeMode: 		 "disabled",
 		Tags:          		 []string{"test"},
+		HolderId:            "5656565656565656",
+		SoftDescriptor:      "softDescriptor",
 	}
 
 	createdSession, err := MerchantSession.Create(merchantSession, starkbank.User)
@@ -33,6 +34,7 @@ func TestMerchantSessionCreate(t *testing.T) {
 		for _, e := range err.Errors {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
+		return
 	}
 	assert.NotNil(t, createdSession.Id)
 }
@@ -131,19 +133,27 @@ func TestMerchantSessionPurchase(t *testing.T) {
 	merchantSession := MerchantSession.MerchantSession{
 		AllowedFundingTypes: []string{"credit"},
 		AllowedInstallments: []AllowedInstallment.AllowedInstallment{
-			{Count: 1, TotalAmount: 0},
-			{Count: 2, TotalAmount: 120},
-			{Count: 12, TotalAmount: 180},
+			{Count: 1, TotalAmount: 500},
+			{Count: 2, TotalAmount: 1000},
+			{Count: 12, TotalAmount: 6000},
 		},
 		Expiration:   		 60,
 		ChallengeMode: 		 "disabled",
 		Tags:          		 []string{"test"},
+		HolderId:			"5656565656565656",
 	}
 
 	createdSession, err := MerchantSession.Create(merchantSession, starkbank.User)
 
-	purchase := Purchase.Purchase{
-		Amount:            180,
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+		return
+	}
+
+	purchase := MerchantSession.Purchase{
+		Amount:            6000,
 		InstallmentCount:  12,
 		CardExpiration:    "2035-01",
 		CardNumber:        "5102589999999913",
@@ -168,6 +178,7 @@ func TestMerchantSessionPurchase(t *testing.T) {
 	}
 
 	createdPurchase, err := MerchantSession.PostPurchase(createdSession.Uuid, purchase, starkbank.User)
+
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
