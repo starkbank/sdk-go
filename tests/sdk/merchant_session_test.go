@@ -137,10 +137,11 @@ func TestMerchantSessionPurchase(t *testing.T) {
 			{Count: 2, TotalAmount: 1000},
 			{Count: 12, TotalAmount: 6000},
 		},
-		Expiration:   		 60,
-		ChallengeMode: 		 "disabled",
-		Tags:          		 []string{"test"},
-		HolderId:			"5656565656565656",
+		Expiration:     60,
+		ChallengeMode:  "disabled",
+		Tags:           []string{"test"},
+		HolderId:       "5656565656565656",
+		SoftDescriptor: "softDescriptor",
 	}
 
 	createdSession, err := MerchantSession.Create(merchantSession, starkbank.User)
@@ -159,7 +160,7 @@ func TestMerchantSessionPurchase(t *testing.T) {
 		CardNumber:        "5102589999999913",
 		CardSecurityCode:  "123",
 		HolderName:        "Holder Name",
-		HolderEmail:       "holdeName@email.com",
+		HolderEmail:       "holderName@email.com",
 		HolderPhone:       "11111111111",
 		FundingType:       "credit",
 		BillingCountryCode: "BRA",
@@ -178,7 +179,6 @@ func TestMerchantSessionPurchase(t *testing.T) {
 	}
 
 	createdPurchase, err := MerchantSession.PostPurchase(createdSession.Uuid, purchase, starkbank.User)
-
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {

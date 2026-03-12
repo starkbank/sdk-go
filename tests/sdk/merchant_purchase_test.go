@@ -45,6 +45,7 @@ func TestMerchantPurchaseCreate(t *testing.T) {
 		CardId: confirmedMerchantPurchase.CardId,
 		ChallengeMode: "disabled",
 		HolderId: "5746894506843",
+		SoftDescriptor: "SoftDescriptor",
 	}
 
 	createdMerchantPurchase, err := MerchantPurchase.Create(merchantPurchase, starkbank.User)
