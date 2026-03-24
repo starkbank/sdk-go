@@ -3,9 +3,6 @@ package sdk
 import (
 	"github.com/starkbank/sdk-go/starkbank"
 	MerchantPurchase "github.com/starkbank/sdk-go/starkbank/merchantpurchase"
-	MerchantSession "github.com/starkbank/sdk-go/starkbank/merchantsession"
-	Purchase "github.com/starkbank/sdk-go/starkbank/merchantsession"
-	AllowedInstallment "github.com/starkbank/sdk-go/starkbank/merchantsession/allowedinstallment"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -15,55 +12,50 @@ func TestMerchantPurchaseCreate(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	merchantSession := MerchantSession.MerchantSession{
-		AllowedFundingTypes: []string{"credit"},
-		AllowedInstallments: []AllowedInstallment.AllowedInstallment{
-			{Count: 1, TotalAmount: 1000},
-		},
-		Expiration:   		 60,
-		ChallengeMode: 		 "disabled",
-		Tags:          		 []string{"test"},
+	params := map[string]interface{}{
+		"limit": 1,
+		"status": "confirmed",
 	}
 
-	createdSession, err := MerchantSession.Create(merchantSession, starkbank.User)
+	var purchaseList []MerchantPurchase.MerchantPurchase
 
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+	merchantPurchases, errorChannel := MerchantPurchase.Query(params, starkbank.User)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case purchase, ok := <-merchantPurchases:
+			if !ok {
+				break loop
+			}
+			purchaseList = append(purchaseList, purchase)
 		}
 	}
 
-	purchase := Purchase.Purchase{
-		Amount:           	1000,
-		FundingType: 		"credit",
-		CardExpiration: 	"2035-01",
-		CardNumber: 		"36490101441625",
-		CardSecurityCode: 	"123",
-		HolderName: 		"Margaery Tyrell",
-	}
-
-	createdPurchase, err := MerchantSession.PostPurchase(createdSession.Uuid, purchase, starkbank.User)
-
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			t.Errorf("code: %s, message: %s", e.Code, e.Message)
-		}
-	}
+	confirmedMerchantPurchase := purchaseList[0]
 
 	merchantPurchase := MerchantPurchase.MerchantPurchase{
-		Amount:           	1000,
-		FundingType: 		"credit",
-		CardId: 		 	createdPurchase.CardId,
-		ChallengeMode: 		"disabled",
+		Amount: 1000,
+		FundingType: "credit",
+		CardId: confirmedMerchantPurchase.CardId,
+		ChallengeMode: "disabled",
+		HolderId: "5746894506843",
+		SoftDescriptor: "SoftDescriptor",
 	}
 
-	createdMerchantPurchase, err := MerchantPurchase.Create(merchantPurchase, nil)
+	createdMerchantPurchase, err := MerchantPurchase.Create(merchantPurchase, starkbank.User)
 
 	if err.Errors != nil {
 		for _, e := range err.Errors {
 			t.Errorf("code: %s, message: %s", e.Code, e.Message)
 		}
 	}
+
 	assert.NotNil(t, createdMerchantPurchase.Id)
 }
 

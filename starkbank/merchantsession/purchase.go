@@ -15,6 +15,8 @@ type Purchase struct {
 	HolderName         string                 `json:",omitempty"`
 	HolderEmail        string                 `json:",omitempty"`
 	HolderPhone        string                 `json:",omitempty"`
+	HolderId		   string                 `json:",omitempty"`
+	SoftDescriptor     string                 `json:",omitempty"`
 	FundingType        string                 `json:",omitempty"`
 	BillingCountryCode string                 `json:",omitempty"`
 	BillingCity        string                 `json:",omitempty"`
