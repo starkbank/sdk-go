@@ -121,3 +121,19 @@ func Page(params map[string]interface{}, user user.User) ([]Log, string, Error.S
 	}
 	return depositLogs, cursor, err
 }
+
+func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
+	//	Retrieve a reversed Deposit.Log pdf file
+	//
+	//	Receive a reversed Deposit.Log pdf receipt file generated in the Stark Bank API by its id.
+	//
+	//	Parameters (required):
+	//	- id [string]: Struct unique id. ex: "5656565656565656"
+	//
+	//	Parameters (optional):
+	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
+	//
+	//	Return:
+	//	- Deposit .pdf file
+	return utils.GetContent(resource, id, nil, user, "pdf")
+}

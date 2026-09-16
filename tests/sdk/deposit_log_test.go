@@ -1,10 +1,13 @@
 package sdk
 
 import (
+	"fmt"
 	"github.com/starkbank/sdk-go/starkbank"
 	DepositLog "github.com/starkbank/sdk-go/starkbank/deposit/log"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	"github.com/stretchr/testify/assert"
+	"math/rand"
+	"os"
 	"testing"
 )
 
@@ -100,4 +103,47 @@ func TestDepositLogPage(t *testing.T) {
 		assert.NotNil(t, cursor)
 	}
 	assert.Len(t, ids, 4)
+}
+
+func TestDepositLogPdf(t *testing.T) {
+
+	starkbank.User = Utils.ExampleProject
+
+	limit := 10
+	var params = map[string]interface{}{}
+	params["limit"] = limit
+	params["types"] = "reversed"
+
+	var logList []DepositLog.Log
+
+	logs, errorChannel := DepositLog.Query(params, nil)
+	loop:
+	for {
+		select {
+		case err := <-errorChannel:
+			if err.Errors != nil {
+				for _, e := range err.Errors {
+					t.Errorf("code: %s, message: %s", e.Code, e.Message)
+				}
+			}
+		case log, ok := <-logs:
+			if !ok {
+				break loop
+			}
+			logList = append(logList, log)
+		}
+	}
+
+	pdf, err := DepositLog.Pdf(logList[rand.Intn(len(logList))].Id, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+	}
+
+	filename := fmt.Sprintf("%v%v.pdf", "deposit-log", "5155165527080960")
+	errFile := os.WriteFile(filename, pdf, 0666)
+	if errFile != nil {
+		fmt.Print(errFile)
+	}
 }

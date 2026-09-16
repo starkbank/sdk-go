@@ -16,6 +16,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 ### Added
 - SplitReceiver and SplitProfile resources, each with their Log sub-resource
 - Split resource, with its Log sub-resource
+- Pdf method to DepositLog resource
 
 ### Changed
 - docstrings across Invoice, InvoicePullSubscription, Transfer, Boleto, BoletoPayment, BoletoHolmes, MerchantPurchase, MerchantCard, MerchantInstallment, MerchantSession, BrcodePayment, DynamicBrcode, Webhook, Event, Workspace, DictKey, DarfPayment, PaymentRequest, TaxPayment and UtilityPayment resources to carry the business rules the API reference states
