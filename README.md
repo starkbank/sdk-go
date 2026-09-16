@@ -35,6 +35,7 @@ is as easy as sending a text message to your client!
     - [Deposits](#query-deposits): Other cash-ins (static Pix QR Codes, manual Pix, etc)
     - [SplitReceivers](#create-splitreceivers): Receivers of an Invoice or BoletoPayment split
     - [SplitProfiles](#create-or-update-a-splitprofile): Configure how split receivables are transferred to their receivers
+    - [Splits](#query-splits): Amounts sent to a SplitReceiver when a split Invoice or BoletoPayment is paid
     - [Boletos](#create-boletos): Boleto receivables
     - [BoletoHolmes](#investigate-a-boleto): Boleto receivables investigator
     - [BrcodePayments](#pay-a-br-code): Pay Pix QR Codes
@@ -2021,6 +2022,154 @@ func main() {
     }
   }
 
+  fmt.Println(log)
+}
+
+```
+
+## Query Splits
+
+Splits are generated automatically by the API whenever a split Invoice or
+BoletoPayment attached to a SplitReceiver is paid, so there is no create
+function for them here — you can only look up the ones the API has already
+created for you.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Split "github.com/starkbank/sdk-go/starkbank/split"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["after"] = "2020-01-01"
+  params["before"] = "2020-03-01"
+
+  splits, errorChannel := Split.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case split, ok := <-splits:
+      if !ok {
+        break loop
+      }
+      fmt.Println(split)
+    }
+  }
+}
+
+```
+
+## Get a Split
+
+After its creation, information on a Split may be retrieved by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Split "github.com/starkbank/sdk-go/starkbank/split"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  split, err := Split.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+  
+  fmt.Println(split)
+}
+
+```
+
+## Query Split logs
+
+Logs are pretty important to understand the life cycle of a Split.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/split/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 150
+
+  logs, errorChannel := Log.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case log, ok := <-logs:
+      if !ok {
+        break loop
+      }
+      fmt.Println(log)
+    }
+  }
+}
+
+```
+
+## Get a Split log
+
+You can get a single log by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/split/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+  
   fmt.Println(log)
 }
 
