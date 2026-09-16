@@ -1656,6 +1656,42 @@ func main() {
 
 ```
 
+## Get a reversed deposit log PDF
+
+Whenever a Deposit is successfully reversed, a reversed log will be created.
+To retrieve a specific reversal receipt, you can request the corresponding log PDF:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/deposit/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+  "io/ioutil"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+  
+  pdf, err := Log.Pdf("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  filename := fmt.Sprintf("%v%v.pdf", "deposit-log", "5155165527080960")
+  errFile := ioutil.WriteFile(filename, pdf, 0666)
+  if errFile != nil {
+    fmt.Print(errFile)
+  }
+}
+
+```
+
 ## Create SplitReceivers
 
 You can create receivers to split an Invoice or a BoletoPayment between different bank accounts.
