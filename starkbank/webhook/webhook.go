@@ -9,9 +9,10 @@ import (
 
 //	Webhook struct
 //
-//	A Webhook is used to subscribe to notification events on a user-selected endpoint.
+//	A Webhook is used to subscribe to notification events on a user-selected endpoint. If the endpoint does not answer with a 200 status, delivery is retried up to three times, after 5, 30 and 120 minutes; if all three attempts fail, delivery is not retried again.
+//	A registered webhook only fires for the API version that generated the log -- a v2 transfer's logs never trigger a v1 webhook, and vice versa.
 //	Currently available services for subscription are transfer, boleto, boleto-holmes,
-//	boleto-payment, brcode-payment, utility-payment, deposit and invoice.
+//	boleto-payment, brcode-payment, utility-payment, deposit, darf-payment, payment-request and invoice.
 //
 //	Parameters (required):
 //	- Url [string]: Url that will be notified when an event occurs.
@@ -136,7 +137,7 @@ func Page(params map[string]interface{}, user user.User) ([]Webhook, string, Err
 func Delete(id string, user user.User) (Webhook, Error.StarkErrors) {
 	//	Delete a Webhook entity
 	//
-	//	Delete a Webhook entity previously created in the Stark Bank API
+	//	Delete a Webhook entity previously created in the Stark Bank API. This action cannot be undone.
 	//
 	//	Parameters (required):
 	//	- id [string]: Webhook unique id. ex: "5656565656565656"

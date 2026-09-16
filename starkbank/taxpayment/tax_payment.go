@@ -100,7 +100,7 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//	Retrieve a specific TaxPayment .pdf file
 	//
 	//	Receive a single TaxPayment pdf file generated in the Stark Bank API by passing its id.
-	//	Only valid for tax payments with "success" status.
+	//	Only valid for tax payments with "success", "processing" or "created" status.
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
@@ -187,7 +187,7 @@ func Page(params map[string]interface{}, user user.User) ([]TaxPayment, string, 
 func Delete(id string, user user.User) (TaxPayment, Error.StarkErrors) {
 	//	Delete a TaxPayment struct
 	//
-	//	Delete a TaxPayment struct previously created in the Stark Bank API
+	//	Delete a TaxPayment struct previously created in the Stark Bank API. This cancels a scheduled payment and only works before it starts being processed; a payment that has already been processed can still be deleted, but is no longer cancellable.
 	//
 	//	Parameters (required):
 	//	- id [string]: TaxPayment unique id. ex: "5656565656565656"

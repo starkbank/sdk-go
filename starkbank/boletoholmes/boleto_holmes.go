@@ -14,6 +14,8 @@ import (
 //	created in the Stark Bank API. The 'create' function sends the structs
 //	to the Stark Bank API and returns the list of created structs.
 //
+//	Investigates the updated status of a Boleto according to CIP in under an hour. Since results are asynchronous, register a webhook subscription to the "boleto-holmes" service to receive the result instead of polling.
+//
 //	Parameters (required):
 //	- BoletoId [string]: Investigated boleto entity ID. ex: "5656565656565656"
 //

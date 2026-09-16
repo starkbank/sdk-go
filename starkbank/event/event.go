@@ -158,7 +158,7 @@ func Page(params map[string]interface{}, user user.User) ([]Event, string, Error
 func Delete(id string, user user.User) (Event, Error.StarkErrors) {
 	//	Delete a webhook Event entity
 	//
-	//	Delete a of notification Event entity previously created in the Stark Bank API by its ID
+	//	Delete a notification Event entity previously created in the Stark Bank API by its ID. This action cannot be undone.
 	//
 	//	Parameters (required):
 	//	- id [string]: Event unique id. ex: "5656565656565656"

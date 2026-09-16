@@ -24,13 +24,13 @@ import (
 //
 //	Parameters (required):
 //	- CenterId [string]: target cost center ID. ex: "5656565656565656"
-//	- Payment [Transfer struct, BoletoPayment struct, UtilityPayment struct, BrcodePayment struct or Transaction]: payment entity that should be approved and executed.
+//	- Payment [Transfer struct, BoletoPayment struct, UtilityPayment struct, BrcodePayment struct or Transaction]: payment entity that should be approved and executed. Do not set the payment's own Scheduled field -- the PaymentRequest's Due date is used for that purpose.
 //
 //	Parameters (conditionally required):
 //	- Type [string]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
 //
 //	Parameters (optional):
-//	- Due [time.Time, default today]: Payment target date in ISO format. ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
+//	- Due [time.Time, default today]: suggested payment target date; the cost center's controllers may alter it during approval. ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
 //	- Tags [slice of strings, default nil]: slice of strings for tagging. ex: []string{"John", "Paul"}
 //
 //	Attributes (return-only):

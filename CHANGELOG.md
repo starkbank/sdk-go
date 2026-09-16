@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Changed
+- docstrings across Invoice, InvoicePullSubscription, Transfer, Boleto, BoletoPayment, BoletoHolmes, MerchantPurchase, MerchantCard, MerchantInstallment, MerchantSession, BrcodePayment, DynamicBrcode, Webhook, Event, Workspace, DictKey, DarfPayment, PaymentRequest, TaxPayment and UtilityPayment resources to carry the business rules the API reference states
 
 ## [1.6.0] - 2026-03-24
 ### Added

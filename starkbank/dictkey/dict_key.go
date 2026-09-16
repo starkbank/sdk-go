@@ -9,7 +9,7 @@ import (
 
 //	DictKey struct
 //
-//	DictKey represents a Pix key registered in Bacen's DICT system.
+//	DictKey represents a Pix key registered in Bacen's DICT system. Every Workspace automatically gets an EVP (random) DICT key upon creation, since an active DICT key is required for the Invoice service to work.
 //
 //	Parameters (optional):
 //	- Id [string, default nil]: DictKey struct unique id. ex: "tony@starkbank.com", "722.461.430-04", "20.018.183/0001-80", "+5511988887777", "b6295ee1-f054-47d1-9e90-ee57b74f60d9"
@@ -18,7 +18,7 @@ import (
 //	- Type [string]: Dict key type. ex: "email", "cpf", "cnpj", "phone" or "evp"
 //	- Name [string]: Key owner full name. ex: "Tony Stark"
 //	- TaxId [string]: Key owner tax ID (CNPJ or masked CPF). ex: "***.345.678-**" or "20.018.183/0001-80"
-//	- OwnerType [string]: Dict key owner type. ex: "naturalPerson" or "legalPerson"
+//	- OwnerType [string]: Pix key owner type, set by the API. Options: 'individual' or 'business'.
 //	- BankName [string]: Bank name associated with the DICT key. ex: "Stark Bank"
 //	- Ispb [string]: Bank ISPB associated with the DICT key. ex: "20018183"
 //	- BranchCode [string]: Encrypted bank account branch code associated with the DICT key. ex: "ZW5jcnlwdGVkLWJyYW5jaC1jb2Rl"
@@ -45,7 +45,7 @@ var resource = map[string]string{"name": "DictKey"}
 func Get(id string, user user.User) (DictKey, Error.StarkErrors) {
 	//	Retrieve a specific DictKey by its id
 	//
-	//	Receive a single DictKey struct by its id
+	//	Receive a single DictKey struct by its id (or by the Pix key itself). This includes keys you do not own, and is meant to be used right before creating a Transfer. Avoid standalone lookups with no following transfer: Bacen blocks users who make too many such requests in a short timespan, and invalid key searches count toward the block. The returned encrypted BranchCode/AccountNumber can be passed straight into a Transfer without decrypting them.
 	//
 	//	Parameters (required):
 	//	- id [string]: DictKey struct unique id and Pix key itself. ex: "tony@starkbank.com", "722.461.430-04", "20.018.183/0001-80", "+5511988887777", "b6295ee1-f054-47d1-9e90-ee57b74f60d9"

@@ -27,11 +27,11 @@ import (
 //
 //	Parameters (optional):
 //	- DisplayDescription [string, default nil]: Invoice description to be shown to the payer. ex: "Subscription payment"
-//	- Due [time.Time, default nil]: subscription invoice due offset. Available only for type "push". ex: time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC)
+//	- Due [time.Time, default now + 2 days]: due date for the payer to approve or deny the subscription. Available only for type "push". ex: time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC)
 //	- ExternalId [string, default nil]: string that must be unique among all your InvoicePullSubscriptions. Duplicated external_ids will cause failures. ex: "my-external-id"
 // 	- ReferenceCode [string, default nil]: reference code for reconciliation. ex: "REF123456"
 //	- End [time.Time, default nil]: subscription end date. ex: time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC)
-//	- Data [map[string]interface{}, default nil]: additional data for the subscription based on type
+//	- Data [map[string]interface{}, default nil]: additional data required depending on Type. For "push", sets the payer's account details; for "qrcodeAndPayment" or "paymentAndOrQrcode", sets the immediate payment parameters; not required for "qrcode"
 //	- Name [string, default nil]: subscription debtor name. ex: "Iron Bank S.A."
 //	- TaxId [string, default nil]: subscription debtor tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //	- Tags [slice of strings, default nil]: slice of strings for tagging. ex: []string{"John", "Paul"}
@@ -201,7 +201,7 @@ func Page(params map[string]interface{}, user user.User) ([]InvoicePullSubscript
 func Cancel(id string, user user.User) (InvoicePullSubscription, Error.StarkErrors) {
 	//	Cancel a InvoicePullSubscription entity
 	//
-	//	Cancel a InvoicePullSubscription entity previously created in the Stark Bank API
+	//	Cancel a InvoicePullSubscription entity previously created in the Stark Bank API. The subscription must be in "active" status to be canceled.
 	//
 	//	Parameters (required):
 	//	- id [string]: InvoicePullSubscription unique id. ex: "5656565656565656"

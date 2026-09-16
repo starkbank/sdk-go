@@ -19,19 +19,19 @@ import (
 //	use dates instead of datetimes on the "due" and "discounts" fields.
 //
 //	Parameters (required):
-//	- Amount [int]: Invoice value in cents. Minimum = 0 (any value will be accepted). ex: 1234 (= R$ 12.34)
+//	- Amount [int]: Invoice value in cents. Minimum = 0. If set to 0, any amount paid by the customer will be accepted; otherwise, only the exact amount is accepted. On payment, this field is updated to the amount actually paid. ex: 1234 (= R$ 12.34)
 //	- TaxId [string]: payer tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //	- Name [string]: payer name. ex: "Iron Bank S.A."
 //
 //	Parameters (optional):
 //	- Due [time.Time, default now + 2 days]: Invoice due date in UTC ISO format. ex: time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC), for immediate invoices and time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC) for scheduled invoices
-//	- Expiration [int, default 5097600 (59 days)]: time interval in seconds between due date and expiration date. ex: 123456789
+//	- Expiration [int, default 5097600 (59 days)]: time interval in seconds between due date and expiration date. After the expiration, the invoice can no longer be paid. ex: 123456789
 //	- Fine [float64, default 2.0]: Invoice fine for overdue payment in %. ex: 2.5
 //	- Interest [float64, default 1.0]: Invoice monthly interest for overdue payment in %. ex: 5.2
-//	- Discounts [slice of maps, default nil]: slice of maps with "percentage":float64 and "due":time.Time or string pairs
+//	- Discounts [slice of maps, default nil]: slice of up to 5 maps with "percentage":float64 and "due":time.Time or string pairs, defining the discount percentage valid until each due date
 //	- Tags [slice of strings, default nil]: slice of strings for tagging. ex: []string{"John", "Paul"}
-//	- Rules [slice of Invoice.Rule structs, default nil]: slice of Invoice.Rule structs for modifying transfer behavior. ex: []rule.Rule{{Key: "allowedTaxIds", Value: []string{"012.345.678-90", "45.059.493/0001-73"}}},
-//	- Descriptions [slice of maps, default nil]: slice of maps with "key":string and (optional) "value":string pairs
+//	- Rules [slice of Invoice.Rule structs, default nil]: slice of Invoice.Rule structs for modifying invoice behavior. ex: []rule.Rule{{Key: "allowedTaxIds", Value: []string{"012.345.678-90", "45.059.493/0001-73"}}},
+//	- Descriptions [slice of maps, default nil]: slice of up to 15 maps with "key":string and (optional) "value":string pairs, shown to the customer to explain the charge
 //
 //	Attributes (return-only):
 //	- DisplayDescription [string, default nil]: optional description to be shown in the receiver bank interface. ex: "Payment for service 1234"
@@ -82,7 +82,7 @@ var resource = map[string]string{"name": "Invoice"}
 func Create(invoices []Invoice, user user.User) ([]Invoice, Error.StarkErrors) {
 	//	Create Invoices
 	//
-	//	Send a slice of Invoice structs for creation in the Stark Bank API
+	//	Send a slice of up to 100 Invoice structs for creation in the Stark Bank API
 	//
 	//	Parameters (required):
 	//	- invoices [slice of Invoice structs]: slice of Invoice structs to be created in the API
@@ -200,7 +200,7 @@ func Update(id string, patchData map[string]interface{}, user user.User) (Invoic
 	//	- patchData [map[string]interface{}]: map containing the attributes to be updated. ex: map[string]interface{}{"amount": 9090}
 	//		Parameters (optional):
 	//		- status [string]: You may cancel the invoice by passing 'canceled' in the status
-	//		- amount [string]: Nominal amount charged by the invoice. ex: 100 (R$1.00)
+	//		- amount [string]: Nominal amount charged by the invoice. If the invoice has already been paid, only a decrease is allowed, which triggers a payment reversal for the difference; the value becomes the final amount after reversal. ex: 100 (R$1.00)
 	//		- due [string, default now + 2 days]: Invoice due date in UTC ISO format. ex: "2020-10-28"
 	//		- expiration [int, default nil]: time interval in seconds between the due date and the expiration date. ex: 123456789
 	//

@@ -26,7 +26,7 @@ import (
 //	Parameters (optional):
 //	- AccountType [string, default "checking"]: Receiver bank account type. This parameter only has effect on Pix Transfers. ex: "checking", "savings", "salary" or "payment"
 //	- ExternalId [string, default nil]: url safe string that must be unique among all your transfers. Duplicated external_ids will cause failures. By default, this parameter will block any transfer that repeats amount and receiver information on the same date. ex: "my-internal-id-123456"
-//	- Scheduled [time.Time, default now]: date when the transfer will be processed. May be pushed to next business day if necessary. ex: time.Date(2020, 3, 10, 10, 30, 0, 0, time.UTC) or ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
+//	- Scheduled [time.Time, default now]: date when the transfer will be processed. TED transfers scheduled for today are accepted until 16:00 (BRT) and pushed to the next business day afterwards; Pix transfers are available 24/7 and can be scheduled for any date and time. ex: time.Date(2020, 3, 10, 10, 30, 0, 0, time.UTC) or ex: time.Date(2020, 3, 10, 0, 0, 0, 0, time.UTC),
 //	- Description [string, default nil]: optional description to override default description to be shown in the bank statement. ex: "Payment for service #1234"
 //	- DisplayDescription [string, default nil]: optional description to be shown in the receiver bank interface. ex: "Payment for service 1234"
 //  - Tags [slice of strings, default nil]: slice of strings for reference when searching for transfers. ex: []string{"John", "Paul"}
@@ -69,7 +69,7 @@ var resource = map[string]string{"name": "Transfer"}
 func Create(transfers []Transfer, user user.User) ([]Transfer, Error.StarkErrors) {
 	//	Create Transfers
 	//
-	//	Send a slice of Transfer structs for creation in the Stark Bank API
+	//	Send a slice of up to 100 Transfer structs for creation in the Stark Bank API
 	//
 	//	Parameters (required):
 	//	- transfers [slice of Transfer structs]: slice of Transfer structs to be created in the API
@@ -112,7 +112,7 @@ func Get(id string, user user.User) (Transfer, Error.StarkErrors) {
 func Delete(id string, user user.User) (Transfer, Error.StarkErrors) {
 	//	Delete a Transfer entity
 	//
-	//	Delete a Transfer entity previously created in the Stark Bank API
+	//	Cancel a scheduled Transfer entity previously created in the Stark Bank API. This only works before the transfer starts being processed; canceled transfers still appear in later queries.
 	//
 	// 	Parameters (required):
 	//	- id [string]: struct unique id. ex: "5656565656565656"
