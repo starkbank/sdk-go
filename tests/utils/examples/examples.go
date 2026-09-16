@@ -20,6 +20,8 @@ import (
 	Rule "github.com/starkbank/sdk-go/starkbank/invoice/rule"
 	"github.com/starkbank/sdk-go/starkbank/paymentpreview"
 	"github.com/starkbank/sdk-go/starkbank/paymentrequest"
+	"github.com/starkbank/sdk-go/starkbank/splitprofile"
+	"github.com/starkbank/sdk-go/starkbank/splitreceiver"
 	"github.com/starkbank/sdk-go/starkbank/taxpayment"
 	"github.com/starkbank/sdk-go/starkbank/transaction"
 	"github.com/starkbank/sdk-go/starkbank/transfer"
@@ -457,4 +459,30 @@ func Workspace() workspace.Workspace {
 		Name:     "TesteGolang",
 	}
 	return workspaceExample
+}
+
+func SplitReceiver() []splitreceiver.SplitReceiver {
+
+	receivers := []splitreceiver.SplitReceiver{
+		{
+			Name:          "Daenerys Targaryen Stormborn",
+			TaxId:         "594.739.480-42",
+			BankCode:      "18236120",
+			BranchCode:    "0001",
+			AccountNumber: "10000-0",
+			AccountType:   "checking",
+		},
+	}
+	return receivers
+}
+
+func SplitProfile() []splitprofile.SplitProfile {
+
+	profiles := []splitprofile.SplitProfile{
+		{
+			Interval: "week",
+			Delay:    604800,
+		},
+	}
+	return profiles
 }

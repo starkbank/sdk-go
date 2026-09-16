@@ -33,6 +33,8 @@ is as easy as sending a text message to your client!
     - [Invoices](#create-invoices): Reconciled receivables (dynamic Pix QR Codes)
     - [DynamicBrcode](#create-dynamicbrcodes): Simplified reconciled receivables (dynamic Pix QR Codes)
     - [Deposits](#query-deposits): Other cash-ins (static Pix QR Codes, manual Pix, etc)
+    - [SplitReceivers](#create-splitreceivers): Receivers of an Invoice or BoletoPayment split
+    - [SplitProfiles](#create-or-update-a-splitprofile): Configure how split receivables are transferred to their receivers
     - [Boletos](#create-boletos): Boleto receivables
     - [BoletoHolmes](#investigate-a-boleto): Boleto receivables investigator
     - [BrcodePayments](#pay-a-br-code): Pay Pix QR Codes
@@ -1648,6 +1650,377 @@ func main() {
     }
   }
   
+  fmt.Println(log)
+}
+
+```
+
+## Create SplitReceivers
+
+You can create receivers to split an Invoice or a BoletoPayment between different bank accounts.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  SplitReceiver "github.com/starkbank/sdk-go/starkbank/splitreceiver"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  receivers, err := SplitReceiver.Create(
+    []SplitReceiver.SplitReceiver{
+      {
+        Name:          "Daenerys Targaryen Stormborn",
+        TaxId:         "594.739.480-42",
+        BankCode:      "18236120",
+        BranchCode:    "0001",
+        AccountNumber: "10000-0",
+        AccountType:   "checking",
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  for _, receiver := range receivers {
+    fmt.Println(receiver)
+  }
+}
+
+```
+
+## Query SplitReceivers
+
+To take a look at the SplitReceivers created in your Workspace, just run the following:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  SplitReceiver "github.com/starkbank/sdk-go/starkbank/splitreceiver"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  receivers, errorChannel := SplitReceiver.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case receiver, ok := <-receivers:
+      if !ok {
+        break loop
+      }
+      fmt.Println(receiver)
+    }
+  }
+}
+
+```
+
+## Get a SplitReceiver
+
+To get a single SplitReceiver by its id, run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  SplitReceiver "github.com/starkbank/sdk-go/starkbank/splitreceiver"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  receiver, err := SplitReceiver.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Println(receiver)
+}
+
+```
+
+## Query SplitReceiver logs
+
+You can query SplitReceiver logs to check additional information on your SplitReceivers.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/splitreceiver/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 150
+
+  logs, errorChannel := Log.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case log, ok := <-logs:
+      if !ok {
+        break loop
+      }
+      fmt.Println(log)
+    }
+  }
+}
+
+```
+
+## Get a SplitReceiver log
+
+You can get a single log by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/splitreceiver/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Println(log)
+}
+
+```
+
+## Create or Update a SplitProfile
+
+When you create a Split, the SplitProfile entity is automatically created. If you haven't created a Split
+yet, you can use this function to create your own SplitProfile, defining the interval and delay used to
+transfer the split amount to its receivers. Calling it again with an existing SplitProfile updates it
+instead of creating a duplicate.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  SplitProfile "github.com/starkbank/sdk-go/starkbank/splitprofile"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  profiles, err := SplitProfile.Put(
+    []SplitProfile.SplitProfile{
+      {
+        Interval: "week",
+        Delay:    604800,
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  for _, profile := range profiles {
+    fmt.Println(profile)
+  }
+}
+
+```
+
+## Query SplitProfiles
+
+To take a look at the SplitProfiles created in your Workspace, just run the following:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  SplitProfile "github.com/starkbank/sdk-go/starkbank/splitprofile"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  profiles, errorChannel := SplitProfile.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case profile, ok := <-profiles:
+      if !ok {
+        break loop
+      }
+      fmt.Println(profile)
+    }
+  }
+}
+
+```
+
+## Get a SplitProfile
+
+To get a single SplitProfile by its id, run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  SplitProfile "github.com/starkbank/sdk-go/starkbank/splitprofile"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  profile, err := SplitProfile.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Println(profile)
+}
+
+```
+
+## Query SplitProfile logs
+
+You can query SplitProfile logs to check additional information on your SplitProfiles.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/splitprofile/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 150
+
+  logs, errorChannel := Log.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case log, ok := <-logs:
+      if !ok {
+        break loop
+      }
+      fmt.Println(log)
+    }
+  }
+}
+
+```
+
+## Get a SplitProfile log
+
+You can get a single log by its id.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/splitprofile/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
   fmt.Println(log)
 }
 
