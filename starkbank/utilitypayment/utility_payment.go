@@ -100,7 +100,7 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//	Retrieve a specific UtilityPayment pdf file
 	//
 	//	Receive a single UtilityPayment pdf file generated in the Stark Bank API by its id.
-	//	Only valid for utility payments with "success" status.
+	//	Only valid for utility payments with "success", "processing" or "created" status.
 	//
 	//	Parameters (required):
 	//	- id [string]: struct unique id. ex: "5656565656565656"
@@ -185,7 +185,7 @@ func Page(params map[string]interface{}, user user.User) ([]UtilityPayment, stri
 func Delete(id string, user user.User) (UtilityPayment, Error.StarkErrors) {
 	//	Delete a UtilityPayment entity
 	//
-	//	Delete a UtilityPayment entity previously created in the Stark Bank API
+	//	Delete a UtilityPayment entity previously created in the Stark Bank API. This cancels a scheduled payment and only works before it starts being processed; a payment that has already been processed can still be deleted, but is no longer cancellable.
 	//
 	//	Parameters (required):
 	//	- id [string]: UtilityPayment unique id. ex: "5656565656565656"

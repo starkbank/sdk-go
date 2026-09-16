@@ -23,7 +23,8 @@ import (
 //	- amount [int]: DynamicBrcode value in cents. Minimum = 0 (any value will be accepted). ex: 1234 (= R$ 12.34
 //
 //	Parameters (optional):
-//	- Expiration [int, default 3600 (1 hour)]: time interval in seconds between due date and expiration date. ex: 123456789
+//	- Expiration [int, default 3600 (1 hour)]: time interval in seconds, counted from the DynamicBrcode's creation datetime, until the brcode expires and can no longer be paid. ex: 123456789
+//	- DisplayDescription [string, default nil]: description to be shown in the payer bank interface. ex: "Payment for service #1234"
 //	- Tags [slice of strings, default []]: list of strings for tagging, these will be passed to the respective Deposit resource when paid
 //
 //	Attributes (return-only):
@@ -51,7 +52,7 @@ var resource = map[string]string{"name": "DynamicBrcode"}
 func Create(brcodes []DynamicBrcode, user user.User) ([]DynamicBrcode, Error.StarkErrors) {
 	//	Create DynamicBrcodes
 	//
-	//	Send a slice of DynamicBrcode structs for creation in the Stark Bank API
+	//	Send a slice of up to 100 DynamicBrcode structs for creation in the Stark Bank API
 	//
 	//	Parameters (required):
 	//	- brcodes [slice of DynamicBrcode structs]: slice of DynamicBrcode structs to be created in the API

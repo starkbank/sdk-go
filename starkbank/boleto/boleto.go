@@ -15,7 +15,7 @@ import (
 //	to the Stark Bank API and returns the list of created structs.
 //
 //	Parameters (required):
-//	- Amount [int]: Boleto value in cents. Minimum = 200 (R$2,00). ex: 1234 (= R$ 12.34)
+//	- Amount [int]: Boleto value in cents. Minimum = 200 (R$2,00). If paid after the due date with fine or interest, or paid with a discount, this field is updated to reflect the amount actually paid. ex: 1234 (= R$ 12.34)
 //	- Name [string]: Payer full name. ex: "Anthony Edward Stark"
 //	- TaxId [string]: Payer tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //	- StreetLine1 [string]: Payer main address. ex: Av. Paulista, 200
@@ -30,11 +30,11 @@ import (
 //	- Fine [float64, default 2.0]: Boleto fine for overdue payment in %. ex: 2.5
 //	- Interest [float64, default 1.0]: Boleto monthly interest for overdue payment in %. ex: 5.2
 //	- OverdueLimit [int, default 59]: Limit in days for payment after due date. ex: 7 (max: 59)
-//	- Descriptions [slice of maps, default nil]: List of maps with "text":string and (optional) "amount":int pairs
-//	- Discounts [slice of maps, default nil]: List of maps with "percentage":float64 and "date":time.Time or string pairs
+//	- Descriptions [slice of maps, default nil]: List of up to 15 maps with "text":string and (optional) "amount":int pairs. When the PDF is generated with the "booklet" layout, only the text of the first description is used, to fill the installment cell
+//	- Discounts [slice of maps, default nil]: List of up to 2 maps with "percentage":float64 and "date":time.Time or string pairs
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"John", "Paul"}
-//	- ReceiverName [string, default nil]: Receiver (Sacador Avalista) full name. ex: "Anthony Edward Stark"
-//	- ReceiverTaxId [string, default nil]: Receiver (Sacador Avalista) tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
+//	- ReceiverName [string, default nil]: Receiver (Sacador Avalista) full name. If not informed, the workspace owner's name is used; if informed, ReceiverTaxId must also be informed. ex: "Anthony Edward Stark"
+//	- ReceiverTaxId [string, default nil]: Receiver (Sacador Avalista) tax ID (CPF or CNPJ) with or without formatting. If not informed, the workspace owner's tax ID is used; if informed, ReceiverName must also be informed.
 //
 //	Attributes (return-only):
 //	- Id [string]: Unique id returned when Boleto is created. ex: "5656565656565656"
@@ -82,7 +82,7 @@ var resource = map[string]string{"name": "Boleto"}
 func Create(boletos []Boleto, user user.User) ([]Boleto, Error.StarkErrors) {
 	//	Create Boletos
 	//
-	//	Send a list of Boleto structs for creation in the Stark Bank API
+	//	Send a slice of up to 100 Boleto structs for creation in the Stark Bank API
 	//
 	//	Parameters (required):
 	//	- boletos [slice of Boleto structs]: List of Boleto structs to be created in the API
@@ -125,7 +125,7 @@ func Get(id string, user user.User) (Boleto, Error.StarkErrors) {
 func Pdf(id string, params map[string]interface{}, user user.User) ([]byte, Error.StarkErrors) {
 	//	Retrieve a specific Boleto .pdf file
 	//
-	//	Receive a single Boleto pdf file generated in the Stark Bank API by its id.
+	//	Receive a single Boleto pdf file generated in the Stark Bank API by its id. This route is public and needs no authentication, but repeated requests for an invalid id will get your IP blocked from this route.
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
@@ -212,7 +212,7 @@ func Page(params map[string]interface{}, user user.User) ([]Boleto, string, Erro
 func Delete(id string, user user.User) (Boleto, Error.StarkErrors) {
 	//	Delete a Boleto entity
 	//
-	//	Delete a Boleto entity previously created in the Stark Bank API
+	//	Delete a Boleto entity previously created in the Stark Bank API. A cancellation request is sent to CIP; once canceled, the boleto can no longer be paid. This action cannot be undone.
 	//
 	//	Parameters (required):
 	//	- id [string]: Boleto unique id. ex: "5656565656565656"

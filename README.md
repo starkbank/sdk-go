@@ -4378,7 +4378,7 @@ func main() {
 
   starkbank.User = utils.ExampleProject
 
-  balance := corporatebalance.Get(nil)
+  balance, err := corporatebalance.Get(nil)
   if err.Errors != nil {
     for _, e := range err.Errors {
       fmt.Printf("code: %s, message: %s", e.Code, e.Message)

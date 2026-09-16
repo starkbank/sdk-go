@@ -46,7 +46,7 @@ var resource = map[string]string{"name": "Workspace"}
 func Create(workspace Workspace, user user.User) (Workspace, Error.StarkErrors) {
 	//	Create Workspace
 	//
-	//	Send a Workspace for creation in the Stark Bank API
+	//	Send a Workspace for creation in the Stark Bank API. Only Organization credentials can create Workspaces.
 	//
 	//	Parameters (required):
 	//	- workspace [Workspace struct]: workspaceData parameters for the creation of the workspace

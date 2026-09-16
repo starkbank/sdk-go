@@ -98,7 +98,7 @@ func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//	Retrieve a specific BoletoPayment .pdf file
 	//
 	//	Receive a single BoletoPayment pdf file generated in the Stark Bank API by its id.
-	//	Only valid for boleto payments with "success" status.
+	//	Only valid for boleto payments with "success", "processing" or "created" status.
 	//
 	//	Parameters (required):
 	//	- id [string]: struct unique id. ex: "5656565656565656"
@@ -183,7 +183,7 @@ func Page(params map[string]interface{}, user user.User) ([]BoletoPayment, strin
 func Delete(id string, user user.User) (BoletoPayment, Error.StarkErrors) {
 	//	Delete a BoletoPayment entity
 	//
-	//	Delete a BoletoPayment entity previously created in the Stark Bank API
+	//	Delete a BoletoPayment entity previously created in the Stark Bank API. This cancels a scheduled payment, and only works before it starts being processed; a payment that has already been processed can still be deleted, but is no longer cancellable.
 	//
 	//	Parameters (required):
 	//	- id [string]: BoletoPayment unique id. ex: "5656565656565656"

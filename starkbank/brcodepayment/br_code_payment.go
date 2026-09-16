@@ -25,7 +25,7 @@ import (
 //
 //	Parameters (optional):
 //	- Scheduled [time.Time, default now]: Payment scheduled date or datetime. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-//	- Rules [slice of BrcodePayment.Rules, default nil]: slice of BrcodePayment.Rule structs for modifying transfer behavior. ex: []rule.Rule{{Key: "resendingLimit", Value: 5}},
+//	- Rules [slice of BrcodePayment.Rules, default nil]: slice of BrcodePayment.Rule structs for modifying brcode payment behavior. ex: []rule.Rule{{Key: "resendingLimit", Value: 5}},
 //	- Tags [slice of strings, default nil]: Slice of strings for tagging. ex: []string{"John", "Paul"}
 //
 //	Attributes (return-only):
@@ -61,7 +61,7 @@ var resource = map[string]string{"name": "BrcodePayment"}
 func Create(payments []BrcodePayment, user user.User) ([]BrcodePayment, Error.StarkErrors) {
 	//	Create BrcodePayments
 	//
-	//	Send a list of BrcodePayment structs for creation in the Stark Bank API
+	//	Send a list of BrcodePayment structs for creation in the Stark Bank API. Note that the returned amount is initially zero, since the brcode is processed asynchronously.
 	//
 	//	Parameters (required):
 	//	- payments [slice of BrcodePayment structs]: List of BrcodePayment structs to be created in the API
@@ -104,7 +104,7 @@ func Get(id string, user user.User) (BrcodePayment, Error.StarkErrors) {
 func Pdf(id string, user user.User) ([]byte, Error.StarkErrors) {
 	//	Retrieve a specific BrcodePayment .pdf file
 	//
-	//	Receive a single BrcodePayment pdf receipt file generated in the Stark Bank API by its id.
+	//	Receive a single BrcodePayment pdf receipt file generated in the Stark Bank API by its id. Only valid for payments with "success", "processing" or "created" status.
 	//
 	//	Parameters (required):
 	//	- id [string]: Struct unique id. ex: "5656565656565656"
