@@ -16,6 +16,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 ### Fixed
 - field bleed between items in Split, SplitReceiver and SplitProfile Query, where the unmarshal target was reused across the loop
 - SplitProfile.Delay is now a pointer, so delay 0 reaches the API instead of being dropped by omitempty
+- Split.Amount and InvoicePullSubscription.PullRetryLimit are now pointers, so a value of 0 reaches the API instead of being dropped by omitempty
 ### Added
 - VerifiedAccount resource, with its Log sub-resource
 - VerifiedTransfer resource
