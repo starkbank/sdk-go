@@ -27,6 +27,8 @@ import (
 	"github.com/starkbank/sdk-go/starkbank/transfer"
 	"github.com/starkbank/sdk-go/starkbank/transfer/rule"
 	"github.com/starkbank/sdk-go/starkbank/utilitypayment"
+	"github.com/starkbank/sdk-go/starkbank/verifiedaccount"
+	"github.com/starkbank/sdk-go/starkbank/verifiedtransfer"
 	"github.com/starkbank/sdk-go/starkbank/webhook"
 	"github.com/starkbank/sdk-go/starkbank/workspace"
 	Utils "github.com/starkbank/sdk-go/tests/utils"
@@ -485,4 +487,71 @@ func SplitProfile() []splitprofile.SplitProfile {
 		},
 	}
 	return profiles
+}
+
+// randomCpf builds a valid CPF. The API caps VerifiedAccount creation at three
+// per tax id per 24h, so the bank-details example needs a fresh one on every run.
+// The Pix-key example keeps its fixed tax id, since the key has to belong to it.
+func randomCpf() string {
+	digits := make([]int, 0, 11)
+	for i := 0; i < 9; i++ {
+		digits = append(digits, rand.Intn(10))
+	}
+	for round := 0; round < 2; round++ {
+		sum, weight := 0, len(digits)+1
+		for _, digit := range digits {
+			sum += digit * weight
+			weight--
+		}
+		check := sum * 10 % 11
+		if check == 10 {
+			check = 0
+		}
+		digits = append(digits, check)
+	}
+	return fmt.Sprintf("%d%d%d.%d%d%d.%d%d%d-%d%d", digits[0], digits[1], digits[2],
+		digits[3], digits[4], digits[5], digits[6], digits[7], digits[8], digits[9], digits[10])
+}
+
+func VerifiedAccount() []verifiedaccount.VerifiedAccount {
+
+	accounts := []verifiedaccount.VerifiedAccount{
+		{
+			TaxId:      randomCpf(),
+			Name:       "Daenerys Targaryen Stormborn",
+			BankCode:   "341",
+			BranchCode: "2201",
+			Number:     "76543-8",
+			Type:       "checking",
+			Tags:       []string{"iron", "suit"},
+		},
+	}
+	return accounts
+}
+
+func VerifiedAccountPixKey() []verifiedaccount.VerifiedAccount {
+
+	accounts := []verifiedaccount.VerifiedAccount{
+		{
+			TaxId: "039.946.040-36",
+			KeyId: "arya.stark@starkbank.com",
+			Tags:  []string{"iron", "suit"},
+		},
+	}
+	return accounts
+}
+
+func VerifiedTransfer(accountId string) []verifiedtransfer.VerifiedTransfer {
+
+	transfers := []verifiedtransfer.VerifiedTransfer{
+		{
+			Amount:             1000,
+			AccountId:          accountId,
+			Description:        "Test description",
+			DisplayDescription: "Test displayDescription",
+			Tags:               []string{"iron", "suit"},
+			Rules:              []rule.Rule{{Key: "resendingLimit", Value: 5}},
+		},
+	}
+	return transfers
 }
