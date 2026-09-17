@@ -71,12 +71,12 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//
 	//	Return:
 	//	- channel of SplitProfile.Log structs with updated attributes
-	var splitProfileLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var splitProfileLog Log
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &splitProfileLog)
 			if err != nil {

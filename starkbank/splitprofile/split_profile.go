@@ -28,7 +28,7 @@ import (
 type SplitProfile struct {
 	Id       string     `json:",omitempty"`
 	Interval string     `json:",omitempty"`
-	Delay    int        `json:",omitempty"`
+	Delay    *int       `json:",omitempty"`
 	Tags     []string   `json:",omitempty"`
 	Status   string     `json:",omitempty"`
 	Created  *time.Time `json:",omitempty"`
@@ -104,12 +104,12 @@ func Query(params map[string]interface{}, user user.User) (chan SplitProfile, ch
 	//
 	//	Return:
 	//	- channel of SplitProfile structs with updated attributes
-	var splitProfile SplitProfile
 	splitProfiles := make(chan SplitProfile)
 	splitProfilesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var splitProfile SplitProfile
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &splitProfile)
 			if err != nil {

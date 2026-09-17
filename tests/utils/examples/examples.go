@@ -480,10 +480,11 @@ func SplitReceiver() []splitreceiver.SplitReceiver {
 
 func SplitProfile() []splitprofile.SplitProfile {
 
+	delay := 604800
 	profiles := []splitprofile.SplitProfile{
 		{
 			Interval: "week",
-			Delay:    604800,
+			Delay:    &delay,
 		},
 	}
 	return profiles
