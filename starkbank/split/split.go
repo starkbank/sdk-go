@@ -85,12 +85,12 @@ func Query(params map[string]interface{}, user user.User) (chan Split, chan Erro
 	//
 	//	Return:
 	//	- channel of Split structs with updated attributes
-	var split Split
 	splits := make(chan Split)
 	splitsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var split Split
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &split)
 			if err != nil {

@@ -110,12 +110,12 @@ func Query(params map[string]interface{}, user user.User) (chan SplitReceiver, c
 	//
 	//	Return:
 	//	- channel of SplitReceiver structs with updated attributes
-	var splitReceiver SplitReceiver
 	splitReceivers := make(chan SplitReceiver)
 	splitReceiversError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var splitReceiver SplitReceiver
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &splitReceiver)
 			if err != nil {
