@@ -17,7 +17,7 @@ import (
 //	to read the Splits the API has already generated for you.
 //
 //	Parameters (required):
-//	- Amount [int]: value to send to receivers. ex: 1000 (= R$ 10.00)
+//	- Amount [int, default nil]: value to send to receivers. ex: 1000 (= R$ 10.00)
 //	- ReceiverId [string]: split receiver unique id. ex: "5656565656565656"
 //
 //	Attributes (return-only):
@@ -32,7 +32,7 @@ import (
 
 type Split struct {
 	Id         string     `json:",omitempty"`
-	Amount     int        `json:",omitempty"`
+	Amount     *int       `json:",omitempty"`
 	ReceiverId string     `json:",omitempty"`
 	Source     string     `json:",omitempty"`
 	ExternalId string     `json:",omitempty"`

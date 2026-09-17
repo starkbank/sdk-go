@@ -275,6 +275,7 @@ func InvoicePullSubscription(subscriptionType string) []invoicepullsubscription.
 		}
 	}
 
+	pullRetryLimit := 3
 	subscription := invoicepullsubscription.InvoicePullSubscription{
 		Amount:            1000000,
 		AmountMinLimit:    5000,
@@ -284,7 +285,7 @@ func InvoicePullSubscription(subscriptionType string) []invoicepullsubscription.
 		Interval:          "month",
 		Name:              "John Snow",
 		PullMode:          "manual",
-		PullRetryLimit:    3,
+		PullRetryLimit:    &pullRetryLimit,
 		Start:             &start,
 		End:               &end,
 		ReferenceCode:     "contract-12345",

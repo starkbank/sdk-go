@@ -70,12 +70,12 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//
 	//	Return:
 	//	- Slice of taxpayment.Log structs with updated attributes
-	var taxPaymentLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var taxPaymentLog Log
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &taxPaymentLog)
 			if err != nil {

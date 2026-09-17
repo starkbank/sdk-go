@@ -18,7 +18,7 @@ import (
 //	- Start [time.Time]: subscription start date. ex: time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC)
 //	- Interval [string]: subscription installment interval. Options: "week", "month", "quarter", "semester", "year"
 //	- PullMode [string]: subscription pull mode. Options: "manual", "automatic". Automatic mode will create the Invoice Pull Requests automatically
-//	- PullRetryLimit [int]: subscription pull retry limit. Options: 0, 3
+//	- PullRetryLimit [int, default nil]: subscription pull retry limit. Options: 0, 3
 //	- Type [string]: subscription type. Options: "push", "qrcode", "qrcodeAndPayment", "paymentAndOrQrcode"
 //
 //	Parameters (conditionally required):
@@ -49,7 +49,7 @@ type InvoicePullSubscription struct {
 	Start              *time.Time             `json:",omitempty"`
 	Interval           string                 `json:",omitempty"`
 	PullMode           string                 `json:",omitempty"`
-	PullRetryLimit     int                    `json:",omitempty"`
+	PullRetryLimit     *int                   `json:",omitempty"`
 	Type               string                 `json:",omitempty"`
 	Amount             int                    `json:",omitempty"`
 	AmountMinLimit     int                    `json:",omitempty"`
@@ -142,12 +142,12 @@ func Query(params map[string]interface{}, user user.User) (chan InvoicePullSubsc
 	//
 	//	Return:
 	//	- Channel of InvoicePullSubscription structs with updated attributes
-	var invoicePullSubscription InvoicePullSubscription
 	invoicePullSubscriptions := make(chan InvoicePullSubscription)
 	invoicePullSubscriptionsErrors := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var invoicePullSubscription InvoicePullSubscription
 			contentByte, _ := json.Marshal(content)
 			jsonStr := string(contentByte)
 			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)

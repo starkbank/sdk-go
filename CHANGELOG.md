@@ -16,6 +16,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 ### Fixed
 - field bleed between items in Split, SplitReceiver and SplitProfile Query, where the unmarshal target was reused across the loop
 - SplitProfile.Delay is now a pointer, so delay 0 reaches the API instead of being dropped by omitempty
+- Split.Amount and InvoicePullSubscription.PullRetryLimit are now pointers, so a value of 0 reaches the API instead of being dropped by omitempty
+- field bleed between items in every other resource's Query(), where the unmarshal target was declared once and reused across the loop instead of per iteration
 ### Added
 - VerifiedAccount resource, with its Log sub-resource
 - VerifiedTransfer resource
@@ -25,6 +27,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ### Changed
 - starkcore to v1.1.0
+- MerchantCard.Log, MerchantInstallment.Log and MerchantPurchase.Log doc comments now describe Errors as the API sends it (a slice of {code, message} dictionaries); Split.Log, SplitReceiver.Log and SplitProfile.Log doc comments now note the API does not currently return errors for those events
 - docstrings across Invoice, InvoicePullSubscription, Transfer, Boleto, BoletoPayment, BoletoHolmes, MerchantPurchase, MerchantCard, MerchantInstallment, MerchantSession, BrcodePayment, DynamicBrcode, Webhook, Event, Workspace, DictKey, DarfPayment, PaymentRequest, TaxPayment and UtilityPayment resources to carry the business rules the API reference states
 
 ## [1.6.0] - 2026-03-24

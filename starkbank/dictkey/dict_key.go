@@ -81,12 +81,12 @@ func Query(params map[string]interface{}, user user.User) (chan DictKey, chan Er
 	//
 	//	Return:
 	//	- Channel of DictKey structs with updated attributes
-	var dictKey DictKey
 	keys := make(chan DictKey)
 	keysError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var dictKey DictKey
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &dictKey)
 			if err != nil {

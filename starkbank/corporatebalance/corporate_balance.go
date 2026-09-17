@@ -44,12 +44,12 @@ func Get(user user.User) (CorporateBalance, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- CorporateBalance struct with updated attributes
-	var corporateBalance CorporateBalance
 	balance := make(chan CorporateBalance)
 	balanceError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
+			var corporateBalance CorporateBalance
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateBalance)
 			if err != nil {

@@ -105,12 +105,12 @@ func Query(params map[string]interface{}, user user.User) (chan BoletoHolmes, ch
 	//
 	//	Return:
 	//	- Channel of BoletoHolmes structs with updated attributes
-	var boletoHolmes BoletoHolmes
 	holmes := make(chan BoletoHolmes)
 	holmesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var boletoHolmes BoletoHolmes
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &boletoHolmes)
 			if err != nil {

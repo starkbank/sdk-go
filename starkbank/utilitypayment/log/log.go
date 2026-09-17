@@ -70,12 +70,12 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//
 	// 	Return:
 	//	  - Channel of utilitypayment.Log objects with updated attributes
-	var utilityPaymetLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var utilityPaymetLog Log
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &utilityPaymetLog)
 			if err != nil {

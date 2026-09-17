@@ -106,12 +106,12 @@ func Query(params map[string]interface{}, user user.User) (chan InvoicePullReque
 	//		- tags [slice of strings, default nil]: Tags to filter retrieved structs. ex: []string{"John", "Paul"}
 	//		- ids [slice of strings, default nil]: slice of ids to filter retrieved structs. ex: []string{"5656565656565656", "4545454545454545"}
 	//	- user [Organization/Project struct, default nil]: Organization or Project struct. Not necessary if starkbank.User was set before function call
-	var invoicePullRequest InvoicePullRequest
 	invoicePullRequests := make(chan InvoicePullRequest)
 	invoicePullRequestsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var invoicePullRequest InvoicePullRequest
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &invoicePullRequest)
 			if err != nil {

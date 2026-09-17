@@ -19,7 +19,7 @@ import (
 //	Attributes (return-only):
 //	- Id [string]: unique id returned when the log is created. ex: "5656565656565656"
 //	- Receiver [SplitReceiver struct]: SplitReceiver entity to which the log refers to.
-//	- Errors [slice of strings]: slice of errors linked to this SplitReceiver event.
+//	- Errors [slice of strings]: the API does not currently return errors for SplitReceiver events, so this is always nil.
 //	- Type [string]: type of the SplitReceiver event which triggered the log creation. ex: "success" or "failed"
 //	- Created [time.Time]: creation datetime for the log. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
 

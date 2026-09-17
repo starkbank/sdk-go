@@ -19,7 +19,7 @@ import (
 // Attributes (return-only):
 // - Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 // - Installment [MerchantInstallment struct]: MerchantInstallment entity to which the log refers to.
-// - Errors [slice of strings]: List of errors linked to this MerchantInstallment event
+// - Errors [slice of dictionaries]: List of errors linked to this MerchantInstallment event, each with "code" and "message" keys. ex: []interface{}{map[string]interface{}{"code": "invalidCard", "message": "The provided card is invalid"}}
 // - Type [string]: Type of the MerchantInstallment event which triggered the log creation.
 // - Created [time.Time]: Creation datetime for the log.
 // - TransactionId [string]: ledger transaction id linked to this log.
@@ -73,12 +73,12 @@ func Query(params map[string]interface{}, user user.User) (chan Log, chan Error.
 	//
 	// Return:
 	// - Channel of MerchantInstallment.Log structs with updated attributes
-	var installmentLog Log
 	logs := make(chan Log)
 	logsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var installmentLog Log
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &installmentLog)
 			if err != nil {

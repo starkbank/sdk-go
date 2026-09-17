@@ -141,12 +141,12 @@ func Query(params map[string]interface{}, user user.User) (chan CorporateCard, c
 	//
 	//	Return:
 	//	- channel of CorporateCard structs with updated attributes
-	var corporateCard CorporateCard
 	cards := make(chan CorporateCard)
 	cardsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var corporateCard CorporateCard
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateCard)
 			if err != nil {

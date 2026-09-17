@@ -88,12 +88,12 @@ func Query(params map[string]interface{}, user user.User) (chan CorporateInvoice
 	//
 	//	Return:
 	//	- channel of CorporateInvoices structs with updated attributes
-	var corporateInvoice CorporateInvoice
 	invoices := make(chan CorporateInvoice)
 	invoicesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var corporateInvoice CorporateInvoice
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &corporateInvoice)
 			if err != nil {

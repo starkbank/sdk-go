@@ -111,7 +111,6 @@ func Query(centerId string, params map[string]interface{}, user user.User) (chan
 	//	Return:
 	//	- Channel of PaymentRequest structs with updated attributes
 	var param = map[string]interface{}{}
-	var paymentRequest PaymentRequest
 	for k, v := range params {
 		param[k] = v
 	}
@@ -121,6 +120,7 @@ func Query(centerId string, params map[string]interface{}, user user.User) (chan
 	query, errorChannel := utils.Query(resource, param, user)
 	go func() {
 		for content := range query {
+			var paymentRequest PaymentRequest
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &paymentRequest)
 			if err != nil {

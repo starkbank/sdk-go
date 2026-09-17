@@ -91,12 +91,12 @@ func Query(params map[string]interface{}, user user.User) (chan Deposit, chan Er
 	//
 	//	Return:
 	//	- Channel of Deposit structs with updated attributes
-	var deposit Deposit
 	deposits := make(chan Deposit)
 	depositsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var deposit Deposit
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &deposit)
 			if err != nil {
