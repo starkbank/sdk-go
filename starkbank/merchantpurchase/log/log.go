@@ -19,7 +19,7 @@ import (
 // Attributes (return-only):
 // - Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 // - Purchase [MerchantPurchase struct]: MerchantPurchase entity to which the log refers to.
-// - Errors [slice of strings]: List of errors linked to this MerchantPurchase event
+// - Errors [slice of dictionaries]: List of errors linked to this MerchantPurchase event, each with "code" and "message" keys. ex: []interface{}{map[string]interface{}{"code": "invalidCard", "message": "The provided card is invalid"}}
 // - Type [string]: Type of the MerchantPurchase event which triggered the log creation. ex: "approved" or "confirmed"
 // - Created [time.Time]: Creation datetime for the log.
 // - TransactionId [string]: ledger transaction id linked to this log.

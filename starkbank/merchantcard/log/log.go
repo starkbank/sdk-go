@@ -19,7 +19,7 @@ import (
 // Attributes (return-only):
 // - Id [string]: Unique id returned when the log is created. ex: "5656565656565656"
 // - Card [MerchantCard struct]: MerchantCard entity to which the log refers to.
-// - Errors [slice of strings]: List of errors linked to this MerchantCard event
+// - Errors [slice of dictionaries]: List of errors linked to this MerchantCard event, each with "code" and "message" keys. ex: []interface{}{map[string]interface{}{"code": "invalidCard", "message": "The provided card is invalid"}}
 // - Type [string]: Type of the MerchantCard event which triggered the log creation. ex: "active" or "blocked"
 // - Created [time.Time]: Creation datetime for the log.
 // - TransactionId [string]: ledger transaction id linked to this log.
