@@ -136,12 +136,12 @@ func Query(params map[string]interface{}, user user.User) (chan BrcodePayment, c
 	//
 	//	Return:
 	//	- Channel of BrcodePayment structs with updated attributes
-	var brCodePayment BrcodePayment
 	payments := make(chan BrcodePayment)
 	paymentsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var brCodePayment BrcodePayment
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &brCodePayment)
 			if err != nil {

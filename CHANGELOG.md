@@ -18,6 +18,7 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - SplitProfile.Delay is now a pointer, so delay 0 reaches the API instead of being dropped by omitempty
 - Split.Amount and InvoicePullSubscription.PullRetryLimit are now pointers, so a value of 0 reaches the API instead of being dropped by omitempty
 - MerchantCard.Log, MerchantInstallment.Log and MerchantPurchase.Log doc comments now describe Errors as the API sends it (a slice of {code, message} dictionaries); Split.Log, SplitReceiver.Log and SplitProfile.Log doc comments now note the API does not currently return errors for those events
+- field bleed between items in every other resource's Query(), where the unmarshal target was declared once and reused across the loop instead of per iteration
 ### Added
 - VerifiedAccount resource, with its Log sub-resource
 - VerifiedTransfer resource

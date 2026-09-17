@@ -132,12 +132,12 @@ func Query(params map[string]interface{}, user user.User) (chan TaxPayment, chan
 	//
 	//	Return:
 	//	 - Channel of TaxPayment structs with updated attributes\
-	var taxPayment TaxPayment
 	payments := make(chan TaxPayment)
 	paymentsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var taxPayment TaxPayment
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &taxPayment)
 			if err != nil {

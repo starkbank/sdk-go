@@ -107,12 +107,12 @@ func Query(params map[string]interface{}, user user.User) (chan MerchantSession,
 	//
 	// Return:
 	// - Channel of MerchantSession structs with updated attributes
-	var merchantSession MerchantSession
 	merchantSessions := make(chan MerchantSession)
 	merchantSessionsError := make(chan error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var merchantSession MerchantSession
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &merchantSession)
 			if err != nil {

@@ -44,12 +44,12 @@ func Query(params map[string]interface{}, user user.User) (chan Institution, cha
 	//
 	//	Return:
 	//	- Slice of Institution structs with updated attributes
-	var institution Institution
 	institutions := make(chan Institution)
 	institutionsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var institution Institution
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &institution)
 			if err != nil {

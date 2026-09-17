@@ -40,12 +40,12 @@ func Get(user user.User) (Balance, Error.StarkErrors) {
 	//
 	//	Return:
 	//	- Balance struct with updated attributes
-	var balance Balance
 	balances := make(chan Balance)
 	balancesError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, nil, user)
 	go func() {
 		for content := range query {
+			var balance Balance
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &balance)
 			if err != nil {

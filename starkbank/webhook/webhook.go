@@ -87,12 +87,12 @@ func Query(params map[string]interface{}, user user.User) (chan Webhook, chan Er
 	//
 	//	Return:
 	//	- Channel of Webhook structs with updated attributes
-	var webhook Webhook
 	webhooks := make(chan Webhook)
 	webhooksError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var webhook Webhook
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &webhook)
 			if err != nil {

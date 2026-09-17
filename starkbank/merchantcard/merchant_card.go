@@ -78,12 +78,12 @@ func Query(params map[string]interface{}, user user.User) (chan MerchantCard, ch
 	//
 	// Return:
 	// - Channel of MerchantCard structs with updated attributes
-	var merchantCard MerchantCard
 	merchantCards := make(chan MerchantCard)
 	merchantCardsError := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var merchantCard MerchantCard
 			contentByte, _ := json.Marshal(content)
 			err := json.Unmarshal(contentByte, &merchantCard)
 			if err != nil {

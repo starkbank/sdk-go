@@ -142,12 +142,12 @@ func Query(params map[string]interface{}, user user.User) (chan InvoicePullSubsc
 	//
 	//	Return:
 	//	- Channel of InvoicePullSubscription structs with updated attributes
-	var invoicePullSubscription InvoicePullSubscription
 	invoicePullSubscriptions := make(chan InvoicePullSubscription)
 	invoicePullSubscriptionsErrors := make(chan Error.StarkErrors)
 	query, errorChannel := utils.Query(resource, params, user)
 	go func() {
 		for content := range query {
+			var invoicePullSubscription InvoicePullSubscription
 			contentByte, _ := json.Marshal(content)
 			jsonStr := string(contentByte)
 			jsonStr = utils.ReplaceEmptyStringField(jsonStr, `"end":""`, `"end":null`)
