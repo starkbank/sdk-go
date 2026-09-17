@@ -14,6 +14,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 ## [Unreleased]
 ### Added
+- VerifiedAccount resource, with its Log sub-resource
+- VerifiedTransfer resource
 - SplitReceiver and SplitProfile resources, each with their Log sub-resource
 - Split resource, with its Log sub-resource
 - Pdf method to DepositLog resource

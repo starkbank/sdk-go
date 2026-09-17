@@ -36,6 +36,8 @@ is as easy as sending a text message to your client!
     - [SplitReceivers](#create-splitreceivers): Receivers of an Invoice or BoletoPayment split
     - [SplitProfiles](#create-or-update-a-splitprofile): Configure how split receivables are transferred to their receivers
     - [Splits](#query-splits): Amounts sent to a SplitReceiver when a split Invoice or BoletoPayment is paid
+    - [VerifiedAccounts](#create-verifiedaccounts): Verify bank accounts and Pix keys before sending transfers
+    - [VerifiedTransfers](#create-verifiedtransfers): Send transfers to previously verified accounts
     - [Boletos](#create-boletos): Boleto receivables
     - [BoletoHolmes](#investigate-a-boleto): Boleto receivables investigator
     - [BrcodePayments](#pay-a-br-code): Pay Pix QR Codes
@@ -3983,6 +3985,269 @@ func main() {
   }
   
   fmt.Println(log)
+}
+
+```
+
+## Create VerifiedAccounts
+
+You can create VerifiedAccounts to confirm that a bank account or Pix key belongs to a given tax ID before sending a transfer:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  VerifiedAccount "github.com/starkbank/sdk-go/starkbank/verifiedaccount"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  accounts, err := VerifiedAccount.Create(
+    []VerifiedAccount.VerifiedAccount{
+      {
+        TaxId:      "012.345.678-90",
+        Name:       "Tony Stark",
+        BankCode:   "341",
+        BranchCode: "2201",
+        Number:     "76543-8",
+        Type:       "checking",
+        Tags:       []string{"iron", "suit"},
+      },
+      {
+        TaxId: "012.345.678-90",
+        KeyId: "tony@starkbank.com",
+        Tags:  []string{"iron", "suit"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  for _, account := range accounts {
+    fmt.Println(account)
+  }
+}
+
+```
+
+## Get a VerifiedAccount
+
+You can get a specific VerifiedAccount by its id:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  VerifiedAccount "github.com/starkbank/sdk-go/starkbank/verifiedaccount"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  account, err := VerifiedAccount.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Println(account)
+}
+
+```
+
+## Cancel a VerifiedAccount
+
+You can cancel a VerifiedAccount by its id:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  VerifiedAccount "github.com/starkbank/sdk-go/starkbank/verifiedaccount"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  account, err := VerifiedAccount.Cancel("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Println(account)
+}
+
+```
+
+## Query VerifiedAccounts
+
+To search for VerifiedAccounts using filters, run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  VerifiedAccount "github.com/starkbank/sdk-go/starkbank/verifiedaccount"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+  params["status"] = "active"
+  params["tags"] = []string{"iron", "suit"}
+
+  accounts, errorChannel := VerifiedAccount.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case account, ok := <-accounts:
+      if !ok {
+        break loop
+      }
+      fmt.Println(account)
+    }
+  }
+}
+
+```
+
+## Query VerifiedAccount logs
+
+You can search for VerifiedAccount logs by specifying filters. Use this to understand each VerifiedAccount life cycle.
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/verifiedaccount/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  var params = map[string]interface{}{}
+  params["limit"] = 10
+
+  logs, errorChannel := Log.Query(params, nil)
+  loop:
+  for {
+    select {
+    case err := <-errorChannel:
+      if err.Errors != nil {
+        for _, e := range err.Errors {
+          fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+        }
+      }
+    case log, ok := <-logs:
+      if !ok {
+        break loop
+      }
+      fmt.Println(log)
+    }
+  }
+}
+
+```
+
+## Get a VerifiedAccount log
+
+If you want to get a specific VerifiedAccount log by its id, just run:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  Log "github.com/starkbank/sdk-go/starkbank/verifiedaccount/log"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  log, err := Log.Get("5155165527080960", nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  fmt.Println(log)
+}
+
+```
+
+## Create VerifiedTransfers
+
+You can send a transfer to a previously verified account by creating a VerifiedTransfer:
+
+```golang
+package main
+
+import (
+  "fmt"
+  "github.com/starkbank/sdk-go/starkbank"
+  VerifiedTransfer "github.com/starkbank/sdk-go/starkbank/verifiedtransfer"
+  "github.com/starkbank/sdk-go/tests/utils"
+)
+
+func main() {
+
+  starkbank.User = utils.ExampleProject
+
+  transfers, err := VerifiedTransfer.Create(
+    []VerifiedTransfer.VerifiedTransfer{
+      {
+        Amount:    1000,
+        AccountId: "5155165527080960",
+        Tags:      []string{"iron", "suit"},
+      },
+    }, nil)
+  if err.Errors != nil {
+    for _, e := range err.Errors {
+      fmt.Printf("code: %s, message: %s", e.Code, e.Message)
+    }
+  }
+
+  for _, transfer := range transfers {
+    fmt.Println(transfer)
+  }
 }
 
 ```

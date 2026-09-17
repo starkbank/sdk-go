@@ -4,8 +4,9 @@ import (
 	"github.com/starkbank/sdk-go/starkbank"
 	Errors "github.com/starkinfra/core-go/starkcore/error"
 	"github.com/starkinfra/core-go/starkcore/user/user"
-	"github.com/starkinfra/core-go/starkcore/utils/rest"
+	"github.com/starkinfra/core-go/starkcore/utils/api"
 	"github.com/starkinfra/core-go/starkcore/utils/request"
+	"github.com/starkinfra/core-go/starkcore/utils/rest"
 )
 
 func Page(resource map[string]string, params map[string]interface{}, user user.User) ([]byte, string, Errors.StarkErrors) {
@@ -62,6 +63,17 @@ func Single(resource map[string]string, entity interface{}, user user.User) ([]b
 		return rest.PostSingle(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, starkbank.User, resource, entity, nil)
 	}
 	return rest.PostSingle(starkbank.SdkVersion, starkbank.Host, starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, user, resource, entity, nil)
+}
+
+func Put(resource map[string]string, entities interface{}, user user.User) ([]byte, Errors.StarkErrors) {
+	if user == nil {
+		user = starkbank.User
+	}
+	response, err := request.Fetch(starkbank.Host, starkbank.SdkVersion, user, "PUT", api.Endpoint(resource), api.ApiJson(entities, resource), starkbank.ApiVersion, starkbank.Language, starkbank.Timeout, nil, "", true)
+	if err.Errors != nil {
+		return nil, err
+	}
+	return api.FromApiJson(response.Content, resource), err
 }
 
 func Delete(resource map[string]string, id string, user user.User) ([]byte, Errors.StarkErrors) {
