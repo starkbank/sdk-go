@@ -1901,11 +1901,12 @@ func main() {
 
   starkbank.User = utils.ExampleProject
 
+  delay := 604800
   profiles, err := SplitProfile.Put(
     []SplitProfile.SplitProfile{
       {
         Interval: "week",
-        Delay:    604800,
+        Delay:    &delay,
       },
     }, nil)
   if err.Errors != nil {
