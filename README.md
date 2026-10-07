@@ -5509,58 +5509,9 @@ func main() {
 }
 ```
 
-You can create a MerchantPurchase through a MerchantSession by passing its UUID.
-**Note**: This method must be implemented in your front-end to ensure that sensitive card data does not pass through the back-end of the integration.
+With the MerchantSession's UUID, your front-end must send the card data directly to the Stark Bank API through the `POST /v2/merchant-session/:uuid/purchase` route, so that sensitive card data never passes through the back-end of your integration.
 
-## Create a MerchantSession Purchase
-
-This route can be used to create a Merchant Purchase directly from the payer's client application.
-The UUID of a Merchant Session that was previously created by the merchant is necessary to access this route.
-
-```go
-import (
-	"fmt"
-	"github.com/starkbank/sdk-go/starkbank"
-  Purchase "github.com/starkbank/sdk-go/starkbank/merchantsession"
-)
-func main() {
-
-  	purchase := Purchase.Purchase{
-		Amount:            180,
-		InstallmentCount:  12,
-		CardExpiration:    "2035-01",
-		CardNumber:        "5102589999999913",
-		CardSecurityCode:  "123",
-		HolderName:        "Holder Name",
-		HolderEmail:       "holdeName@email.com",
-		HolderPhone:       "11111111111",
-		FundingType:       "credit",
-		BillingCountryCode: "BRA",
-		BillingCity:       "São Paulo",
-		BillingStateCode:  "SP",
-		BillingStreetLine1: "Rua do Holder Name, 123",
-		BillingStreetLine2: "casa",
-		BillingZipCode:    "11111-111",
-		Metadata: map[string]interface{}{
-			"userAgent":      "Postman",
-			"userIp":         "255.255.255.255",
-			"language":       "pt-BR",
-			"timezoneOffset": 3,
-			"extraData":      "extraData",
-		},
-	}
-
-	createdPurchase, err := MerchantSession.PostPurchase("0bb894a2697d41d99fe02cad2c00c9bc", purchase, nil)
-
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			fmt.Printf("code: %s, message: %s", e.Code, e.Message)
-		}
-	}
-
-  fmt.Println(createdPurchase)
-}
-```
+**Note**: `merchantsession.PostPurchase` is deprecated since v1.7.0 and returns an error when called.
 
 ## Query MerchantSessions
 

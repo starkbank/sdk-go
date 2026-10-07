@@ -30,6 +30,10 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - MerchantCard.Log, MerchantInstallment.Log and MerchantPurchase.Log doc comments now describe Errors as the API sends it (a slice of {code, message} dictionaries); Split.Log, SplitReceiver.Log and SplitProfile.Log doc comments now note the API does not currently return errors for those events
 - docstrings across Invoice, InvoicePullSubscription, Transfer, Boleto, BoletoPayment, BoletoHolmes, MerchantPurchase, MerchantCard, MerchantInstallment, MerchantSession, BrcodePayment, DynamicBrcode, Webhook, Event, Workspace, DictKey, DarfPayment, PaymentRequest, TaxPayment and UtilityPayment resources to carry the business rules the API reference states
 
+## [1.7.0] - 2026-10-13
+### Deprecated
+- MerchantSession.PostPurchase function, since card data must be sent directly from the front-end to the Stark Bank API
+
 ## [1.6.0] - 2026-03-24
 ### Added
 - HolderId and SoftDescriptor attributes to MerchantSession and MerchantPurchase
