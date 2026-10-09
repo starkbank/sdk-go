@@ -130,60 +130,8 @@ func TestMerchantSessionPurchase(t *testing.T) {
 
 	starkbank.User = Utils.ExampleProject
 
-	merchantSession := MerchantSession.MerchantSession{
-		AllowedFundingTypes: []string{"credit"},
-		AllowedInstallments: []AllowedInstallment.AllowedInstallment{
-			{Count: 1, TotalAmount: 500},
-			{Count: 2, TotalAmount: 1000},
-			{Count: 12, TotalAmount: 6000},
-		},
-		Expiration:     60,
-		ChallengeMode:  "disabled",
-		Tags:           []string{"test"},
-		HolderId:       "5656565656565656",
-		SoftDescriptor: "softDescriptor",
+	_, err := MerchantSession.PostPurchase("0bb894a2697d41d99fe02cad2c00c9bc", MerchantSession.Purchase{}, nil)
+	for _, e := range err.Errors {
+		assert.Equal(t, "Unknown exception encountered: Function deprecated since v1.7.0", e.Message)
 	}
-
-	createdSession, err := MerchantSession.Create(merchantSession, starkbank.User)
-
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			t.Errorf("code: %s, message: %s", e.Code, e.Message)
-		}
-		return
-	}
-
-	purchase := MerchantSession.Purchase{
-		Amount:            6000,
-		InstallmentCount:  12,
-		CardExpiration:    "2035-01",
-		CardNumber:        "5102589999999913",
-		CardSecurityCode:  "123",
-		HolderName:        "Holder Name",
-		HolderEmail:       "holderName@email.com",
-		HolderPhone:       "11111111111",
-		FundingType:       "credit",
-		BillingCountryCode: "BRA",
-		BillingCity:       "São Paulo",
-		BillingStateCode:  "SP",
-		BillingStreetLine1: "Rua do Holder Name, 123",
-		BillingStreetLine2: "casa",
-		BillingZipCode:    "11111-111",
-		Metadata: map[string]interface{}{
-			"userAgent":      "Postman",
-			"userIp":         "255.255.255.255",
-			"language":       "pt-BR",
-			"timezoneOffset": 3,
-			"extraData":      "extraData",
-		},
-	}
-
-	createdPurchase, err := MerchantSession.PostPurchase(createdSession.Uuid, purchase, starkbank.User)
-
-	if err.Errors != nil {
-		for _, e := range err.Errors {
-			t.Errorf("code: %s, message: %s", e.Code, e.Message)
-		}
-	}
-	assert.NotNil(t, createdPurchase)
 }

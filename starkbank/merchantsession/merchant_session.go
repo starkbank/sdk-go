@@ -83,10 +83,6 @@ func Page(params map[string]interface{}, user user.User) ([]MerchantSession, str
 }
 
 func PostPurchase(uuid string, payload Purchase, user user.User) (Purchase, error.StarkErrors) {
-	post, err := utils.PostSubResource(resource, payload, uuid, user, SubResourcePurchase)
-	unmarshalError := json.Unmarshal(post, &purchase)
-	if unmarshalError != nil {
-		return purchase, err
-	}
-	return purchase, err
+	//  Deprecated: Function deprecated since v1.7.0
+	return purchase, error.UnknownError("Function deprecated since v1.7.0")
 }

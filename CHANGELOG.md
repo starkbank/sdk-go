@@ -13,6 +13,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Deprecated
+- MerchantSession.PostPurchase function, since card data must be sent directly from the front-end to the Stark Bank API
 
 ## [1.6.0] - 2026-03-24
 ### Added
