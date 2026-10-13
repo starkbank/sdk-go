@@ -173,10 +173,7 @@ func PostPurchase(uuid string, payload Purchase, user user.User) (Purchase, erro
 	//
 	// Return:
 	// - Purchase struct with updated attributes
-	post, err := utils.PostSubResource(resource, payload, uuid, user, SubResourcePurchase)
-	unmarshalError := json.Unmarshal(post, &purchase)
-	if unmarshalError != nil {
-		return purchase, err
-	}
-	return purchase, err
+	//
+	//  Deprecated: Function deprecated since v1.7.0
+	return purchase, error.UnknownError("Function deprecated since v1.7.0")
 }
