@@ -25,7 +25,6 @@ import (
 // - Fee [int]: fee charged over this installment. ex: 200 (= R$ 2.00)
 // - Created [time.Time]: creation datetime for the installment.
 // - Updated [time.Time]: latest update datetime for the installment.
-
 type MerchantInstallment struct {
 	Id             string     `json:",omitempty"`
 	Amount         int        `json:",omitempty"`

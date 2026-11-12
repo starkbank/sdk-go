@@ -18,6 +18,8 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - SplitProfile.Delay is now a pointer, so delay 0 reaches the API instead of being dropped by omitempty
 - Split.Amount and InvoicePullSubscription.PullRetryLimit are now pointers, so a value of 0 reaches the API instead of being dropped by omitempty
 - field bleed between items in every other resource's Query(), where the unmarshal target was declared once and reused across the loop instead of per iteration
+- PaymentRequest with type darf-payment now parses Payment as a DarfPayment struct instead of map[string]interface{}; date-only strings are accepted. This is a breaking change for code that type-asserts the map
+- Invoice.Amount and DynamicBrcode.Amount are now pointers, so an amount of 0 (any value accepted) reaches the API instead of being dropped by omitempty. This is a breaking change for code that assigns these fields
 ### Added
 - VerifiedAccount resource, with its Log sub-resource
 - VerifiedTransfer resource

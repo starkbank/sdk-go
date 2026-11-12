@@ -25,7 +25,6 @@ import (
 //	- AccountNumber [string]: Encrypted bank account number associated with the DICT key. ex: "ZW5jcnlwdGVkLWFjY291bnQtbnVtYmVy"
 //	- AccountType [string]: Bank account type associated with the DICT key. ex: "checking", "savings", "salary" or "payment"
 //	- Status [string]: Current DICT key status. ex: "created", "registered", "canceled" or "failed"
-
 type DictKey struct {
 	Id             string     `json:",omitempty"`
 	Type           string     `json:",omitempty"`

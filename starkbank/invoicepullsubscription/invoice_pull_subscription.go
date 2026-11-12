@@ -43,7 +43,6 @@ import (
 //	- Brcode [string]: Brcode string for the InvoicePullSubscription. ex: "00020101021126580014br.gov.bcb.pix0114+5599999999990210starkbank.com.br520400005303986540410000000000005802BR5913Stark Bank S.A.6009SAO PAULO62070503***6304D2B1"
 //	- Created [time.Time]: creation datetime for the InvoicePullSubscription. time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC)
 //	- Updated [time.Time]: latest update datetime for the InvoicePullSubscription. time.Date(2020, 3, 10, 30, 30, 0, 0, time.UTC)
-
 type InvoicePullSubscription struct {
 	Id                 string                 `json:",omitempty"`
 	Start              *time.Time             `json:",omitempty"`

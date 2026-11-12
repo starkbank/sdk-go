@@ -28,7 +28,6 @@ import (
 //	- Result [string]: Result of boleto status investigation. ex: "paid" or "cancelled"
 //	- Created [time.Time]: Creation datetime for the holmes. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
 //	- Updated [time.Time]: Latest update datetime for the holmes. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC)
-
 type BoletoHolmes struct {
 	Id       string     `json:",omitempty"`
 	BoletoId string     `json:",omitempty"`

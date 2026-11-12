@@ -40,7 +40,6 @@ import (
 //	- Metadata [map[string]interface{}]: object used to store additional information about the Transfer struct.
 //	- Created [time.Time]: creation datetime for the transfer. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: latest update datetime for the transfer. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type Transfer struct {
 	Id                 string                 `json:",omitempty"`
 	Amount             int                    `json:",omitempty"`

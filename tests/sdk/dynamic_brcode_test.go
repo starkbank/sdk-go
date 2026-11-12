@@ -6,6 +6,7 @@ import (
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"math/rand"
 	"testing"
 )
@@ -23,6 +24,28 @@ func TestDynamicBrcodePost(t *testing.T) {
 	for _, brcode := range brcodes {
 		assert.NotNil(t, brcode.Uuid)
 	}
+}
+
+func TestDynamicBrcodePostWithZeroAmount(t *testing.T) {
+
+	starkbank.User = Utils.ExampleProject
+
+	amount := 0
+	brcodes, err := DynamicBrcode.Create([]DynamicBrcode.DynamicBrcode{
+		{
+			Amount: &amount,
+		},
+	}, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+		return
+	}
+	require.Len(t, brcodes, 1)
+	assert.NotEmpty(t, brcodes[0].Uuid)
+	require.NotNil(t, brcodes[0].Amount)
+	assert.Equal(t, 0, *brcodes[0].Amount)
 }
 
 func TestDynamicBrcodeGet(t *testing.T) {

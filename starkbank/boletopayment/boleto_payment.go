@@ -33,7 +33,6 @@ import (
 //	- Fee [int]: Fee charged when the Boleto payment is created. ex: 200 (= R$ 2.00)
 //	- TransactionIds [slice of strings]: Ledger transaction ids linked to this BoletoPayment. ex: []string{"19827356981273"}
 //	- Created [time.Time]: Creation datetime for the payment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type BoletoPayment struct {
 	Id             string     `json:",omitempty"`
 	Line           string     `json:",omitempty"`

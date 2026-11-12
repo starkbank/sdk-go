@@ -23,7 +23,6 @@ import (
 // - Type [string]: Type of the MerchantCard event which triggered the log creation. ex: "active" or "blocked"
 // - Created [time.Time]: Creation datetime for the log.
 // - TransactionId [string]: ledger transaction id linked to this log.
-
 type Log struct {
 	Id            string                    `json:",omitempty"`
 	Card          MerchantCard.MerchantCard `json:",omitempty"`

@@ -19,7 +19,7 @@ import (
 //	use dates instead of datetimes on the "due" and "discounts" fields.
 //
 //	Parameters (required):
-//	- Amount [int]: Invoice value in cents. Minimum = 0. If set to 0, any amount paid by the customer will be accepted; otherwise, only the exact amount is accepted. On payment, this field is updated to the amount actually paid. ex: 1234 (= R$ 12.34)
+//	- Amount [*int]: Invoice value in cents, as a pointer so that an explicit 0 is sent to the API. Minimum = 0. If set to 0, any amount paid by the customer will be accepted; otherwise, only the exact amount is accepted. On payment, this field is updated to the amount actually paid. ex: 1234 (= R$ 12.34)
 //	- TaxId [string]: payer tax ID (CPF or CNPJ) with or without formatting. ex: "01234567890" or "20.018.183/0001-80"
 //	- Name [string]: payer name. ex: "Iron Bank S.A."
 //
@@ -48,10 +48,9 @@ import (
 //	- TransactionIds [slice of strings]: ledger transaction ids linked to this Invoice (if there are more than one, all but the first are reversals or failed reversal chargebacks). ex: []string{"19827356981273"}
 //	- Created [time.Time]: creation datetime for the Invoice. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: latest update datetime for the Invoice. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type Invoice struct {
 	Id             		string                   `json:",omitempty"`
-	Amount         		int                      `json:",omitempty"`
+	Amount         		*int                     `json:",omitempty"`
 	Name           		string                   `json:",omitempty"`
 	TaxId          		string                   `json:",omitempty"`
 	Due            		*time.Time               `json:",omitempty"`

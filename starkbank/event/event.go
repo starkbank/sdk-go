@@ -33,7 +33,6 @@ import (
 //	- IsDelivered [bool]: True if the event has been successfully delivered to the user url. ex: False
 //	- Subscription [string]: Service that triggered this event. ex: "transfer", "utility-payment"
 //	- WorkspaceId [string]: Id of the Workspace that generated this event. Mostly used when multiple Workspaces have Webhooks registered to the same endpoint. ex: "4545454545454545"
-
 type Event struct {
 	Id           string      `json:",omitempty"`
 	Log          interface{} `json:",omitempty"`
