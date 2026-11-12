@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	BoletoPayment "github.com/starkbank/sdk-go/starkbank/boletopayment"
 	BrcodePayment "github.com/starkbank/sdk-go/starkbank/brcodepayment"
-	DarfPayment "github.com/starkbank/sdk-go/starkbank/darfpayment"
 	TaxPayment "github.com/starkbank/sdk-go/starkbank/taxpayment"
 	Transaction "github.com/starkbank/sdk-go/starkbank/transaction"
 	Transfer "github.com/starkbank/sdk-go/starkbank/transfer"
@@ -25,7 +24,7 @@ import (
 //
 //	Parameters (required):
 //	- CenterId [string]: target cost center ID. ex: "5656565656565656"
-//	- Payment [Transfer struct, BoletoPayment struct, UtilityPayment struct, BrcodePayment struct, TaxPayment struct, DarfPayment struct or Transaction]: payment entity that should be approved and executed. Do not set the payment's own Scheduled field -- the PaymentRequest's Due date is used for that purpose.
+//	- Payment [Transfer struct, BoletoPayment struct, UtilityPayment struct, BrcodePayment struct or Transaction]: payment entity that should be approved and executed. Do not set the payment's own Scheduled field -- the PaymentRequest's Due date is used for that purpose.
 //
 //	Parameters (conditionally required):
 //	- Type [string]: payment type, inferred from the payment parameter if it is not a dictionary. ex: "transfer", "boleto-payment"
@@ -221,16 +220,6 @@ func (e PaymentRequest) ParseRequest() (PaymentRequest, Error.StarkErrors) {
 		e.Payment = taxPayment
 		return e, Error.StarkErrors{}
 	}
-	if e.Type == "darf-payment" {
-		var darfPayment DarfPayment.DarfPayment
-		marshal, _ := json.Marshal(dateOnlyToDatetime(e.Payment, "competence", "due", "scheduled"))
-		unmarshalError := json.Unmarshal(marshal, &darfPayment)
-		if unmarshalError != nil {
-			return e, Error.UnknownError(unmarshalError.Error())
-		}
-		e.Payment = darfPayment
-		return e, Error.StarkErrors{}
-	}
 	if e.Type == "brcode-payment" {
 		var brcodePayment BrcodePayment.BrcodePayment
 		marshal, _ := json.Marshal(e.Payment)
@@ -273,24 +262,4 @@ func ParseRequests(previews []PaymentRequest) ([]PaymentRequest, Error.StarkErro
 		}
 	}
 	return previews, Error.StarkErrors{}
-}
-
-// dateOnlyToDatetime turns date-only strings (YYYY-MM-DD), which the API echoes back
-// when the payment was created with dates only, into RFC3339 so *time.Time fields can parse them.
-func dateOnlyToDatetime(payment interface{}, keys ...string) interface{} {
-	fields, ok := payment.(map[string]interface{})
-	if !ok {
-		return payment
-	}
-	normalized := make(map[string]interface{}, len(fields))
-	for key, value := range fields {
-		normalized[key] = value
-	}
-	for _, key := range keys {
-		text, isText := normalized[key].(string)
-		if isText && len(text) == len("2006-01-02") {
-			normalized[key] = text + "T00:00:00Z"
-		}
-	}
-	return normalized
 }

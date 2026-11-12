@@ -973,8 +973,8 @@ func main() {
 
   due := time.Now().Add(time.Hour * 1)
   due2 := time.Date(2022, 03, 20, 0, 0, 0, 0, time.UTC)
-  amount := 23571     // R$ 235,71
-  amount2 := 923571   // R$ 9.235,71
+  amount := 23571 // R$ 235,71
+  amount2 := 923571 // R$ 9.235,71
 
   invoices, err := Invoice.Create(
     []Invoice.Invoice{
