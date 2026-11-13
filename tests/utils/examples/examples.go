@@ -218,9 +218,10 @@ func Darf() []darfpayment.DarfPayment {
 
 func Invoice() []invoice.Invoice {
 
+	amount := 996699999
 	invoices := []invoice.Invoice{
 		{
-			Amount: 996699999,
+			Amount: &amount,
 			Name:   "Tony Stark",
 			TaxId:  "38.446.231/0001-04",
 			Rules: []Rule.Rule{
@@ -310,9 +311,10 @@ func DynamicBrcode() []dynamicbrcode.DynamicBrcode {
 		},
 	}
 
+	amount := rand.Intn(400000)
 	brcodes := []dynamicbrcode.DynamicBrcode{
 		{
-			Amount:     rand.Intn(400000),
+			Amount:     &amount,
 			Expiration: rand.Intn(3600),
 			Tags:       []string{"SDK-Golang-Test"},
 			DisplayDescription: "Payment for service #1234",

@@ -37,7 +37,6 @@ import (
 //	- TransactionIds [slice of strings]: ledger transaction ids linked to this DarfPayment. ex: []string{"19827356981273"}
 //	- Updated [time.Time]: Latest update datetime for the payment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: creation datetime for the payment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type DarfPayment struct {
 	Id              string     `json:",omitempty"`
 	Description     string     `json:",omitempty"`

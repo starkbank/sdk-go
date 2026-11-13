@@ -23,7 +23,6 @@ import (
 // - Tags [slice of strings]: tags associated with the card.
 // - Created [time.Time]: creation datetime for the card.
 // - Updated [time.Time]: latest update datetime for the card.
-
 type MerchantCard struct {
 	Id          string     `json:",omitempty"`
 	Ending      string     `json:",omitempty"`

@@ -973,11 +973,13 @@ func main() {
 
   due := time.Now().Add(time.Hour * 1)
   due2 := time.Date(2022, 03, 20, 0, 0, 0, 0, time.UTC)
+  amount := 23571 // R$ 235,71
+  amount2 := 923571 // R$ 9.235,71
 
   invoices, err := Invoice.Create(
     []Invoice.Invoice{
       {
-        Amount:   23571, // R$ 235,71
+        Amount:   &amount,
         Name:     "Buzz Aldrin",
         TaxId:    "012.345.678-90",
         Due:      &due,
@@ -986,7 +988,7 @@ func main() {
         Tags:     []string{"imediate"},
       },
       {
-        Amount:   923571, // R$ 235,71
+        Amount:   &amount2,
         Name:     "Buzz Aldrin",
         TaxId:    "012.345.678-90",
         Due:      &due2,
@@ -1416,13 +1418,15 @@ func main() {
 
   starkbank.User = utils.ExampleProject
 
+  amount := 23571 // R$ 235,71
+  amount2 := 23571 // R$ 235,71
   brcodes, err := dynamicbrcode.Create(
     []dynamicbrcode.DynamicBrcode{
       {
-        Amount:     23571,
+        Amount:     &amount,
         Expiration: rand.Intn(3600),
       }, {
-        Amount:     23571, // R$ 235,71
+        Amount:     &amount2, // R$ 235,71
         Expiration: rand.Intn(3600),
       },
     }, nil)

@@ -20,7 +20,7 @@ import (
 //	Additionally, all tags passed on the DynamicBrcode will be transferred to the respective Deposit resource.
 //
 //	Parameters (required):
-//	- amount [int]: DynamicBrcode value in cents. Minimum = 0 (any value will be accepted). ex: 1234 (= R$ 12.34
+//	- Amount [*int]: DynamicBrcode value in cents, as a pointer so that an explicit 0 is sent to the API. Minimum = 0 (any value will be accepted). ex: 1234 (= R$ 12.34)
 //
 //	Parameters (optional):
 //	- Expiration [int, default 3600 (1 hour)]: time interval in seconds, counted from the DynamicBrcode's creation datetime, until the brcode expires and can no longer be paid. ex: 123456789
@@ -33,10 +33,9 @@ import (
 // 	- PictureUrl [string]: public Dynamic Brcode picture url. ex: "https://development.api.starkbank.com/v2/dynamic-brcode/d3ebb1bd92024df1ab6e5a353ee799a4.png",
 //	- Created [time.Time]: creation datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Updated [time.Time]: latest update datetime for the DynamicBrcode. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type DynamicBrcode struct {
 	Id                        string           `json:",omitempty"`
-	Amount                    int              `json:",omitempty"`
+	Amount                    *int             `json:",omitempty"`
 	Expiration                int              `json:",omitempty"`
 	Tags                      []string         `json:",omitempty"`
 	Uuid                      string           `json:",omitempty"`

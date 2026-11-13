@@ -7,6 +7,7 @@ import (
 	Utils "github.com/starkbank/sdk-go/tests/utils"
 	Example "github.com/starkbank/sdk-go/tests/utils/examples"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"os"
 	"math/rand"
 	"testing"
@@ -25,6 +26,32 @@ func TestInvoicePost(t *testing.T) {
 	for _, invoice := range invoices {
 		assert.NotNil(t, invoice.Id)
 	}
+}
+
+func TestInvoicePostWithZeroAmount(t *testing.T) {
+
+	starkbank.User = Utils.ExampleProject
+
+	amount := 0
+	invoices, err := Invoice.Create([]Invoice.Invoice{
+		{
+			Amount: &amount,
+			Name:   "Tony Stark",
+			TaxId:  "38.446.231/0001-04",
+		},
+	}, nil)
+	if err.Errors != nil {
+		for _, e := range err.Errors {
+			t.Errorf("code: %s, message: %s", e.Code, e.Message)
+		}
+		return
+	}
+	require.Len(t, invoices, 1)
+	assert.NotEmpty(t, invoices[0].Id)
+	require.NotNil(t, invoices[0].Amount)
+	assert.Equal(t, 0, *invoices[0].Amount)
+	// The invoice is not canceled on purpose: TestInvoiceUpdate picks a random listed
+	// invoice and canceled ones cannot be updated, so it expires on its own instead.
 }
 
 func TestInvoiceGet(t *testing.T) {
@@ -158,7 +185,8 @@ func TestInvoiceUpdate(t *testing.T) {
 		}
 	}
 
-	assert.Equal(t, updated.Amount, patchData["amount"])
+	require.NotNil(t, updated.Amount)
+	assert.Equal(t, *updated.Amount, patchData["amount"])
 }
 
 func TestInvoiceQrcode(t *testing.T) {

@@ -23,7 +23,6 @@ import (
 // - Type [string]: Type of the MerchantPurchase event which triggered the log creation. ex: "approved" or "confirmed"
 // - Created [time.Time]: Creation datetime for the log.
 // - TransactionId [string]: ledger transaction id linked to this log.
-
 type Log struct {
 	Id            string                            `json:",omitempty"`
 	Purchase      MerchantPurchase.MerchantPurchase `json:",omitempty"`

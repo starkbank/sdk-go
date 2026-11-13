@@ -22,7 +22,6 @@ import (
 // - Errors [slice of strings]: List of errors linked to this MerchantSession event
 // - Type [string]: Type of the MerchantSession event which triggered the log creation.
 // - Created [time.Time]: Creation datetime for the log.
-
 type Log struct {
 	Id      string                          `json:",omitempty"`
 	Created *time.Time                      `json:",omitempty"`

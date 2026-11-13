@@ -46,7 +46,6 @@ import (
 //  - WorkspaceId [string]: ID of the Workspace that generated this Boleto. ex: "4545454545454545"
 //	- Created [time.Time]: Creation datetime for the Boleto. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- OurNumber [string]: Reference number registered at the settlement bank. ex:"10131474"
-
 type Boleto struct {
 	Id            string                   `json:",omitempty"`
 	Amount        int                      `json:",omitempty"`

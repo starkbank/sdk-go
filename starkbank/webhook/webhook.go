@@ -20,7 +20,6 @@ import (
 //
 //	Attributes (return-only):
 //	- Id [string]: unique id returned when the webhook is created. ex: "5656565656565656"
-
 type Webhook struct {
 	Url           string   `json:",omitempty"`
 	Subscriptions []string `json:",omitempty"`

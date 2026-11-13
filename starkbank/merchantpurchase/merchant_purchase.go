@@ -30,7 +30,6 @@ import (
 //
 // Attributes (return-only):
 // - Status [string]: current purchase status. Options: "created", "approved", "denied", "confirmed", "paid", "pending", "canceled", "voided", "failed"
-
 type MerchantPurchase struct {
 	Id                 string                 `json:",omitempty"`
 	Amount             int                    `json:",omitempty"`

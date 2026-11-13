@@ -28,7 +28,6 @@ import (
 // - SoftDescriptor [string]: text that will be shown in the holder's bank statement.
 // - Created [time.Time]: creation datetime for the session.
 // - Updated [time.Time]: latest update datetime for the session.
-
 type MerchantSession struct {
 	Id                  string                                  `json:",omitempty"`
 	AllowedFundingTypes []string                                `json:",omitempty"`

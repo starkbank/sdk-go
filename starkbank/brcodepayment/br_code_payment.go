@@ -37,7 +37,6 @@ import (
 //	- Fee [int]: Fee charged by this brcode payment. ex: 50 (= R$ 0.50)
 //	- Updated [time.Time]: Latest update datetime for the payment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: Creation datetime for the payment. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type BrcodePayment struct {
 	Id             string       `json:",omitempty"`
 	Brcode         string       `json:",omitempty"`

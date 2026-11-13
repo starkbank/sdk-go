@@ -13,6 +13,10 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 
 
 ## [Unreleased]
+### Breakchange
+- Invoice.Amount and DynamicBrcode.Amount changed from `int` to `*int`, so an amount of 0 (any value accepted) reaches the API instead of being dropped by omitempty. Code that assigns an int literal or compares/calculates with the field stops compiling; code that formats it with `%d` or compares it with assert.Equal still compiles but now sees the pointer instead of the value
+  - Before: `Invoice.Invoice{Amount: 100}` and `invoice.Amount + 1`
+  - After: `amount := 100`, `Invoice.Invoice{Amount: &amount}` and `*invoice.Amount + 1` (check for nil before dereferencing)
 ### Fixed
 - field bleed between items in Split, SplitReceiver and SplitProfile Query, where the unmarshal target was reused across the loop
 - SplitProfile.Delay is now a pointer, so delay 0 reaches the API instead of being dropped by omitempty
@@ -24,7 +28,6 @@ Given a version number MAJOR.MINOR.PATCH, increment:
 - SplitReceiver and SplitProfile resources, each with their Log sub-resource
 - Split resource, with its Log sub-resource
 - Pdf method to DepositLog resource
-
 ### Changed
 - starkcore to v1.1.0
 - MerchantCard.Log, MerchantInstallment.Log and MerchantPurchase.Log doc comments now describe Errors as the API sends it (a slice of {code, message} dictionaries); Split.Log, SplitReceiver.Log and SplitProfile.Log doc comments now note the API does not currently return errors for those events

@@ -23,7 +23,6 @@ import (
 // - Type [string]: Type of the MerchantInstallment event which triggered the log creation.
 // - Created [time.Time]: Creation datetime for the log.
 // - TransactionId [string]: ledger transaction id linked to this log.
-
 type Log struct {
 	Id            string                                  `json:",omitempty"`
 	Installment   MerchantInstallment.MerchantInstallment `json:",omitempty"`

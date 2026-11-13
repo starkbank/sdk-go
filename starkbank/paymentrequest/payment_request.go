@@ -41,7 +41,6 @@ import (
 //	- Actions [slice of maps]: slice of actions that are affecting this PaymentRequest. ex: [{"type": "member", "id": "56565656565656, "action": "requested"}]
 //	- Updated [time.Time]: latest update datetime for the PaymentRequest. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
 //	- Created [time.Time]: creation datetime for the PaymentRequest. ex: time.Date(2020, 3, 10, 10, 30, 10, 0, time.UTC),
-
 type PaymentRequest struct {
 	CenterId    string                   `json:",omitempty"`
 	Payment     interface{}              `json:",omitempty"`
